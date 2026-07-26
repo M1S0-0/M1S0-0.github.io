@@ -51,7 +51,6 @@
 
   <a class="back" href="/writeups/">&larr; Writeups</a>
 
-
   <div id="series"></div>
 
   <h1 class="title">One future-dated oracle round froze an entire vault</h1>
@@ -64,8 +63,6 @@
       <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
-
-  <div id="facts"></div>
 
   <div class="body">
 
@@ -180,15 +177,6 @@ require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
       Two lines, and the failure mode goes from an unexplained panic that takes the whole
       protocol down to a named error on a single call.
     </p>
-
-    <h2>Timeline</h2>
-
-    <table>
-      <tr><th>Date</th><th>Event</th></tr>
-      <tr><td>2026-06-14</td><td>Reported</td></tr>
-      <tr><td>2026-06-18</td><td>Triaged</td></tr>
-      <tr><td>2026-06-30</td><td>Accepted, fix deployed</td></tr>
-    </table>
 
     <div class="takeaways">
       <h3>Key takeaways</h3>

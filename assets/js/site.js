@@ -385,7 +385,6 @@ function initArticle(opts) {
   initByline(opts.date);
 
   renderSeries(opts.slug, "series");
-  renderFacts(opts.slug, "facts");
 
   initCodeBlocks();
   initCodeTitles();          /* must run after initCodeBlocks builds .codewrap */
@@ -461,44 +460,6 @@ function findPost(slug) {
     if (WRITEUPS[i].slug === slug) return WRITEUPS[i];
   }
   return null;
-}
-
-function money(n) {
-  if (!n) return null;
-  return "$" + Number(n).toLocaleString("en-US");
-}
-
-/* "At a glance" table, built from the data file so it cannot drift
-   from what the feed shows. Rows with no value are omitted. */
-function renderFacts(slug, mountId) {
-  var el = document.getElementById(mountId);
-  var w = findPost(slug);
-  if (!el || !w) { if (el) el.style.display = "none"; return; }
-
-  var rows = [
-    ["Target",     w.target ? "<code>" + esc(w.target) + "</code>" : null],
-    ["Program",    w.program ? esc(w.program) : null],
-    ["Platform",   w.platform ? esc(w.platform) : null],
-    ["Severity",   w.severity
-        ? '<span class="sev sev-' + esc(w.severity.toLowerCase()) + '">' + esc(w.severity) + "</span>"
-        : null],
-    ["CVSS",       w.cvss ? "<code>" + esc(w.cvss) + "</code>" : null],
-    ["CVE",        w.cve ? "<code>" + esc(w.cve) + "</code>" : null],
-    ["Status",     w.status ? esc(w.status) : null],
-    ["Reward",     money(w.bounty) ? '<span class="chip-bounty">' + esc(money(w.bounty)) + "</span>" : null],
-    ["Disclosed",  w.date ? esc(prettyDate(w.date)) : null]
-  ].filter(function (r) { return r[1]; });
-
-  if (rows.length < 2) { el.style.display = "none"; return; }
-
-  el.className = "facts";
-  el.innerHTML =
-    '<div class="facts-head">At a glance</div>' +
-    "<dl>" +
-      rows.map(function (r) {
-        return "<dt>" + esc(r[0]) + "</dt><dd>" + r[1] + "</dd>";
-      }).join("") +
-    "</dl>";
 }
 
 /* series banner, if the post declares one */

@@ -30,7 +30,6 @@ both light and dark.
 
 | Block | Markup | Notes |
 |---|---|---|
-| At a glance | `<div id="facts"></div>` | Built from the data entry, not written by hand. Hides itself if the post declares fewer than two optional fields. |
 | Series banner | `<div id="series"></div>` | Appears only if the entry has `series: { name, part }`. |
 | Callout | `<div class="callout callout-note">` | Variants: `note`, `tip`, `warn`, `danger`. |
 | Numbered steps | `<ol class="steps">` | For exploitation chains. Code blocks nest inside a step. |
@@ -40,9 +39,9 @@ both light and dark.
 | References | `<div class="refs">` | Numbered source list. |
 | Author box | `<div id="authorbox"></div>` | Rendered automatically. |
 
-Optional fields on a data entry — `severity`, `cvss`, `cve`, `platform`, `program`,
-`target`, `status`, `bounty` — feed the At a glance table **and** put a severity badge
-and CVE chip on the feed card. Set them once, they appear in both places.
+Optional fields on a data entry — `severity`, `cve`, `program`, `target`, `platform` —
+put a severity badge and CVE chip on the feed card, drive the By severity sort, and are
+all searchable from the writeups page.
 
 ## After adding or removing a writeup
 

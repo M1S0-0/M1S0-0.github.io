@@ -11,18 +11,22 @@
      date      YYYY-MM-DD (or YYYY-MM)
      tags      first tag labels the thumbnail; all become filter buttons
 
-   OPTIONAL — anything you set here appears in the "At a glance" table
-   at the top of the article, and as badges on the feed card.
+   OPTIONAL
      severity  Critical | High | Medium | Low | Info
-     cvss      "7.5" or a full vector string
+                 -> badge on the feed card, and the "By severity" sort
      cve       "CVE-2026-12345"
-     platform  Immunefi | HackenProof | Bugcrowd | Cantina | Patchstack
+                 -> chip on the feed card
      program   the project or vendor name
      target    the contract, file, or endpoint
-     status    Reported | Triaged | Accepted | Fixed | Disclosed | Duplicate
-     bounty    a number, in USD
+                 -> the small line above the title on the feed card
+     platform  Immunefi | HackenProof | Bugcrowd | Cantina | Patchstack
+                 -> searchable only
      readTime  overrides the computed estimate
      series    { name: "...", part: 1 }
+                 -> banner above the article title
+
+   All of severity, cve, program, target and platform are searchable
+   from the writeups page.
    ============================================================= */
 
 const WRITEUPS = [
@@ -36,12 +40,10 @@ const WRITEUPS = [
     tags: ["SSRF", "WordPress", "Unauth"],
 
     severity: "High",
-    cvss: "8.6",
     cve: "CVE-2026-00000",
     platform: "Patchstack",
     program: "Example Plugin Vendor",
-    target: "example-plugin v1.2.3",
-    status: "Disclosed"
+    target: "example-plugin v1.2.3"
   },
 
   {
@@ -53,12 +55,9 @@ const WRITEUPS = [
     tags: ["Oracle", "DoS", "Solidity"],
 
     severity: "High",
-    cvss: "7.5",
     platform: "Immunefi",
     program: "Example Protocol",
-    target: "PriceFeed.sol",
-    status: "Fixed",
-    bounty: 8000
+    target: "PriceFeed.sol"
   },
 
   {
