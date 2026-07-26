@@ -4,88 +4,121 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- ===== EDIT THESE FOUR LINES PER POST ===== -->
+<!-- ============ EDIT PER POST ============ -->
 <title>POST TITLE — M1S0</title>
-<meta name="description" content="One sentence summary, used by Google and link previews.">
+<meta name="description" content="One sentence. Used by Google and by link previews.">
 <meta property="og:title" content="POST TITLE — M1S0">
-<meta property="og:description" content="One sentence summary, used by Google and link previews.">
-<!-- ========================================== -->
+<meta property="og:description" content="One sentence. Used by Google and by link previews.">
+<!-- ======================================= -->
 
-<link rel="stylesheet" href="/assets/css/style.css">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/assets/css/writeups.css">
+<script>
+  (function () {
+    var t = "light";
+    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a class="brand" href="/">m1s0</a>
-    <div class="nav-links">
-      <a href="/web2/">Web2</a>
-      <a href="/web3/">Web3</a>
-      <a class="active" href="/writeups/">Writeups</a>
-      <a href="/tools/">Tools</a>
-      <a href="/hall-of-fame/">Hall of Fame</a>
+<div class="w-progress"><i></i></div>
+
+<nav class="w-nav">
+  <div class="w-nav-inner">
+    <a class="w-brand" href="/">m1s0</a>
+    <div class="w-nav-right">
+      <a href="/writeups/">All writeups</a>
+      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<article class="post">
+<article class="w-article">
 
-  <header>
-    <a class="back" href="/writeups/">&larr; All writeups</a>
-    <div class="card-top" style="margin-top:1.2rem">
-      <span class="sev sev-high">High</span>
-      <span class="pill">PLATFORM</span>
-      <span class="pill">STATUS</span>
+  <a class="w-back" href="/writeups/">&larr; Writeups</a>
+
+  <!-- optional severity / status labels; delete if not a finding -->
+  <div class="w-labels" style="margin-top:24px">
+    <span class="w-label w-label-high">High</span>
+    <span class="w-label w-label-plain">PLATFORM</span>
+    <span class="w-label w-label-plain">STATUS</span>
+  </div>
+
+  <h1 class="w-title">POST TITLE</h1>
+  <p class="w-subtitle">The deck line. One sentence that makes someone want to read the rest.</p>
+
+  <div class="w-author">
+    <span class="w-avatar" id="byline-avatar"></span>
+    <div>
+      <div class="w-author-name" id="byline-name"></div>
+      <div class="w-author-meta" id="byline-meta"></div>
     </div>
-    <h1>POST TITLE</h1>
-    <p class="post-meta">PROGRAM &middot; TARGET &middot; 2026-07</p>
-  </header>
+  </div>
 
-  <h2>Summary</h2>
-  <p>
-    One paragraph. What the bug is and what an attacker gets out of it. Write this
-    so someone who never opens the rest of the page still understands the impact.
-  </p>
+  <!-- ============ ARTICLE BODY ============ -->
+  <div class="w-body">
 
-  <h2>Affected Component</h2>
-  <p>File, contract, or endpoint. Include the version and the commit hash you tested against.</p>
+    <p>
+      Open with the story, not the definition. What were you looking at, and what
+      made you stop and look twice. Two or three sentences.
+    </p>
 
-  <h2>Root Cause</h2>
-  <p>Why the code is wrong. Not what it does, why it is wrong.</p>
-  <pre><code>// paste the vulnerable code here
+    <h2>The bug</h2>
+    <p>What is wrong with the code, in plain language, before any code appears.</p>
+
+    <pre><code>// paste the vulnerable code here
 </code></pre>
 
-  <h2>Impact</h2>
-  <p>The concrete consequence. Funds stolen, data exposed, service frozen, and under what preconditions.</p>
+    <h2>Why it matters</h2>
+    <p>The concrete consequence, and the preconditions an attacker needs.</p>
 
-  <h2>Proof of Concept</h2>
-  <p>Setup, then the exploit, then the observed result.</p>
-  <pre><code>// paste the PoC here
+    <blockquote>
+      Use a pull quote for the one sentence you want someone to remember.
+    </blockquote>
+
+    <h2>Proof of concept</h2>
+    <p>Setup, exploit, observed result.</p>
+
+    <pre><code>// paste the PoC here
 </code></pre>
 
-  <h2>Recommended Fix</h2>
-  <p>The patch, and why it closes the issue.</p>
-  <pre><code>// paste the fix here
-</code></pre>
+    <h2>The fix</h2>
+    <p>The patch, and why it actually closes the issue rather than moving it.</p>
 
-  <h2>Timeline</h2>
-  <table>
-    <tr><th>Date</th><th>Event</th></tr>
-    <tr><td>2026-07-01</td><td>Reported</td></tr>
-    <tr><td>2026-07-05</td><td>Triaged</td></tr>
-    <tr><td>2026-07-20</td><td>Fixed</td></tr>
-    <tr><td>2026-07-27</td><td>Public disclosure</td></tr>
-  </table>
+    <h2>Timeline</h2>
+    <table>
+      <tr><th>Date</th><th>Event</th></tr>
+      <tr><td>2026-07-01</td><td>Reported</td></tr>
+      <tr><td>2026-07-05</td><td>Triaged</td></tr>
+      <tr><td>2026-07-20</td><td>Fixed</td></tr>
+    </table>
+
+  </div>
+  <!-- ========== END ARTICLE BODY ========== -->
 
 </article>
 
-<footer class="foot">
-  <div class="foot-links">
-    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
-    <a href="mailto:unknowbughunter@gmail.com">Email</a>
+<div class="w-foot">
+  <div class="w-foot-tags">
+    <span class="w-chip">Tag One</span>
+    <span class="w-chip">Tag Two</span>
   </div>
-  <small>&copy; 2026 M1S0</small>
-</footer>
+  <div class="w-more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/writeups.js"></script>
+<script>
+  initTheme();
+  initProgress();
+  initByline("2026-07-01");        /* <-- publish date */
+  renderMore("REPLACE-WITH-SLUG", "more", 2);
+</script>
 
 </body>
 </html>

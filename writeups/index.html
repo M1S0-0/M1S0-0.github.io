@@ -4,67 +4,53 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Writeups — M1S0</title>
-<meta name="description" content="Technical writeups on vulnerabilities, exploitation, and security research.">
+<meta name="description" content="Technical writeups on vulnerability research, exploitation, and smart contract auditing.">
 <meta property="og:title" content="Writeups — M1S0">
-<meta property="og:description" content="Technical writeups on vulnerabilities, exploitation, and security research.">
-<link rel="stylesheet" href="/assets/css/style.css">
+<meta property="og:description" content="Technical writeups on vulnerability research, exploitation, and smart contract auditing.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/assets/css/writeups.css">
+<script>
+  /* set theme before first paint so there is no flash */
+  (function () {
+    var t = "light";
+    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a class="brand" href="/">m1s0</a>
-    <div class="nav-links">
+<nav class="w-nav">
+  <div class="w-nav-inner">
+    <a class="w-brand" href="/">m1s0</a>
+    <div class="w-nav-right">
       <a href="/web2/">Web2</a>
       <a href="/web3/">Web3</a>
-      <a class="active" href="/writeups/">Writeups</a>
       <a href="/tools/">Tools</a>
       <a href="/hall-of-fame/">Hall of Fame</a>
+      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<div class="wrap">
+<div class="w-wrap">
 
-  <header class="page-head">
+  <header class="w-head">
     <h1>Writeups</h1>
-    <p>How the bug was found, why the code was wrong, and what it took to prove it. Vulnerability research, exploitation, and the occasional CTF.</p>
+    <p>How the bug was found, why the code was wrong, and what it took to prove it.</p>
   </header>
 
-  <div class="filters" id="filters"></div>
-  <div class="cards" id="list"></div>
+  <div class="w-tabs" id="tabs"></div>
+  <div class="w-feed" id="feed"></div>
 
 </div>
 
-<footer class="foot">
-  <div class="foot-links">
-    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
-    <a href="mailto:unknowbughunter@gmail.com">Email</a>
-  </div>
-  <small>&copy; 2026 M1S0</small>
-</footer>
-
 <script src="/assets/js/data/writeups.js"></script>
-<script src="/assets/js/render.js"></script>
+<script src="/assets/js/writeups.js"></script>
 <script>
-  renderWriteups(WRITEUPS, "list");
-
-  (function () {
-    var bar = document.getElementById("filters");
-    var cats = ["All", "web2", "web3", "research", "ctf"];
-    bar.innerHTML = cats.map(function (c, i) {
-      return '<button class="filter' + (i === 0 ? " on" : "") + '" data-cat="' + c + '">' + c + "</button>";
-    }).join("");
-
-    bar.addEventListener("click", function (e) {
-      var btn = e.target.closest(".filter");
-      if (!btn) return;
-      Array.prototype.forEach.call(bar.querySelectorAll(".filter"), function (b) { b.classList.remove("on"); });
-      btn.classList.add("on");
-      var c = btn.getAttribute("data-cat");
-      renderWriteups(c === "All" ? WRITEUPS : WRITEUPS.filter(function (w) { return w.domain === c; }), "list");
-    });
-  })();
+  initTheme();
+  renderFeed(WRITEUPS, "feed");
+  initTabs("tabs", "feed", WRITEUPS);
 </script>
 
 </body>

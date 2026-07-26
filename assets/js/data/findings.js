@@ -46,7 +46,7 @@ const FINDINGS = [
     cve: null,
     date: "2026-06",
     tags: ["Oracle", "DoS", "Underflow"],
-    writeup: null,
+    writeup: "example-oracle-dos",
     proof: null,
     visibility: "public"
   },

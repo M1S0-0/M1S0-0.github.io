@@ -4,69 +4,98 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unauthenticated SSRF in a WordPress plugin import endpoint — M1S0</title>
-<meta name="description" content="An import endpoint that never checked authentication and fetched any URL it was given. From first hunch to working proof of concept.">
+<meta name="description" content="An import handler that never checked who was calling it, and happily fetched any URL I handed over.">
 <meta property="og:title" content="Unauthenticated SSRF in a WordPress plugin import endpoint — M1S0">
-<meta property="og:description" content="An import endpoint that never checked authentication and fetched any URL it was given. From first hunch to working proof of concept.">
-<link rel="stylesheet" href="/assets/css/style.css">
+<meta property="og:description" content="An import handler that never checked who was calling it, and happily fetched any URL I handed over.">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/assets/css/writeups.css">
+<script>
+  (function () {
+    var t = "light";
+    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a class="brand" href="/">m1s0</a>
-    <div class="nav-links">
-      <a href="/web2/">Web2</a>
-      <a href="/web3/">Web3</a>
-      <a class="active" href="/writeups/">Writeups</a>
-      <a href="/tools/">Tools</a>
-      <a href="/hall-of-fame/">Hall of Fame</a>
+<div class="w-progress"><i></i></div>
+
+<nav class="w-nav">
+  <div class="w-nav-inner">
+    <a class="w-brand" href="/">m1s0</a>
+    <div class="w-nav-right">
+      <a href="/writeups/">All writeups</a>
+      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<article class="post">
+<article class="w-article">
 
-  <header>
-    <a class="back" href="/writeups/">&larr; All writeups</a>
-    <div class="card-top" style="margin-top:1.2rem">
-      <span class="sev sev-high">High</span>
-      <span class="pill">Patchstack</span>
-      <span class="pill">Disclosed</span>
-      <span class="pill pill-cve">CVE-2026-00000</span>
+  <a class="w-back" href="/writeups/">&larr; Writeups</a>
+
+  <div class="w-labels" style="margin-top:24px">
+    <span class="w-label w-label-high">High</span>
+    <span class="w-label w-label-plain">Patchstack</span>
+    <span class="w-label w-label-plain">Disclosed</span>
+  </div>
+
+  <h1 class="w-title">Unauthenticated SSRF in a WordPress plugin import endpoint</h1>
+  <p class="w-subtitle">An import handler that never checked who was calling it, and happily fetched any URL I handed over.</p>
+
+  <div class="w-author">
+    <span class="w-avatar" id="byline-avatar"></span>
+    <div>
+      <div class="w-author-name" id="byline-name"></div>
+      <div class="w-author-meta" id="byline-meta"></div>
     </div>
-    <h1>Unauthenticated SSRF in a WordPress plugin import endpoint</h1>
-    <p class="post-meta">Example Plugin Vendor &middot; example-plugin v1.2.3 &middot; 2026-07</p>
-  </header>
+  </div>
 
-  <blockquote>
-    This is a demonstration post showing the layout. Replace it with a real writeup,
-    or delete the file and remove its entry from <code>assets/js/data/writeups.js</code>.
-  </blockquote>
+  <div class="w-body">
 
-  <h2>Summary</h2>
-  <p>
-    The plugin exposed an import endpoint that accepted a URL parameter and fetched it
-    server side. The handler was registered on a hook reachable without a session, and it
-    performed no capability check and no validation of the supplied URL. Any unauthenticated
-    visitor could make the WordPress host issue arbitrary outbound HTTP requests, including
-    to internal addresses that are not reachable from the internet.
-  </p>
+    <blockquote>
+      This is a demonstration article showing the layout. Replace it with a real writeup,
+      or delete the file and remove its entry from <code>assets/js/data/writeups.js</code>.
+    </blockquote>
 
-  <h2>Affected Component</h2>
-  <p>
-    The import handler, registered for both the authenticated and unauthenticated AJAX hooks.
-    Registering the unauthenticated variant is what turned an admin-only feature into a public one.
-  </p>
+    <p>
+      Plugins that import data are worth a second look. Importing means fetching, fetching
+      means the server makes a request on your behalf, and somewhere in that chain there is
+      usually a URL that came from the user. The interesting question is never whether the
+      plugin fetches things. It is who is allowed to ask it to.
+    </p>
 
-  <h2>Root Cause</h2>
-  <p>
-    Three separate failures line up here. The handler is exposed to unauthenticated callers,
-    it never calls a capability check, and it passes attacker input straight into the HTTP client.
-  </p>
-  <pre><code>add_action( 'wp_ajax_plugin_import',        'plugin_import' );
-add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // reachable with no session
+    <p>
+      In this case the answer turned out to be everyone.
+    </p>
 
-function plugin_import() {
+    <h2>Finding it</h2>
+
+    <p>
+      WordPress routes AJAX through a single entry point, and handlers register themselves
+      against one of two hooks. One is for logged in users. The other is for everybody else.
+      Grepping a plugin for the second one is a thirty second job and it is where I start.
+    </p>
+
+    <pre><code>add_action( 'wp_ajax_plugin_import',        'plugin_import' );
+add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // no session required
+</code></pre>
+
+    <p>
+      That second line is the whole story. The handler was written for administrators, and
+      registering the unauthenticated variant turned an admin feature into a public one.
+      That alone is not a vulnerability. What the handler does next is.
+    </p>
+
+    <h2>The bug</h2>
+
+    <p>
+      Three failures stack up here, and any one of them being absent would have made this a
+      much less interesting report.
+    </p>
+
+    <pre><code>function plugin_import() {
     // no current_user_can(), no check_ajax_referer()
     $url  = $_REQUEST['url'];
     $body = wp_remote_retrieve_body( wp_remote_get( $url ) );
@@ -75,31 +104,54 @@ function plugin_import() {
 }
 </code></pre>
 
-  <h2>Impact</h2>
-  <p>
-    An unauthenticated attacker can reach services that are only listening on the internal
-    network: cloud instance metadata endpoints, admin panels bound to localhost, and internal
-    APIs that trust their network position instead of authenticating callers. Because the
-    response body is echoed back, this is a full read SSRF rather than a blind one, so the
-    attacker sees the results directly.
-  </p>
+    <p>
+      There is no capability check, so being unauthenticated does not matter. There is no
+      nonce, so it cannot even be argued that a request had to originate from the site. And
+      the URL goes straight from the request into the HTTP client with no validation at all.
+    </p>
 
-  <h2>Proof of Concept</h2>
-  <p>A single unauthenticated request is enough to confirm it:</p>
-  <pre><code>curl -s 'https://target.tld/wp-admin/admin-ajax.php' \
+    <blockquote>
+      The response body is echoed back to the caller. That is the difference between a blind
+      SSRF you have to infer and a read SSRF you can simply look at.
+    </blockquote>
+
+    <h2>Why it matters</h2>
+
+    <p>
+      An SSRF is only as interesting as what the server can reach that you cannot. On a
+      typical cloud host that list is longer than people expect: instance metadata endpoints
+      handing out credentials, admin interfaces bound to localhost because binding to
+      localhost felt like security, and internal APIs that authenticate callers by network
+      position rather than by identity.
+    </p>
+
+    <p>
+      Because the body comes back in the response, none of this requires inference. You ask
+      for a URL and you read what the server read.
+    </p>
+
+    <h2>Proof of concept</h2>
+
+    <p>One unauthenticated request is enough:</p>
+
+    <pre><code>curl -s 'https://target.tld/wp-admin/admin-ajax.php' \
      --data 'action=plugin_import&amp;url=http://169.254.169.254/latest/meta-data/'
 </code></pre>
-  <p>
-    The response contains the metadata listing, served by an address that is not routable
-    from the attacker's own network. That confirms the fetch happened server side.
-  </p>
 
-  <h2>Recommended Fix</h2>
-  <p>
-    Drop the unauthenticated hook, add a capability check and a nonce, and validate the URL
-    against an allowlist rather than trying to blocklist internal ranges.
-  </p>
-  <pre><code>add_action( 'wp_ajax_plugin_import', 'plugin_import' );  // authenticated only
+    <p>
+      The response contains the metadata listing. That address is link local, so it is not
+      routable from my network at all. Getting content back from it proves the fetch happened
+      server side, which is the only thing the report actually needs to demonstrate.
+    </p>
+
+    <h2>The fix</h2>
+
+    <p>
+      Drop the unauthenticated hook, add a capability check and a nonce, and validate the URL
+      against an allowlist.
+    </p>
+
+    <pre><code>add_action( 'wp_ajax_plugin_import', 'plugin_import' );  // authenticated only
 
 function plugin_import() {
     check_ajax_referer( 'plugin_import' );
@@ -113,31 +165,53 @@ function plugin_import() {
     // ...
 }
 </code></pre>
-  <p>
-    Blocklisting is the wrong instinct here. Decimal encoded addresses, IPv6 mapped
-    forms, and DNS records that resolve to loopback all defeat naive filters, and a
-    redirect from an allowed host walks straight past a check performed only on the
-    initial URL.
-  </p>
 
-  <h2>Timeline</h2>
-  <table>
-    <tr><th>Date</th><th>Event</th></tr>
-    <tr><td>2026-07-01</td><td>Reported to the vendor</td></tr>
-    <tr><td>2026-07-05</td><td>Triaged and confirmed</td></tr>
-    <tr><td>2026-07-20</td><td>Patched release published</td></tr>
-    <tr><td>2026-07-27</td><td>Public disclosure</td></tr>
-  </table>
+    <p>
+      The instinct most people have here is to blocklist internal ranges instead. It does not
+      hold up. Decimal encoded addresses, IPv6 mapped forms, and DNS records that resolve to
+      loopback all walk past naive filters. Worse, a redirect from a host that passed the
+      check lands you right back where you started, because the check ran once on the initial
+      URL and never again on where it actually went.
+    </p>
+
+    <p>
+      Allowlist the hosts you meant to support. It is a shorter list than the internet.
+    </p>
+
+    <h2>Timeline</h2>
+
+    <table>
+      <tr><th>Date</th><th>Event</th></tr>
+      <tr><td>2026-07-01</td><td>Reported to the vendor</td></tr>
+      <tr><td>2026-07-05</td><td>Triaged and confirmed</td></tr>
+      <tr><td>2026-07-20</td><td>Patched release published</td></tr>
+      <tr><td>2026-07-27</td><td>Public disclosure</td></tr>
+    </table>
+
+  </div>
 
 </article>
 
-<footer class="foot">
-  <div class="foot-links">
-    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
-    <a href="mailto:unknowbughunter@gmail.com">Email</a>
+<div class="w-foot">
+  <div class="w-foot-tags">
+    <span class="w-chip">SSRF</span>
+    <span class="w-chip">WordPress</span>
+    <span class="w-chip">Unauth</span>
   </div>
-  <small>&copy; 2026 M1S0</small>
-</footer>
+  <div class="w-more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/writeups.js"></script>
+<script>
+  initTheme();
+  initProgress();
+  initByline("2026-07-20");
+  renderMore("example-ssrf-wp-plugin", "more", 2);
+</script>
 
 </body>
 </html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One future-dated oracle round froze an entire vault — M1S0</title>
+<meta name="description" content="A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.">
+<meta property="og:title" content="One future-dated oracle round froze an entire vault — M1S0">
+<meta property="og:description" content="A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/assets/css/writeups.css">
+<script>
+  (function () {
+    var t = "light";
+    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+</head>
+<body>
+
+<div class="w-progress"><i></i></div>
+
+<nav class="w-nav">
+  <div class="w-nav-inner">
+    <a class="w-brand" href="/">m1s0</a>
+    <div class="w-nav-right">
+      <a href="/writeups/">All writeups</a>
+      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
+    </div>
+  </div>
+</nav>
+
+<article class="w-article">
+
+  <a class="w-back" href="/writeups/">&larr; Writeups</a>
+
+  <div class="w-labels" style="margin-top:24px">
+    <span class="w-label w-label-high">High</span>
+    <span class="w-label w-label-plain">Immunefi</span>
+    <span class="w-label w-label-plain">Accepted</span>
+  </div>
+
+  <h1 class="w-title">One future-dated oracle round froze an entire vault</h1>
+  <p class="w-subtitle">A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.</p>
+
+  <div class="w-author">
+    <span class="w-avatar" id="byline-avatar"></span>
+    <div>
+      <div class="w-author-name" id="byline-name"></div>
+      <div class="w-author-meta" id="byline-meta"></div>
+    </div>
+  </div>
+
+  <div class="w-body">
+
+    <blockquote>
+      Demonstration article. Replace with a real writeup, or delete the file and its entry
+      in <code>assets/js/data/writeups.js</code>.
+    </blockquote>
+
+    <p>
+      Staleness checks are boilerplate. Every protocol that reads a price feed has one, they
+      all look roughly the same, and after you have read forty of them your eyes start to
+      slide past. That is exactly why this one was worth stopping on.
+    </p>
+
+    <h2>The pattern</h2>
+
+    <p>
+      The contract reads the latest round from a feed and refuses to use a price that has
+      gone stale. Reasonable. Here is the check.
+    </p>
+
+    <pre><code>( , int256 answer, , uint256 updatedAt, ) = feed.latestRoundData();
+
+require(answer &gt; 0, "bad price");
+require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
+</code></pre>
+
+    <p>
+      Read that subtraction again. It assumes <code>updatedAt</code> is in the past. Every
+      reasonable timestamp is. The question is what happens when one is not.
+    </p>
+
+    <h2>The bug</h2>
+
+    <p>
+      Solidity 0.8 reverts on arithmetic underflow rather than wrapping. So if
+      <code>updatedAt</code> is even one second ahead of <code>block.timestamp</code>, the
+      subtraction does not produce a huge number that fails the staleness check. It reverts
+      outright, and it reverts before the check has a chance to say anything useful.
+    </p>
+
+    <blockquote>
+      The guard against a bad price becomes the thing that breaks when the price is bad.
+    </blockquote>
+
+    <p>
+      Every function that reads the price inherits that revert. Deposits, withdrawals,
+      liquidations, share accounting. All of them go through the same helper, so all of them
+      stop at the same instant.
+    </p>
+
+    <h2>Why it matters</h2>
+
+    <p>
+      The window is short and it closes on its own, which is what makes the severity
+      argument interesting rather than obvious. It lasts exactly as long as the drift
+      between the pushed timestamp and block time, and then the chain catches up and
+      everything resumes.
+    </p>
+
+    <p>
+      Short is not the same as harmless. A user cannot withdraw during it, and more
+      importantly a liquidation cannot execute during it. A denial of service that reliably
+      lands on the liquidation path during volatility is not a minor inconvenience, it is a
+      solvency question.
+    </p>
+
+    <h2>Proof of concept</h2>
+
+    <p>
+      A mock feed with a timestamp a few seconds ahead is enough to show the revert, and it
+      isolates the arithmetic from everything else in the system.
+    </p>
+
+    <pre><code>function testPocFutureRoundFreezesVault() public {
+    // push a round dated one minute into the future
+    feed.setRound(1e8, block.timestamp + 60);
+
+    vm.expectRevert();               // panic 0x11, arithmetic underflow
+    vault.deposit(1 ether);
+
+    // it resolves on its own once the chain catches up
+    vm.warp(block.timestamp + 61);
+    vault.deposit(1 ether);          // succeeds
+}
+</code></pre>
+
+    <p>
+      The second half matters as much as the first. Showing that the condition clears is
+      what tells a triager you understand the real severity, and it stops the report from
+      being read as an overclaim.
+    </p>
+
+    <h2>The fix</h2>
+
+    <p>Compare before subtracting, so a future timestamp is a rejected input rather than a revert.</p>
+
+    <pre><code>require(updatedAt &lt;= block.timestamp, "future round");
+require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
+</code></pre>
+
+    <p>
+      Two lines, and the failure mode goes from an unexplained panic that takes the whole
+      protocol down to a named error on a single call.
+    </p>
+
+    <h2>Timeline</h2>
+
+    <table>
+      <tr><th>Date</th><th>Event</th></tr>
+      <tr><td>2026-06-14</td><td>Reported</td></tr>
+      <tr><td>2026-06-18</td><td>Triaged</td></tr>
+      <tr><td>2026-06-30</td><td>Accepted, fix deployed</td></tr>
+    </table>
+
+  </div>
+
+</article>
+
+<div class="w-foot">
+  <div class="w-foot-tags">
+    <span class="w-chip">Oracle</span>
+    <span class="w-chip">DoS</span>
+    <span class="w-chip">Solidity</span>
+  </div>
+  <div class="w-more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/writeups.js"></script>
+<script>
+  initTheme();
+  initProgress();
+  initByline("2026-06-14");
+  renderMore("example-oracle-dos", "more", 2);
+</script>
+
+</body>
+</html>
