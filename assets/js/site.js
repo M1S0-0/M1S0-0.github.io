@@ -405,5 +405,57 @@ function initArticle(opts) {
   initShare(opts.title);
   initPrevNext(opts.slug, "prevnext");
   renderMore(opts.slug, "more", 2);
+  initReveal();
   initToTop();
+}
+
+/* ---------- scroll reveal ----------
+   Adds .in when an element scrolls into view. Anything already in the
+   first viewport is revealed immediately so nothing sits invisible.
+------------------------------------- */
+
+function initReveal() {
+  var els = document.querySelectorAll(".reveal");
+  if (!els.length) return;
+
+  if (!("IntersectionObserver" in window)) {
+    Array.prototype.forEach.call(els, function (el) { el.classList.add("in"); });
+    return;
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: "0px 0px -40px 0px", threshold: 0.05 });
+
+  Array.prototype.forEach.call(els, function (el, i) {
+    el.style.transitionDelay = Math.min(i, 5) * 45 + "ms";
+    io.observe(el);
+  });
+}
+
+/* counts shown on the home stat line */
+function renderStatline(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || typeof WRITEUPS === "undefined") return;
+
+  var tags = {};
+  WRITEUPS.forEach(function (w) { (w.tags || []).forEach(function (t) { tags[t] = 1; }); });
+
+  var years = {};
+  WRITEUPS.forEach(function (w) { years[String(w.date).slice(0, 4)] = 1; });
+
+  var cells = [
+    [WRITEUPS.length, WRITEUPS.length === 1 ? "Writeup" : "Writeups"],
+    [Object.keys(tags).length, "Topics"],
+    [Object.keys(years).length, Object.keys(years).length === 1 ? "Year" : "Years"]
+  ];
+
+  el.innerHTML = cells.map(function (c) {
+    return "<div><strong>" + esc(c[0]) + "</strong><span>" + esc(c[1]) + "</span></div>";
+  }).join("");
 }

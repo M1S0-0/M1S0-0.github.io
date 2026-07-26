@@ -442,3 +442,111 @@ html[data-theme="dark"] .label-low      { background: #10322c; color: #62d6bb; }
   .page-head { padding: 40px 0 4px; }
   .featured-art { height: 130px; }
 }
+
+/* ===========================================================
+   Polish
+   =========================================================== */
+
+/* ---------- scrollbar ---------- */
+* { scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--rule); border-radius: 999px;
+  border: 3px solid var(--bg); background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--faint); background-clip: padding-box; }
+
+/* ---------- focus ---------- */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px;
+}
+
+/* ---------- scroll reveal ---------- */
+.reveal { opacity: 0; transform: translateY(16px); }
+.reveal.in {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.6,.2,1), transform .55s cubic-bezier(.2,.6,.2,1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal, .reveal.in { opacity: 1; transform: none; transition: none; }
+  * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* ---------- hover micro-interactions ---------- */
+.thumb, .featured-art { transition: transform .35s cubic-bezier(.2,.6,.2,1); }
+.item:hover .thumb { transform: scale(1.035); }
+.featured:hover .featured-art { transform: scale(1.012); }
+
+.mlink, .tagbtn, .sbtn, .pn, .chip { transition: border-color .18s ease, background .18s ease, color .18s ease; }
+
+.sec-head a, .foot-links a { position: relative; }
+.sec-head a::after, .foot-links a::after {
+  content: ""; position: absolute; left: 0; right: 100%; bottom: -3px;
+  height: 1px; background: currentColor; transition: right .25s ease;
+}
+.sec-head a:hover::after, .foot-links a:hover::after { right: 0; }
+
+/* ---------- home: stat line ---------- */
+.statline {
+  display: flex; flex-wrap: wrap; gap: 44px;
+  padding: 30px 0; border-bottom: 1px solid var(--rule);
+}
+.statline div strong {
+  display: block; font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2;
+}
+.statline div span {
+  display: block; margin-top: 4px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--faint);
+}
+
+/* ---------- home: about ---------- */
+.about { padding: 52px 0 8px; border-bottom: 1px solid var(--rule); }
+.about-grid { display: grid; gap: 40px; grid-template-columns: 1.35fr 1fr; }
+@media (max-width: 700px) { .about-grid { grid-template-columns: 1fr; gap: 28px; } }
+
+.about-body p {
+  font-family: var(--serif); font-size: 18px; line-height: 1.6;
+  color: var(--muted); margin: 0 0 20px;
+}
+.about-body p:last-child { margin-bottom: 0; }
+.about-body strong { color: var(--text); font-weight: 600; }
+
+.focus h4 {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--faint); margin: 0 0 14px;
+}
+.focus + .focus { margin-top: 28px; }
+.focus ul { list-style: none; margin: 0; padding: 0; }
+.focus li {
+  font-size: 15px; color: var(--muted); padding: 5px 0 5px 18px; position: relative;
+}
+.focus li::before {
+  content: ""; position: absolute; left: 0; top: 13px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+}
+
+/* ---------- footer ---------- */
+.foot-note {
+  font-family: var(--serif); font-size: 15px; color: var(--muted);
+  max-width: 40ch; margin: 0 auto 22px; line-height: 1.55;
+}
+
+/* ---------- print ---------- */
+@media print {
+  .nav, .toc, .totop, .share, .prevnext, .more, .progress, .foot, .back, .copy { display: none !important; }
+  body { background: #fff; color: #000; }
+  .article, .afoot { max-width: none; padding: 0; }
+  .body { font-size: 11.5pt; line-height: 1.55; }
+  .title { font-size: 22pt; }
+  .subtitle { font-size: 13pt; }
+  .codewrap pre { border: 1px solid #ccc; background: #fafafa; color: #000; font-size: 9pt; }
+  .tok-comment, .tok-string, .tok-keyword, .tok-type, .tok-number { color: #000 !important; }
+  .body a { text-decoration: underline; }
+  .body a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+  .author { border-bottom: 1px solid #ccc; }
+}

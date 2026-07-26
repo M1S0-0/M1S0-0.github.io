@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>M1S0 — Security Researcher</title>
+    <link>https://m1s0-0.github.io/</link>
+    <description>Writeups on vulnerability research, exploitation, and smart contract auditing.</description>
+    <language>en</language>
+    <managingEditor>M1S0</managingEditor>
+    <lastBuildDate>Mon, 20 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://m1s0-0.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Unauthenticated SSRF in a WordPress plugin import endpoint</title>
+      <link>https://m1s0-0.github.io/writeups/posts/example-ssrf-wp-plugin.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/example-ssrf-wp-plugin.html</guid>
+      <description>An import handler that never checked who was calling it, and happily fetched any URL I handed over.</description>
+      <pubDate>Mon, 20 Jul 2026 00:00:00 GMT</pubDate>
+      <category>SSRF</category>
+      <category>WordPress</category>
+      <category>Unauth</category>
+    </item>
+    <item>
+      <title>One future-dated oracle round froze an entire vault</title>
+      <link>https://m1s0-0.github.io/writeups/posts/example-oracle-dos.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/example-oracle-dos.html</guid>
+      <description>A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.</description>
+      <pubDate>Sun, 14 Jun 2026 00:00:00 GMT</pubDate>
+      <category>Oracle</category>
+      <category>DoS</category>
+      <category>Solidity</category>
+    </item>
+    <item>
+      <title>How I actually read a smart contract for the first time</title>
+      <link>https://m1s0-0.github.io/writeups/posts/example-methodology.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/example-methodology.html</guid>
+      <description>Not line by line from the top. Here is the order I go in, and why invariants come before implementation.</description>
+      <pubDate>Sat, 02 May 2026 00:00:00 GMT</pubDate>
+      <category>Methodology</category>
+      <category>Auditing</category>
+    </item>
+  </channel>
+</rss>

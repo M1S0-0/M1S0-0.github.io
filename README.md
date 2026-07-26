@@ -7,16 +7,35 @@ Static HTML, no build step, no dependencies. Push to `main` and it is live.
 ## Structure
 
 ```
-index.html                  Home — masthead + latest writeups
+index.html                  Home — masthead, stats, about, latest writeups
 writeups/index.html         Feed — featured post, search, tag filter
 writeups/posts/<slug>.html  One file per article
 writeups/posts/template.html
 404.html
+feed.xml sitemap.xml robots.txt favicon.ico    generated, see below
 assets/
   css/site.css              all styling; CSS variables at the top
   js/site.js                feed, theme, syntax highlighting, TOC
   js/data/writeups.js       the article list
+  img/                      generated favicons and link preview cards
+scripts/
+  generate.js               rebuilds feed.xml, sitemap.xml, robots.txt
+  make-images.py            rebuilds favicons and OG cards
 ```
+
+## After adding or removing a writeup
+
+```bash
+node scripts/generate.js        # feed.xml, sitemap.xml, robots.txt
+python3 scripts/make-images.py  # favicons + a link preview card per post
+```
+
+Both read `assets/js/data/writeups.js`, so they never drift from the post list.
+Commit whatever they change. Neither is required to deploy, only to keep the feed
+and link previews current.
+
+`make-images.py` needs Pillow and reads fonts from `/usr/share/fonts` — adjust the
+paths at the top of the file if you move to another machine.
 
 ## Adding a writeup
 
