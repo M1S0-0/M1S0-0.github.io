@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools — M1S0</title>
+<meta name="description" content="Security tooling I built: scanners, automation, and research utilities.">
+<meta property="og:title" content="Tools — M1S0">
+<meta property="og:description" content="Security tooling I built: scanners, automation, and research utilities.">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-links">
+      <a href="/web2/">Web2</a>
+      <a href="/web3/">Web3</a>
+      <a href="/writeups/">Writeups</a>
+      <a class="active" href="/tools/">Tools</a>
+      <a href="/hall-of-fame/">Hall of Fame</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="page-head">
+    <h1>Tools</h1>
+    <p>Things I built because the existing tooling did not do what I needed. Scanners, automation, and research utilities.</p>
+  </header>
+
+  <div class="cards two" id="list"></div>
+
+</div>
+
+<footer class="foot">
+  <div class="foot-links">
+    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
+    <a href="mailto:unknowbughunter@gmail.com">Email</a>
+  </div>
+  <small>&copy; 2026 M1S0</small>
+</footer>
+
+<script src="/assets/js/data/tools.js"></script>
+<script src="/assets/js/render.js"></script>
+<script>renderTools(TOOLS, "list");</script>
+
+</body>
+</html>

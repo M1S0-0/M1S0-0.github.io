@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1S0 — Security Researcher</title>
+<meta name="description" content="Bug bounty hunter and security researcher. Smart contract audits, web application vulnerability research, and the tools I build along the way.">
+<meta property="og:title" content="M1S0 — Security Researcher">
+<meta property="og:description" content="Bug bounty hunter and security researcher. Smart contract audits, web application vulnerability research, and the tools I build along the way.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://m1s0-0.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-links">
+      <a href="/web2/">Web2</a>
+      <a href="/web3/">Web3</a>
+      <a href="/writeups/">Writeups</a>
+      <a href="/tools/">Tools</a>
+      <a href="/hall-of-fame/">Hall of Fame</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="hero">
+    <p class="kicker">Bug Bounty Hunter &middot; Security Researcher</p>
+    <h1>I break things before someone else does.</h1>
+    <p>
+      I hunt vulnerabilities across two worlds: smart contracts holding real money,
+      and the web applications everyone trusts by default. Audits, bug bounty programs,
+      and the tooling I build to find bugs faster.
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="/web3/">Web3 Findings</a>
+      <a class="btn" href="/web2/">Web2 Findings</a>
+      <a class="btn" href="/writeups/">Read Writeups</a>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <section>
+    <div class="section-title">
+      <h2>Selected Findings</h2>
+      <a href="/web3/">All findings &rarr;</a>
+    </div>
+    <div class="cards two" id="featured-findings"></div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      <h2>Tools I Built</h2>
+      <a href="/tools/">All tools &rarr;</a>
+    </div>
+    <div class="cards two" id="featured-tools"></div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      <h2>Latest Writeups</h2>
+      <a href="/writeups/">All writeups &rarr;</a>
+    </div>
+    <div class="cards" id="featured-writeups"></div>
+  </section>
+
+  <section id="about">
+    <div class="section-title"><h2>About</h2></div>
+    <div class="about-grid">
+      <div>
+        <p style="color:var(--muted)">
+          I work across smart contract security and web application security. On the Web3 side
+          that means auditing protocols on public contests and bug bounty platforms, writing
+          proof-of-concept exploits in Foundry, and reporting what actually breaks. On the Web2
+          side it means classic application research: access control, injection, server-side
+          request forgery, and authentication logic.
+        </p>
+        <p style="color:var(--muted)">
+          When existing tooling gets in the way, I build my own.
+        </p>
+      </div>
+      <div>
+        <div class="skill-group" style="margin-bottom:1.5rem">
+          <h4>Web3</h4>
+          <div class="tags">
+            <span class="tag">Solidity</span><span class="tag">Foundry</span>
+            <span class="tag">Rust</span><span class="tag">EVM</span>
+            <span class="tag">DeFi</span><span class="tag">Oracles</span>
+          </div>
+        </div>
+        <div class="skill-group" style="margin-bottom:1.5rem">
+          <h4>Web2</h4>
+          <div class="tags">
+            <span class="tag">Burp Suite</span><span class="tag">SSRF</span>
+            <span class="tag">Access Control</span><span class="tag">Injection</span>
+            <span class="tag">Auth Logic</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <h4>Platforms</h4>
+          <div class="tags">
+            <span class="tag">Immunefi</span><span class="tag">HackenProof</span>
+            <span class="tag">Bugcrowd</span><span class="tag">Cantina</span>
+            <span class="tag">Patchstack</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="foot">
+  <div class="foot-links">
+    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
+    <a href="mailto:unknowbughunter@gmail.com">Email</a>
+  </div>
+  <small>&copy; 2026 M1S0</small>
+</footer>
+
+<script src="/assets/js/data/findings.js"></script>
+<script src="/assets/js/data/tools.js"></script>
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/data/halloffame.js"></script>
+<script src="/assets/js/render.js"></script>
+<script>
+  renderStats("stats");
+
+  var rank = { Critical: 0, High: 1, Medium: 2, Low: 3, Info: 4 };
+  var featured = FINDINGS.slice().sort(function (a, b) {
+    return (rank[a.severity] - rank[b.severity]) || byDateDesc(a, b);
+  }).slice(0, 4);
+
+  renderFindings(featured, "featured-findings");
+  renderTools(TOOLS, "featured-tools", 2);
+  renderWriteups(WRITEUPS, "featured-writeups", 3);
+</script>
+
+</body>
+</html>

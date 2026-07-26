@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web2 Findings — M1S0</title>
+<meta name="description" content="Web application vulnerabilities, CVEs, and bug bounty findings.">
+<meta property="og:title" content="Web2 Findings — M1S0">
+<meta property="og:description" content="Web application vulnerabilities, CVEs, and bug bounty findings.">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-links">
+      <a class="active" href="/web2/">Web2</a>
+      <a href="/web3/">Web3</a>
+      <a href="/writeups/">Writeups</a>
+      <a href="/tools/">Tools</a>
+      <a href="/hall-of-fame/">Hall of Fame</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="page-head">
+    <h1>Web2 Findings</h1>
+    <p>Web application vulnerabilities from bug bounty programs and independent research. Access control, SSRF, injection, and authentication logic.</p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+  <div class="filters" id="filters"></div>
+  <div class="cards" id="list"></div>
+
+</div>
+
+<footer class="foot">
+  <div class="foot-links">
+    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
+    <a href="mailto:unknowbughunter@gmail.com">Email</a>
+  </div>
+  <small>&copy; 2026 M1S0</small>
+</footer>
+
+<script src="/assets/js/data/findings.js"></script>
+<script src="/assets/js/data/halloffame.js"></script>
+<script src="/assets/js/render.js"></script>
+<script>
+  var web2 = FINDINGS.filter(function (f) { return f.domain === "web2"; });
+
+  (function () {
+    var paid = web2.reduce(function (s, f) { return s + (f.bounty || 0); }, 0);
+    var cves = web2.filter(function (f) { return !!f.cve; }).length;
+    var crit = web2.filter(function (f) { return f.severity === "Critical" || f.severity === "High"; }).length;
+    document.getElementById("stats").innerHTML =
+      '<div class="stat"><span class="num">' + web2.length + '</span><span class="lbl">Findings</span></div>' +
+      '<div class="stat"><span class="num">' + (paid ? "$" + paid.toLocaleString("en-US") : "—") + '</span><span class="lbl">Bounties</span></div>' +
+      '<div class="stat"><span class="num">' + crit + '</span><span class="lbl">Critical / High</span></div>' +
+      '<div class="stat"><span class="num">' + cves + '</span><span class="lbl">CVEs</span></div>';
+  })();
+
+  renderFindings(web2, "list");
+  initFilters("filters", "list", web2);
+</script>
+
+</body>
+</html>

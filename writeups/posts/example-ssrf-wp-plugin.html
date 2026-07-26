@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unauthenticated SSRF in a WordPress plugin import endpoint — M1S0</title>
+<meta name="description" content="An import endpoint that never checked authentication and fetched any URL it was given. From first hunch to working proof of concept.">
+<meta property="og:title" content="Unauthenticated SSRF in a WordPress plugin import endpoint — M1S0">
+<meta property="og:description" content="An import endpoint that never checked authentication and fetched any URL it was given. From first hunch to working proof of concept.">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-links">
+      <a href="/web2/">Web2</a>
+      <a href="/web3/">Web3</a>
+      <a class="active" href="/writeups/">Writeups</a>
+      <a href="/tools/">Tools</a>
+      <a href="/hall-of-fame/">Hall of Fame</a>
+    </div>
+  </div>
+</nav>
+
+<article class="post">
+
+  <header>
+    <a class="back" href="/writeups/">&larr; All writeups</a>
+    <div class="card-top" style="margin-top:1.2rem">
+      <span class="sev sev-high">High</span>
+      <span class="pill">Patchstack</span>
+      <span class="pill">Disclosed</span>
+      <span class="pill pill-cve">CVE-2026-00000</span>
+    </div>
+    <h1>Unauthenticated SSRF in a WordPress plugin import endpoint</h1>
+    <p class="post-meta">Example Plugin Vendor &middot; example-plugin v1.2.3 &middot; 2026-07</p>
+  </header>
+
+  <blockquote>
+    This is a demonstration post showing the layout. Replace it with a real writeup,
+    or delete the file and remove its entry from <code>assets/js/data/writeups.js</code>.
+  </blockquote>
+
+  <h2>Summary</h2>
+  <p>
+    The plugin exposed an import endpoint that accepted a URL parameter and fetched it
+    server side. The handler was registered on a hook reachable without a session, and it
+    performed no capability check and no validation of the supplied URL. Any unauthenticated
+    visitor could make the WordPress host issue arbitrary outbound HTTP requests, including
+    to internal addresses that are not reachable from the internet.
+  </p>
+
+  <h2>Affected Component</h2>
+  <p>
+    The import handler, registered for both the authenticated and unauthenticated AJAX hooks.
+    Registering the unauthenticated variant is what turned an admin-only feature into a public one.
+  </p>
+
+  <h2>Root Cause</h2>
+  <p>
+    Three separate failures line up here. The handler is exposed to unauthenticated callers,
+    it never calls a capability check, and it passes attacker input straight into the HTTP client.
+  </p>
+  <pre><code>add_action( 'wp_ajax_plugin_import',        'plugin_import' );
+add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // reachable with no session
+
+function plugin_import() {
+    // no current_user_can(), no check_ajax_referer()
+    $url  = $_REQUEST['url'];
+    $body = wp_remote_retrieve_body( wp_remote_get( $url ) );
+    echo $body;
+    wp_die();
+}
+</code></pre>
+
+  <h2>Impact</h2>
+  <p>
+    An unauthenticated attacker can reach services that are only listening on the internal
+    network: cloud instance metadata endpoints, admin panels bound to localhost, and internal
+    APIs that trust their network position instead of authenticating callers. Because the
+    response body is echoed back, this is a full read SSRF rather than a blind one, so the
+    attacker sees the results directly.
+  </p>
+
+  <h2>Proof of Concept</h2>
+  <p>A single unauthenticated request is enough to confirm it:</p>
+  <pre><code>curl -s 'https://target.tld/wp-admin/admin-ajax.php' \
+     --data 'action=plugin_import&amp;url=http://169.254.169.254/latest/meta-data/'
+</code></pre>
+  <p>
+    The response contains the metadata listing, served by an address that is not routable
+    from the attacker's own network. That confirms the fetch happened server side.
+  </p>
+
+  <h2>Recommended Fix</h2>
+  <p>
+    Drop the unauthenticated hook, add a capability check and a nonce, and validate the URL
+    against an allowlist rather than trying to blocklist internal ranges.
+  </p>
+  <pre><code>add_action( 'wp_ajax_plugin_import', 'plugin_import' );  // authenticated only
+
+function plugin_import() {
+    check_ajax_referer( 'plugin_import' );
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( '', '', 403 );
+    }
+    $url = esc_url_raw( $_REQUEST['url'] );
+    if ( ! plugin_host_is_allowed( $url ) ) {
+        wp_die( '', '', 400 );
+    }
+    // ...
+}
+</code></pre>
+  <p>
+    Blocklisting is the wrong instinct here. Decimal encoded addresses, IPv6 mapped
+    forms, and DNS records that resolve to loopback all defeat naive filters, and a
+    redirect from an allowed host walks straight past a check performed only on the
+    initial URL.
+  </p>
+
+  <h2>Timeline</h2>
+  <table>
+    <tr><th>Date</th><th>Event</th></tr>
+    <tr><td>2026-07-01</td><td>Reported to the vendor</td></tr>
+    <tr><td>2026-07-05</td><td>Triaged and confirmed</td></tr>
+    <tr><td>2026-07-20</td><td>Patched release published</td></tr>
+    <tr><td>2026-07-27</td><td>Public disclosure</td></tr>
+  </table>
+
+</article>
+
+<footer class="foot">
+  <div class="foot-links">
+    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
+    <a href="mailto:unknowbughunter@gmail.com">Email</a>
+  </div>
+  <small>&copy; 2026 M1S0</small>
+</footer>
+
+</body>
+</html>

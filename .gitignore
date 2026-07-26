@@ -1,0 +1,16 @@
+# secrets — never commit anything resembling a token or key
+.env
+.env.*
+*.pem
+*.key
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# local notes that must never be published
+NOTES.md
+scratch/
