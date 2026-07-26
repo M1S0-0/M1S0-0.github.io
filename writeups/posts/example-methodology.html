@@ -51,9 +51,8 @@
 
   <a class="back" href="/writeups/">&larr; Writeups</a>
 
-  <div class="labels">
-    <span class="label label-plain">Research</span>
-  </div>
+
+  <div id="series"></div>
 
   <h1 class="title">How I actually read a smart contract for the first time</h1>
   <p class="subtitle">Not line by line from the top. Here is the order I go in, and why invariants come before implementation.</p>
@@ -65,6 +64,8 @@
       <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
+
+  <div id="facts"></div>
 
   <div class="body">
 
@@ -142,6 +143,25 @@
       point. Better to lose it on your own machine than in triage.
     </p>
 
+    <div class="callout callout-tip">
+      <strong>Tip</strong>
+      <p>
+        Keep a file of the invariants you wrote down for each protocol. After a few audits
+        the same three or four sentences keep reappearing, and the list becomes a checklist
+        you can run against anything new.
+      </p>
+    </div>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>Map where value enters, leaves, and who can move it, before reading any implementation.</li>
+        <li>Write the invariants in plain English first. You cannot spot a violation you never stated.</li>
+        <li>Read each function asking one question: can I break one of my sentences.</li>
+        <li>A failing test is the only thing that turns looks wrong into is wrong.</li>
+      </ul>
+    </div>
+
   </div>
 
 </article>
@@ -156,6 +176,8 @@
     <a class="sbtn" id="share-x">on X</a>
     <button class="sbtn" id="share-copy" type="button">Copy link</button>
   </div>
+
+  <div id="authorbox"></div>
 
   <div class="prevnext" id="prevnext"></div>
 

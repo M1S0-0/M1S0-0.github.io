@@ -4,25 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- ============ EDIT PER POST ============ -->
+<!-- ============ EDIT PER POST ============
+     Replace POST TITLE and every SLUG below with your slug.
+     Then run: python3 scripts/make-images.py
+     to generate the link preview card this points at.
+     ======================================== -->
 <title>POST TITLE — M1S0</title>
 <meta name="description" content="One sentence. Used by Google and by link previews.">
 <meta property="og:title" content="POST TITLE — M1S0">
 <meta property="og:description" content="One sentence. Used by Google and by link previews.">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/SLUG.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/SLUG.html">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/SLUG.png">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/SLUG.png">
 <!-- ======================================= -->
 
 <meta property="og:type" content="article">
+<meta property="og:site_name" content="M1S0">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0f1115">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
 <link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
 <link rel="alternate" type="application/rss+xml" title="M1S0 — Writeups" href="/feed.xml">
-<meta name="theme-color" content="#0f1115">
-<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:site_name" content="M1S0">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og.png">
 
 <link rel="stylesheet" href="/assets/css/site.css">
 <script>
@@ -47,19 +53,15 @@
   </div>
 </nav>
 
-<!-- auto-generated from the h2 headings; hides itself if under 3 -->
+<!-- auto-built from the h2 headings; hides itself under 3 -->
 <nav class="toc" id="toc"></nav>
 
 <article class="article">
 
   <a class="back" href="/writeups/">&larr; Writeups</a>
 
-  <!-- optional labels; delete the block if this is not a finding -->
-  <div class="labels">
-    <span class="label label-high">High</span>
-    <span class="label label-plain">PLATFORM</span>
-    <span class="label label-plain">STATUS</span>
-  </div>
+  <!-- shows only if the data entry declares a `series` -->
+  <div id="series"></div>
 
   <h1 class="title">POST TITLE</h1>
   <p class="subtitle">The deck line. One sentence that makes someone want to read the rest.</p>
@@ -72,6 +74,12 @@
     </div>
   </div>
 
+  <!-- "At a glance" table. Built from writeups.js, NOT written here.
+       Add severity / cvss / cve / platform / program / target / status /
+       bounty to the data entry and the rows appear. Hides itself if the
+       post declares fewer than two of them. -->
+  <div id="facts"></div>
+
   <!-- ============ ARTICLE BODY ============ -->
   <div class="body">
 
@@ -81,12 +89,37 @@
     </p>
 
     <h2>The bug</h2>
+
     <p>What is wrong, in plain language, before any code appears.</p>
 
-    <pre><code>// paste the vulnerable code here
+    <!-- code block. data-file and data-lang are optional and render a
+         filename bar above the block. -->
+    <pre data-file="Vault.sol" data-lang="solidity"><code>// paste the vulnerable code here
 </code></pre>
 
+    <!-- CALLOUTS — swap the modifier for note / tip / warn / danger -->
+    <div class="callout callout-note">
+      <strong>Note</strong>
+      <p>Context a reader needs but that would interrupt the flow inline.</p>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>Careful</strong>
+      <p>A trap, a false lead, or something that looks exploitable and is not.</p>
+    </div>
+
+    <div class="callout callout-danger">
+      <strong>Impact</strong>
+      <p>The worst realistic outcome, stated plainly.</p>
+    </div>
+
+    <div class="callout callout-tip">
+      <strong>Tip</strong>
+      <p>Something reusable that another hunter can apply elsewhere.</p>
+    </div>
+
     <h2>Why it matters</h2>
+
     <p>The concrete consequence, and the preconditions an attacker needs.</p>
 
     <blockquote>
@@ -94,21 +127,67 @@
     </blockquote>
 
     <h2>Proof of concept</h2>
-    <p>Setup, exploit, observed result.</p>
 
-    <pre><code>// paste the PoC here
+    <!-- NUMBERED STEPS for an exploitation chain -->
+    <ol class="steps">
+      <li>
+        <h4>Set up the preconditions</h4>
+        <p>What state has to exist before the exploit works.</p>
+      </li>
+      <li>
+        <h4>Trigger the bug</h4>
+        <p>The call that does it.</p>
+        <pre data-file="Poc.t.sol"><code>// paste the PoC here
 </code></pre>
+      </li>
+      <li>
+        <h4>Observe the result</h4>
+        <p>What proves it worked. Balances, reverts, state.</p>
+      </li>
+    </ol>
+
+    <!-- FIGURE with a caption — uncomment when you have an image
+    <figure>
+      <img src="/assets/img/posts/SLUG-diagram.png" alt="Describe it for screen readers">
+      <figcaption>What the diagram shows.</figcaption>
+    </figure>
+    -->
 
     <h2>The fix</h2>
+
     <p>The patch, and why it closes the issue rather than moving it.</p>
 
+    <pre data-file="Vault.sol"><code>// paste the fix here
+</code></pre>
+
     <h2>Timeline</h2>
+
     <table>
       <tr><th>Date</th><th>Event</th></tr>
       <tr><td>2026-07-01</td><td>Reported</td></tr>
       <tr><td>2026-07-05</td><td>Triaged</td></tr>
       <tr><td>2026-07-20</td><td>Fixed</td></tr>
+      <tr><td>2026-07-27</td><td>Public disclosure</td></tr>
     </table>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>The generalisable lesson, not the specific bug.</li>
+        <li>What to grep for to find this class elsewhere.</li>
+        <li>The assumption that made it possible.</li>
+      </ul>
+    </div>
+
+    <!-- REFERENCES -->
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="#" rel="noopener">Vendor advisory</a></li>
+        <li><a href="#" rel="noopener">Relevant documentation</a></li>
+      </ol>
+    </div>
 
   </div>
   <!-- ========== END ARTICLE BODY ========== -->
@@ -126,6 +205,8 @@
     <a class="sbtn" id="share-x">on X</a>
     <button class="sbtn" id="share-copy" type="button">Copy link</button>
   </div>
+
+  <div id="authorbox"></div>
 
   <div class="prevnext" id="prevnext"></div>
 

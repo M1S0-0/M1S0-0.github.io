@@ -51,11 +51,8 @@
 
   <a class="back" href="/writeups/">&larr; Writeups</a>
 
-  <div class="labels">
-    <span class="label label-high">High</span>
-    <span class="label label-plain">Patchstack</span>
-    <span class="label label-plain">Disclosed</span>
-  </div>
+
+  <div id="series"></div>
 
   <h1 class="title">Unauthenticated SSRF in a WordPress plugin import endpoint</h1>
   <p class="subtitle">An import handler that never checked who was calling it, and happily fetched any URL I handed over.</p>
@@ -67,6 +64,8 @@
       <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
+
+  <div id="facts"></div>
 
   <div class="body">
 
@@ -94,9 +93,18 @@
       Grepping a plugin for the second one is a thirty second job and it is where I start.
     </p>
 
-    <pre><code>add_action( 'wp_ajax_plugin_import',        'plugin_import' );
+    <pre data-file="plugin.php" data-lang="php"><code>add_action( 'wp_ajax_plugin_import',        'plugin_import' );
 add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // no session required
 </code></pre>
+
+    <div class="callout callout-tip">
+      <strong>Tip</strong>
+      <p>
+        <code>wp_ajax_nopriv_</code> is the single highest value string to grep for in any
+        WordPress plugin. It is the developer explicitly saying this endpoint does not need
+        a login, and it is very often said by accident.
+      </p>
+    </div>
 
     <p>
       That second line is the whole story. The handler was written for administrators, and
@@ -111,7 +119,7 @@ add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // no session re
       much less interesting report.
     </p>
 
-    <pre><code>function plugin_import() {
+    <pre data-file="plugin.php" data-lang="php"><code>function plugin_import() {
     // no current_user_can(), no check_ajax_referer()
     $url  = $_REQUEST['url'];
     $body = wp_remote_retrieve_body( wp_remote_get( $url ) );
@@ -119,6 +127,15 @@ add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // no session re
     wp_die();
 }
 </code></pre>
+
+    <div class="callout callout-danger">
+      <strong>Impact</strong>
+      <p>
+        Any unauthenticated visitor can make the host issue arbitrary outbound HTTP requests
+        and read the responses. On a cloud host that reaches instance metadata, and metadata
+        often means credentials.
+      </p>
+    </div>
 
     <p>
       There is no capability check, so being unauthenticated does not matter. There is no
@@ -148,17 +165,47 @@ add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // no session re
 
     <h2>Proof of concept</h2>
 
-    <p>One unauthenticated request is enough:</p>
+    <ol class="steps">
+      <li>
+        <h4>Confirm the endpoint answers without a session</h4>
+        <p>
+          No cookies, no nonce. A response that is not <code>0</code> or
+          <code>-1</code> means the handler ran.
+        </p>
+        <pre data-file="terminal" data-lang="bash"><code>curl -s 'https://target.tld/wp-admin/admin-ajax.php' \
+     --data 'action=plugin_import&amp;url=https://example.com/'
+</code></pre>
+      </li>
 
-    <pre><code>curl -s 'https://target.tld/wp-admin/admin-ajax.php' \
+      <li>
+        <h4>Point it somewhere only the server can reach</h4>
+        <p>
+          The link local metadata address is the cleanest proof, because it is not routable
+          from my network at all.
+        </p>
+        <pre data-file="terminal" data-lang="bash"><code>curl -s 'https://target.tld/wp-admin/admin-ajax.php' \
      --data 'action=plugin_import&amp;url=http://169.254.169.254/latest/meta-data/'
 </code></pre>
+      </li>
 
-    <p>
-      The response contains the metadata listing. That address is link local, so it is not
-      routable from my network at all. Getting content back from it proves the fetch happened
-      server side, which is the only thing the report actually needs to demonstrate.
-    </p>
+      <li>
+        <h4>Read the response</h4>
+        <p>
+          The metadata listing comes back in the body. Getting content from an address I
+          cannot reach myself proves the fetch happened server side, which is the only thing
+          the report actually needs to demonstrate.
+        </p>
+      </li>
+    </ol>
+
+    <div class="callout callout-warn">
+      <strong>Careful</strong>
+      <p>
+        Do not go further than proving the fetch. Actually retrieving credentials from
+        metadata takes you outside almost every program's authorisation, and a screenshot of
+        the listing is already enough for triage.
+      </p>
+    </div>
 
     <h2>The fix</h2>
 
@@ -167,7 +214,7 @@ add_action( 'wp_ajax_nopriv_plugin_import', 'plugin_import' );  // no session re
       against an allowlist.
     </p>
 
-    <pre><code>add_action( 'wp_ajax_plugin_import', 'plugin_import' );  // authenticated only
+    <pre data-file="plugin.php" data-lang="php"><code>add_action( 'wp_ajax_plugin_import', 'plugin_import' );  // authenticated only
 
 function plugin_import() {
     check_ajax_referer( 'plugin_import' );
@@ -204,6 +251,25 @@ function plugin_import() {
       <tr><td>2026-07-27</td><td>Public disclosure</td></tr>
     </table>
 
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>Grep every WordPress plugin for <code>wp_ajax_nopriv_</code> before reading anything else.</li>
+        <li>A missing capability check and a missing nonce are two separate failures. Report both.</li>
+        <li>Allowlist hosts. Blocklisting internal ranges loses to encoding tricks and to redirects.</li>
+        <li>Proving the request happened server side is enough. Do not escalate into the metadata itself.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://developer.wordpress.org/plugins/javascript/ajax/" rel="noopener">WordPress AJAX handler documentation</a></li>
+        <li><a href="https://owasp.org/Top10/A10_2021-Server-Side_Request_Forgery_%28SSRF%29/" rel="noopener">OWASP: Server Side Request Forgery</a></li>
+        <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html" rel="noopener">OWASP SSRF Prevention Cheat Sheet</a></li>
+      </ol>
+    </div>
+
   </div>
 
 </article>
@@ -219,6 +285,8 @@ function plugin_import() {
     <a class="sbtn" id="share-x">on X</a>
     <button class="sbtn" id="share-copy" type="button">Copy link</button>
   </div>
+
+  <div id="authorbox"></div>
 
   <div class="prevnext" id="prevnext"></div>
 

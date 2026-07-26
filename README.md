@@ -23,6 +23,27 @@ scripts/
   make-images.py            rebuilds favicons and OG cards
 ```
 
+## Article components
+
+Copy these out of `writeups/posts/template.html`. Every one is already styled in
+both light and dark.
+
+| Block | Markup | Notes |
+|---|---|---|
+| At a glance | `<div id="facts"></div>` | Built from the data entry, not written by hand. Hides itself if the post declares fewer than two optional fields. |
+| Series banner | `<div id="series"></div>` | Appears only if the entry has `series: { name, part }`. |
+| Callout | `<div class="callout callout-note">` | Variants: `note`, `tip`, `warn`, `danger`. |
+| Numbered steps | `<ol class="steps">` | For exploitation chains. Code blocks nest inside a step. |
+| Code with filename | `<pre data-file="Vault.sol" data-lang="solidity">` | Both attributes optional; renders a header bar. |
+| Figure | `<figure><img><figcaption>` | Captioned diagram or screenshot. |
+| Key takeaways | `<div class="takeaways">` | The generalisable lesson, not the specific bug. |
+| References | `<div class="refs">` | Numbered source list. |
+| Author box | `<div id="authorbox"></div>` | Rendered automatically. |
+
+Optional fields on a data entry — `severity`, `cvss`, `cve`, `platform`, `program`,
+`target`, `status`, `bounty` — feed the At a glance table **and** put a severity badge
+and CVE chip on the feed card. Set them once, they appear in both places.
+
 ## After adding or removing a writeup
 
 ```bash

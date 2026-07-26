@@ -51,11 +51,8 @@
 
   <a class="back" href="/writeups/">&larr; Writeups</a>
 
-  <div class="labels">
-    <span class="label label-high">High</span>
-    <span class="label label-plain">Immunefi</span>
-    <span class="label label-plain">Accepted</span>
-  </div>
+
+  <div id="series"></div>
 
   <h1 class="title">One future-dated oracle round froze an entire vault</h1>
   <p class="subtitle">A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.</p>
@@ -67,6 +64,8 @@
       <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
+
+  <div id="facts"></div>
 
   <div class="body">
 
@@ -88,7 +87,7 @@
       gone stale. Reasonable. Here is the check.
     </p>
 
-    <pre><code>( , int256 answer, , uint256 updatedAt, ) = feed.latestRoundData();
+    <pre data-file="Vault.sol" data-lang="solidity"><code>( , int256 answer, , uint256 updatedAt, ) = feed.latestRoundData();
 
 require(answer &gt; 0, "bad price");
 require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
@@ -111,6 +110,15 @@ require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
     <blockquote>
       The guard against a bad price becomes the thing that breaks when the price is bad.
     </blockquote>
+
+    <div class="callout callout-note">
+      <strong>Note</strong>
+      <p>
+        Before Solidity 0.8 this would have wrapped to an enormous number and been caught by
+        the staleness check on the very next line. The compiler upgrade that made arithmetic
+        safer is what turned this into a denial of service.
+      </p>
+    </div>
 
     <p>
       Every function that reads the price inherits that revert. Deposits, withdrawals,
@@ -141,7 +149,7 @@ require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
       isolates the arithmetic from everything else in the system.
     </p>
 
-    <pre><code>function testPocFutureRoundFreezesVault() public {
+    <pre data-file="Vault.t.sol" data-lang="solidity"><code>function testPocFutureRoundFreezesVault() public {
     // push a round dated one minute into the future
     feed.setRound(1e8, block.timestamp + 60);
 
@@ -164,7 +172,7 @@ require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
 
     <p>Compare before subtracting, so a future timestamp is a rejected input rather than a revert.</p>
 
-    <pre><code>require(updatedAt &lt;= block.timestamp, "future round");
+    <pre data-file="Vault.sol" data-lang="solidity"><code>require(updatedAt &lt;= block.timestamp, "future round");
 require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
 </code></pre>
 
@@ -182,6 +190,24 @@ require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
       <tr><td>2026-06-30</td><td>Accepted, fix deployed</td></tr>
     </table>
 
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>Every unsigned subtraction is an assumption about ordering. Find the one that can be violated.</li>
+        <li>Grep for <code>block.timestamp -</code> and <code>- updatedAt</code> across any protocol reading a feed.</li>
+        <li>Show the condition clearing as well as triggering. It is what separates a real severity argument from an overclaim.</li>
+        <li>A short denial of service on the liquidation path is a solvency issue, not an inconvenience.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://docs.soliditylang.org/en/latest/control-structures.html#panic-via-assert-and-error-via-require" rel="noopener">Solidity: panic codes, 0x11 arithmetic overflow</a></li>
+        <li><a href="https://docs.chain.link/data-feeds/api-reference" rel="noopener">Chainlink data feed API reference</a></li>
+      </ol>
+    </div>
+
   </div>
 
 </article>
@@ -197,6 +223,8 @@ require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
     <a class="sbtn" id="share-x">on X</a>
     <button class="sbtn" id="share-copy" type="button">Copy link</button>
   </div>
+
+  <div id="authorbox"></div>
 
   <div class="prevnext" id="prevnext"></div>
 

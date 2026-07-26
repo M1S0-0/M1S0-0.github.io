@@ -75,13 +75,23 @@ function bylineHtml() {
 }
 
 function metaHtml(w) {
-  var tag = (w.tags && w.tags[0]) ? '<span class="chip">' + esc(w.tags[0]) + "</span>" : "";
-  return '<div class="meta">' +
-           "<span>" + esc(prettyDate(w.date)) + "</span>" +
-           '<span class="dot">&middot;</span>' +
-           "<span>" + esc(readTimeOf(w)) + "</span>" +
-           (tag ? '<span class="dot">&middot;</span>' + tag : "") +
-         "</div>";
+  var bits = [
+    "<span>" + esc(prettyDate(w.date)) + "</span>",
+    '<span class="dot">&middot;</span>',
+    "<span>" + esc(readTimeOf(w)) + "</span>"
+  ];
+
+  if (w.severity) {
+    bits.push('<span class="sev sev-' + esc(w.severity.toLowerCase()) + '">' + esc(w.severity) + "</span>");
+  }
+  if (w.cve) {
+    bits.push('<span class="chip-cve">' + esc(w.cve) + "</span>");
+  }
+  if (w.tags && w.tags[0]) {
+    bits.push('<span class="chip">' + esc(w.tags[0]) + "</span>");
+  }
+
+  return '<div class="meta">' + bits.join("") + "</div>";
 }
 
 function sortedPosts(items) {
@@ -90,9 +100,10 @@ function sortedPosts(items) {
 
 /* ---------- feed ---------- */
 
-function renderFeed(items, mountId) {
+function renderFeed(items, mountId, opts) {
   var el = document.getElementById(mountId);
   if (!el) return;
+  opts = opts || {};
 
   var list = sortedPosts(items);
   if (!list.length) {
@@ -100,9 +111,23 @@ function renderFeed(items, mountId) {
     return;
   }
 
+  var seenYear = null;
+
   el.innerHTML = list.map(function (w) {
     var label = (w.tags && w.tags[0]) ? w.tags[0] : "";
-    return '<a class="item" href="/writeups/posts/' + esc(w.slug) + '.html">' +
+
+    /* a year divider whenever the year changes, if asked for */
+    var divider = "";
+    if (opts.groupByYear) {
+      var y = String(w.date).slice(0, 4);
+      if (y !== seenYear) {
+        seenYear = y;
+        divider = '<div class="year">' + esc(y) + "</div>";
+      }
+    }
+
+    return divider +
+           '<a class="item" href="/writeups/posts/' + esc(w.slug) + '.html">' +
              '<div class="item-main">' +
                bylineHtml() +
                "<h3>" + esc(w.title) + "</h3>" +
@@ -165,7 +190,7 @@ function initSearch(items, opts) {
       var hay = (w.title + " " + (w.subtitle || "") + " " + (w.tags || []).join(" ")).toLowerCase();
       return hay.indexOf(q) !== -1;
     });
-    renderFeed(out, opts.mountId);
+    renderFeed(out, opts.mountId, { groupByYear: opts.groupByYear });
     if (countEl) {
       countEl.textContent = out.length + (out.length === 1 ? " writeup" : " writeups");
     }
@@ -400,11 +425,19 @@ function initArticle(opts) {
   initTheme();
   initProgress();
   initByline(opts.date);
+
+  renderSeries(opts.slug, "series");
+  renderFacts(opts.slug, "facts");
+
   initCodeBlocks();
+  initCodeTitles();          /* must run after initCodeBlocks builds .codewrap */
   initTOC("toc");
+
   initShare(opts.title);
+  renderAuthorBox("authorbox");
   initPrevNext(opts.slug, "prevnext");
   renderMore(opts.slug, "more", 2);
+
   initReveal();
   initToTop();
 }
@@ -458,4 +491,102 @@ function renderStatline(mountId) {
   el.innerHTML = cells.map(function (c) {
     return "<div><strong>" + esc(c[0]) + "</strong><span>" + esc(c[1]) + "</span></div>";
   }).join("");
+}
+
+/* =============================================================
+   Article detail
+   ============================================================= */
+
+function findPost(slug) {
+  if (typeof WRITEUPS === "undefined") return null;
+  for (var i = 0; i < WRITEUPS.length; i++) {
+    if (WRITEUPS[i].slug === slug) return WRITEUPS[i];
+  }
+  return null;
+}
+
+function money(n) {
+  if (!n) return null;
+  return "$" + Number(n).toLocaleString("en-US");
+}
+
+/* "At a glance" table, built from the data file so it cannot drift
+   from what the feed shows. Rows with no value are omitted. */
+function renderFacts(slug, mountId) {
+  var el = document.getElementById(mountId);
+  var w = findPost(slug);
+  if (!el || !w) { if (el) el.style.display = "none"; return; }
+
+  var rows = [
+    ["Target",     w.target ? "<code>" + esc(w.target) + "</code>" : null],
+    ["Program",    w.program ? esc(w.program) : null],
+    ["Platform",   w.platform ? esc(w.platform) : null],
+    ["Severity",   w.severity
+        ? '<span class="sev sev-' + esc(w.severity.toLowerCase()) + '">' + esc(w.severity) + "</span>"
+        : null],
+    ["CVSS",       w.cvss ? "<code>" + esc(w.cvss) + "</code>" : null],
+    ["CVE",        w.cve ? "<code>" + esc(w.cve) + "</code>" : null],
+    ["Status",     w.status ? esc(w.status) : null],
+    ["Reward",     money(w.bounty) ? '<span class="chip-bounty">' + esc(money(w.bounty)) + "</span>" : null],
+    ["Disclosed",  w.date ? esc(prettyDate(w.date)) : null]
+  ].filter(function (r) { return r[1]; });
+
+  if (rows.length < 2) { el.style.display = "none"; return; }
+
+  el.className = "facts";
+  el.innerHTML =
+    '<div class="facts-head">At a glance</div>' +
+    "<dl>" +
+      rows.map(function (r) {
+        return "<dt>" + esc(r[0]) + "</dt><dd>" + r[1] + "</dd>";
+      }).join("") +
+    "</dl>";
+}
+
+/* series banner, if the post declares one */
+function renderSeries(slug, mountId) {
+  var el = document.getElementById(mountId);
+  var w = findPost(slug);
+  if (!el) return;
+  if (!w || !w.series) { el.style.display = "none"; return; }
+  el.className = "series";
+  el.innerHTML = "<span>Part <b>" + esc(w.series.part) + "</b> of</span><span>" + esc(w.series.name) + "</span>";
+}
+
+/* author box at the end of an article */
+function renderAuthorBox(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el) return;
+  el.className = "authorbox";
+  el.innerHTML =
+    '<span class="avatar">' + esc(initials(AUTHOR)) + "</span>" +
+    '<div class="authorbox-main">' +
+      "<h4>" + esc(AUTHOR) + "</h4>" +
+      "<p>Security researcher working across smart contract auditing and web application " +
+      "vulnerability research. I write up how the bugs were actually found, not just what they were.</p>" +
+      '<div class="authorbox-links">' +
+        '<a href="/writeups/">All writeups</a>' +
+        '<a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>' +
+        '<a href="mailto:unknowbughunter@gmail.com">Email</a>' +
+        '<a href="/feed.xml">RSS</a>' +
+      "</div>" +
+    "</div>";
+}
+
+/* filename bar on a <pre data-file="Vault.sol"> */
+function initCodeTitles() {
+  var wraps = document.querySelectorAll(".codewrap");
+  Array.prototype.forEach.call(wraps, function (wrap) {
+    var pre = wrap.querySelector("pre");
+    if (!pre) return;
+    var file = pre.getAttribute("data-file");
+    var lang = pre.getAttribute("data-lang");
+    if (!file && !lang) return;
+
+    var head = document.createElement("div");
+    head.className = "codehead";
+    head.innerHTML = "<span>" + esc(file || "") + "</span><span>" + esc(lang || "") + "</span>";
+    wrap.insertBefore(head, pre);
+    wrap.classList.add("titled");
+  });
 }
