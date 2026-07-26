@@ -105,9 +105,20 @@ function renderFeed(items, mountId, opts) {
   if (!el) return;
   opts = opts || {};
 
-  var list = sortedPosts(items);
+  var list = opts.presorted ? items.slice() : sortedPosts(items);
+  var q = opts.query || "";
+
   if (!list.length) {
-    el.innerHTML = '<p class="empty">// nothing matches</p>';
+    el.innerHTML =
+      '<div class="empty">' +
+        "<b>Nothing matches that.</b>" +
+        "<span>Try a different term, or clear the filters.</span>" +
+        '<button type="button" data-reset>Clear filters</button>' +
+      "</div>";
+    var btn = el.querySelector("[data-reset]");
+    if (btn && typeof window.__writeupsReset === "function") {
+      btn.addEventListener("click", window.__writeupsReset);
+    }
     return;
   }
 
@@ -126,89 +137,36 @@ function renderFeed(items, mountId, opts) {
       }
     }
 
+    /* program line, only when the post declares one */
+    var program = "";
+    if (w.program) {
+      program = '<span class="program">' + esc(w.program) +
+                (w.target ? " &middot; " + esc(w.target) : "") + "</span>";
+    }
+
+    /* remaining tags under the meta row */
+    var extra = "";
+    if (opts.allTags && w.tags && w.tags.length > 1) {
+      extra = '<div class="item-tags">' +
+        w.tags.slice(1).map(function (t) { return '<span class="chip">' + esc(t) + "</span>"; }).join("") +
+        "</div>";
+    }
+
     return divider +
            '<a class="item" href="/writeups/posts/' + esc(w.slug) + '.html">' +
              '<div class="item-main">' +
                bylineHtml() +
-               "<h3>" + esc(w.title) + "</h3>" +
-               "<p>" + esc(w.subtitle || w.summary) + "</p>" +
+               program +
+               "<h3>" + markMatch(w.title, q) + "</h3>" +
+               "<p>" + markMatch(w.subtitle || w.summary || "", q) + "</p>" +
                metaHtml(w) +
+               extra +
              "</div>" +
              '<div class="thumb" style="background:' + gradientOf(w.slug) + '">' +
                "<span>" + esc(label) + "</span>" +
              "</div>" +
            "</a>";
   }).join("");
-}
-
-/* big card for the newest post */
-function renderFeatured(items, mountId) {
-  var el = document.getElementById(mountId);
-  if (!el) return;
-  var w = sortedPosts(items)[0];
-  if (!w) { el.innerHTML = ""; return; }
-  var label = (w.tags && w.tags[0]) ? w.tags[0] : "";
-
-  el.innerHTML =
-    '<a class="featured" href="/writeups/posts/' + esc(w.slug) + '.html">' +
-      '<span class="featured-badge">Latest</span>' +
-      '<div class="featured-art" style="background:' + gradientOf(w.slug) + '">' +
-        "<span>" + esc(label) + "</span>" +
-      "</div>" +
-      "<h2>" + esc(w.title) + "</h2>" +
-      "<p>" + esc(w.subtitle || w.summary) + "</p>" +
-      metaHtml(w) +
-    "</a>";
-  return w.slug;
-}
-
-/* ---------- search + tag filter ---------- */
-
-function initSearch(items, opts) {
-  var input = document.getElementById(opts.inputId);
-  var bar = document.getElementById(opts.tagbarId);
-  var countEl = document.getElementById(opts.countId);
-  var activeTag = "All";
-
-  var tags = ["All"];
-  items.forEach(function (w) {
-    (w.tags || []).forEach(function (t) { if (tags.indexOf(t) === -1) tags.push(t); });
-  });
-
-  if (bar) {
-    bar.innerHTML = tags.map(function (t, i) {
-      return '<button class="tagbtn' + (i === 0 ? " on" : "") + '" data-tag="' + esc(t) + '">' + esc(t) + "</button>";
-    }).join("");
-  }
-
-  function apply() {
-    var q = input ? input.value.trim().toLowerCase() : "";
-    var out = items.filter(function (w) {
-      var tagOk = activeTag === "All" || (w.tags || []).indexOf(activeTag) !== -1;
-      if (!tagOk) return false;
-      if (!q) return true;
-      var hay = (w.title + " " + (w.subtitle || "") + " " + (w.tags || []).join(" ")).toLowerCase();
-      return hay.indexOf(q) !== -1;
-    });
-    renderFeed(out, opts.mountId, { groupByYear: opts.groupByYear });
-    if (countEl) {
-      countEl.textContent = out.length + (out.length === 1 ? " writeup" : " writeups");
-    }
-  }
-
-  if (input) input.addEventListener("input", apply);
-  if (bar) {
-    bar.addEventListener("click", function (e) {
-      var btn = e.target.closest(".tagbtn");
-      if (!btn) return;
-      Array.prototype.forEach.call(bar.querySelectorAll(".tagbtn"), function (b) { b.classList.remove("on"); });
-      btn.classList.add("on");
-      activeTag = btn.getAttribute("data-tag");
-      apply();
-    });
-  }
-
-  apply();
 }
 
 /* ---------- reading progress ---------- */
@@ -589,4 +547,217 @@ function initCodeTitles() {
     wrap.insertBefore(head, pre);
     wrap.classList.add("titled");
   });
+}
+
+/* =============================================================
+   Writeups index controller
+   Search + tag + sort, mirrored into the URL hash so a filtered
+   view can be linked and survives a reload.
+   ============================================================= */
+
+var SEV_RANK = { Critical: 0, High: 1, Medium: 2, Low: 3, Info: 4 };
+
+/* wraps matches in <mark> without ever injecting raw input */
+function markMatch(text, q) {
+  if (!q) return esc(text);
+  var lower = String(text).toLowerCase();
+  var needle = q.toLowerCase();
+  var out = "";
+  var i = 0;
+  while (true) {
+    var at = lower.indexOf(needle, i);
+    if (at === -1) { out += esc(String(text).slice(i)); break; }
+    out += esc(String(text).slice(i, at));
+    out += "<mark>" + esc(String(text).substr(at, needle.length)) + "</mark>";
+    i = at + needle.length;
+  }
+  return out;
+}
+
+function heroCard(w, mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || !w) { if (el) el.innerHTML = ""; return; }
+  var label = (w.tags && w.tags[0]) ? w.tags[0] : "";
+
+  el.innerHTML =
+    '<a class="hero-post" href="/writeups/posts/' + esc(w.slug) + '.html">' +
+      '<div class="hero-main">' +
+        '<span class="hero-badge">Latest</span>' +
+        "<h2>" + esc(w.title) + "</h2>" +
+        "<p>" + esc(w.subtitle) + "</p>" +
+        metaHtml(w) +
+      "</div>" +
+      '<div class="hero-art" style="background:' + gradientOf(w.slug) + '">' +
+        "<span>" + esc(label) + "</span>" +
+      "</div>" +
+    "</a>";
+}
+
+function initWriteupsPage(items, opts) {
+  var input = document.getElementById(opts.inputId);
+  var clearBtn = document.getElementById(opts.clearId);
+  var tagbar = document.getElementById(opts.tagbarId);
+  var tagClear = document.getElementById(opts.tagClearId);
+  var sortBtn = document.getElementById(opts.sortId);
+  var countEl = document.getElementById(opts.countId);
+  var mount = opts.mountId;
+
+  var SORTS = [
+    { key: "newest", label: "Newest first" },
+    { key: "oldest", label: "Oldest first" },
+    { key: "severity", label: "By severity" }
+  ];
+
+  var state = { q: "", tag: "All", sort: "newest" };
+
+  /* ---- url hash <-> state ---- */
+  function readHash() {
+    var h = (location.hash || "").replace(/^#/, "");
+    if (!h) return;
+    h.split("&").forEach(function (pair) {
+      var kv = pair.split("=");
+      var k = decodeURIComponent(kv[0] || "");
+      var v = decodeURIComponent(kv[1] || "");
+      if (k === "q") state.q = v;
+      if (k === "tag") state.tag = v;
+      if (k === "sort" && SORTS.some(function (s) { return s.key === v; })) state.sort = v;
+    });
+  }
+
+  function writeHash() {
+    var parts = [];
+    if (state.q) parts.push("q=" + encodeURIComponent(state.q));
+    if (state.tag !== "All") parts.push("tag=" + encodeURIComponent(state.tag));
+    if (state.sort !== "newest") parts.push("sort=" + encodeURIComponent(state.sort));
+    var next = parts.length ? "#" + parts.join("&") : " ";
+    history.replaceState(null, "", location.pathname + (parts.length ? next : ""));
+  }
+
+  /* ---- tag buttons, with a count each ---- */
+  function buildTags() {
+    var counts = {};
+    items.forEach(function (w) {
+      (w.tags || []).forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
+    });
+    var names = Object.keys(counts).sort(function (a, b) {
+      return counts[b] - counts[a] || a.localeCompare(b);
+    });
+
+    tagbar.innerHTML =
+      '<button class="tagbtn" data-tag="All">All<b>' + items.length + "</b></button>" +
+      names.map(function (t) {
+        return '<button class="tagbtn" data-tag="' + esc(t) + '">' + esc(t) + "<b>" + counts[t] + "</b></button>";
+      }).join("");
+  }
+
+  function paintTags() {
+    Array.prototype.forEach.call(tagbar.querySelectorAll(".tagbtn"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-tag") === state.tag);
+    });
+    if (tagClear) tagClear.classList.toggle("show", state.tag !== "All" || !!state.q);
+  }
+
+  /* ---- filter + sort + render ---- */
+  function apply(pushHash) {
+    var q = state.q.trim().toLowerCase();
+
+    var out = items.filter(function (w) {
+      if (state.tag !== "All" && (w.tags || []).indexOf(state.tag) === -1) return false;
+      if (!q) return true;
+      var hay = [w.title, w.subtitle, (w.tags || []).join(" "),
+                 w.program, w.target, w.cve, w.platform, w.severity]
+        .filter(Boolean).join(" ").toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+
+    if (state.sort === "oldest") {
+      out = out.slice().sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+    } else if (state.sort === "severity") {
+      out = out.slice().sort(function (a, b) {
+        var ra = a.severity ? SEV_RANK[a.severity] : 9;
+        var rb = b.severity ? SEV_RANK[b.severity] : 9;
+        return ra - rb || String(b.date).localeCompare(String(a.date));
+      });
+    } else {
+      out = sortedPosts(out);
+    }
+
+    renderFeed(out, mount, {
+      groupByYear: state.sort !== "severity",
+      presorted: true,
+      allTags: true,
+      query: state.q.trim()
+    });
+
+    if (countEl) {
+      countEl.textContent = out.length === items.length
+        ? items.length + (items.length === 1 ? " writeup" : " writeups")
+        : out.length + " of " + items.length;
+    }
+
+    if (clearBtn) clearBtn.classList.toggle("show", !!state.q);
+    paintTags();
+    if (pushHash !== false) writeHash();
+  }
+
+  function reset() {
+    state.q = ""; state.tag = "All";
+    if (input) input.value = "";
+    apply();
+  }
+  window.__writeupsReset = reset;   /* used by the empty-state button */
+
+  /* ---- wire up ---- */
+  buildTags();
+  readHash();
+  if (input) input.value = state.q;
+  if (sortBtn) {
+    sortBtn.textContent = (SORTS.filter(function (s) { return s.key === state.sort; })[0] || SORTS[0]).label;
+    sortBtn.addEventListener("click", function () {
+      var i = 0;
+      SORTS.forEach(function (s, n) { if (s.key === state.sort) i = n; });
+      var next = SORTS[(i + 1) % SORTS.length];
+      state.sort = next.key;
+      sortBtn.textContent = next.label;
+      apply();
+    });
+  }
+
+  if (input) {
+    input.addEventListener("input", function () { state.q = input.value; apply(); });
+  }
+  if (clearBtn) {
+    clearBtn.addEventListener("click", function () {
+      state.q = ""; input.value = ""; input.focus(); apply();
+    });
+  }
+  if (tagClear) tagClear.addEventListener("click", reset);
+
+  tagbar.addEventListener("click", function (e) {
+    var btn = e.target.closest(".tagbtn");
+    if (!btn) return;
+    var t = btn.getAttribute("data-tag");
+    state.tag = (state.tag === t && t !== "All") ? "All" : t;   /* click again to unset */
+    apply();
+  });
+
+  /* keyboard: / focuses search, Escape clears it */
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "/" && document.activeElement !== input) {
+      e.preventDefault();
+      if (input) input.focus();
+    } else if (e.key === "Escape" && document.activeElement === input) {
+      state.q = ""; input.value = ""; input.blur(); apply();
+    }
+  });
+
+  /* shadow under the control bar once it sticks */
+  var controls = document.querySelector(".controls");
+  if (controls) {
+    window.addEventListener("scroll", function () {
+      controls.classList.toggle("stuck", controls.getBoundingClientRect().top <= 58);
+    }, { passive: true });
+  }
+
+  apply(false);
 }

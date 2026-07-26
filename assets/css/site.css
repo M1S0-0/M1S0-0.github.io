@@ -734,3 +734,139 @@ figcaption {
   .callout { break-inside: avoid; background: #f5f5f5; }
   .authorbox, .takeaways { break-inside: avoid; }
 }
+
+/* ===========================================================
+   Writeups index
+   =========================================================== */
+
+/* ---------- header meta line ---------- */
+.head-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 18px 0 0; font-family: var(--mono); font-size: 13px; color: var(--faint);
+}
+.head-meta a { color: var(--muted); text-decoration: none; }
+.head-meta a:hover { color: var(--accent); }
+
+/* ---------- featured hero ---------- */
+.hero-post {
+  display: grid; grid-template-columns: 1.05fr .95fr; gap: 32px; align-items: center;
+  text-decoration: none; margin: 40px 0 8px;
+  padding: 28px; border: 1px solid var(--rule); border-radius: 12px;
+  position: relative; overflow: hidden;
+}
+.hero-post:hover { border-color: var(--faint); }
+.hero-post:hover h2 { text-decoration: underline; }
+
+.hero-art {
+  height: 220px; border-radius: 8px; display: grid; place-items: center;
+  order: 2;
+}
+.hero-art span {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.95);
+}
+.hero-main { order: 1; }
+.hero-badge {
+  display: inline-block; margin-bottom: 14px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--accent);
+  border: 1px solid currentColor; border-radius: 999px; padding: 3px 10px;
+}
+.hero-post h2 {
+  font-size: clamp(24px, 3.4vw, 31px); font-weight: 700;
+  letter-spacing: -.022em; line-height: 1.2; margin: 0 0 12px;
+}
+.hero-post > .hero-main > p {
+  font-family: var(--serif); font-size: 17px; line-height: 1.5;
+  color: var(--muted); margin: 0 0 16px;
+}
+@media (max-width: 720px) {
+  .hero-post { grid-template-columns: 1fr; gap: 22px; padding: 22px; }
+  .hero-art { height: 150px; order: 1; }
+  .hero-main { order: 2; }
+}
+
+/* ---------- sticky control bar ---------- */
+.controls {
+  position: sticky; top: 57px; z-index: 40;
+  margin: 40px 0 0; padding: 16px 0 12px;
+  background: var(--bg);
+}
+.controls::before {
+  content: ""; position: absolute; left: -24px; right: -24px; top: 0; bottom: 0;
+  background: var(--bg); z-index: -1;
+}
+.controls.stuck { border-bottom: 1px solid var(--rule); }
+
+.controls-row { display: flex; gap: 10px; align-items: center; }
+.search { flex: 1 1 auto; min-width: 0; }
+
+.search-clear {
+  background: none; border: 0; cursor: pointer; padding: 0 2px;
+  color: var(--faint); font-size: 17px; line-height: 1; display: none;
+}
+.search-clear.show { display: block; }
+.search-clear:hover { color: var(--text); }
+.search kbd {
+  font-family: var(--mono); font-size: 11px; color: var(--faint);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 2px 6px;
+}
+
+.sort {
+  flex: 0 0 auto; font-family: var(--sans); font-size: 13.5px;
+  color: var(--muted); cursor: pointer;
+  background: var(--bg); border: 1px solid var(--rule); border-radius: 999px;
+  padding: 10px 14px;
+}
+.sort:hover { border-color: var(--faint); color: var(--text); }
+
+/* ---------- tag bar with counts ---------- */
+.tagbar { align-items: center; }
+.tagbtn b {
+  font-family: var(--mono); font-weight: 400; font-size: 11px;
+  opacity: .6; margin-left: 6px;
+}
+.tag-clear {
+  font-family: var(--sans); font-size: 13px; cursor: pointer;
+  background: none; border: 0; color: var(--faint); padding: 6px 4px;
+  text-decoration: underline; display: none;
+}
+.tag-clear.show { display: inline-block; }
+.tag-clear:hover { color: var(--text); }
+
+/* ---------- search highlight ---------- */
+mark {
+  background: rgba(26,137,23,.16); color: inherit;
+  border-radius: 2px; padding: 0 1px;
+}
+html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
+
+/* ---------- sticky year divider ---------- */
+.year {
+  position: sticky; top: 122px; z-index: 20;
+  background: var(--bg);
+}
+
+/* ---------- richer feed cards ---------- */
+.item-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.item .program {
+  font-family: var(--mono); font-size: 12px; color: var(--faint);
+  margin-bottom: 6px; display: block;
+}
+
+/* ---------- empty state ---------- */
+.empty { border: 1px dashed var(--rule); border-radius: 10px; }
+.empty b { display: block; color: var(--muted); margin-bottom: 6px; font-weight: 400; }
+.empty button {
+  margin-top: 14px; font-family: var(--sans); font-size: 13px; cursor: pointer;
+  background: none; border: 1px solid var(--rule); border-radius: 999px;
+  padding: 8px 16px; color: var(--muted);
+}
+.empty button:hover { color: var(--text); border-color: var(--faint); }
+
+@media (max-width: 620px) {
+  .controls { top: 0; }
+  .year { top: 0; }
+  .controls-row { flex-wrap: wrap; }
+  .sort { flex: 1 1 auto; }
+}

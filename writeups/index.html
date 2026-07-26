@@ -48,22 +48,34 @@
   <header class="page-head">
     <h1>Writeups</h1>
     <p>How the bug was found, why the code was wrong, and what it took to prove it.</p>
+    <div class="head-meta" id="head-meta"></div>
   </header>
 
-  <div id="featured" class="reveal"></div>
+  <!-- newest post, as a wide hero -->
+  <div id="hero"></div>
 
-  <div class="controls reveal">
-    <label class="search">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.2-4.2"></path>
-      </svg>
-      <input type="search" id="search" placeholder="Search writeups" aria-label="Search writeups">
-    </label>
+  <div class="controls">
+    <div class="controls-row">
+      <label class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.2-4.2"></path>
+        </svg>
+        <input type="search" id="search" placeholder="Search title, tag, program, CVE" aria-label="Search writeups">
+        <button class="search-clear" id="search-clear" type="button" aria-label="Clear search">&times;</button>
+        <kbd>/</kbd>
+      </label>
+      <button class="sort" id="sort" type="button">Newest first</button>
+    </div>
+
     <div class="tagbar" id="tagbar"></div>
-    <p class="count" id="count"></p>
+
+    <p class="count">
+      <span id="count"></span>
+      <button class="tag-clear" id="tag-clear" type="button">Clear filters</button>
+    </p>
   </div>
 
-  <div class="feed reveal" id="feed"></div>
+  <div class="feed" id="feed"></div>
 
 </div>
 
@@ -83,15 +95,31 @@
 <script src="/assets/js/site.js"></script>
 <script>
   initTheme();
-  renderFeatured(WRITEUPS, "featured");
-  initSearch(WRITEUPS, {
-    inputId:  "search",
-    tagbarId: "tagbar",
-    countId:  "count",
-    mountId:  "feed",
-    groupByYear: true
+
+  /* header meta line */
+  (function () {
+    var tags = {};
+    WRITEUPS.forEach(function (w) { (w.tags || []).forEach(function (t) { tags[t] = 1; }); });
+    document.getElementById("head-meta").innerHTML =
+      "<span>" + WRITEUPS.length + (WRITEUPS.length === 1 ? " writeup" : " writeups") + "</span>" +
+      '<span class="dot">&middot;</span>' +
+      "<span>" + Object.keys(tags).length + " topics</span>" +
+      '<span class="dot">&middot;</span>' +
+      '<a href="/feed.xml">RSS</a>';
+  })();
+
+  heroCard(sortedPosts(WRITEUPS)[0], "hero");
+
+  initWriteupsPage(WRITEUPS, {
+    inputId:    "search",
+    clearId:    "search-clear",
+    tagbarId:   "tagbar",
+    tagClearId: "tag-clear",
+    sortId:     "sort",
+    countId:    "count",
+    mountId:    "feed"
   });
-  initReveal();
+
   initToTop();
 </script>
 
