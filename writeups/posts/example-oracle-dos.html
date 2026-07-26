@@ -8,51 +8,53 @@
 <meta property="og:title" content="One future-dated oracle round froze an entire vault — M1S0">
 <meta property="og:description" content="A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.">
 <meta property="og:type" content="article">
-<link rel="stylesheet" href="/assets/css/writeups.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <script>
   (function () {
     var t = "light";
-    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    try { t = localStorage.getItem("theme") || "light"; } catch (e) {}
     document.documentElement.setAttribute("data-theme", t);
   })();
 </script>
 </head>
 <body>
 
-<div class="w-progress"><i></i></div>
+<div class="progress"><i></i></div>
 
-<nav class="w-nav">
-  <div class="w-nav-inner">
-    <a class="w-brand" href="/">m1s0</a>
-    <div class="w-nav-right">
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-right">
       <a href="/writeups/">All writeups</a>
-      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<article class="w-article">
+<nav class="toc" id="toc"></nav>
 
-  <a class="w-back" href="/writeups/">&larr; Writeups</a>
+<article class="article">
 
-  <div class="w-labels" style="margin-top:24px">
-    <span class="w-label w-label-high">High</span>
-    <span class="w-label w-label-plain">Immunefi</span>
-    <span class="w-label w-label-plain">Accepted</span>
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div class="labels">
+    <span class="label label-high">High</span>
+    <span class="label label-plain">Immunefi</span>
+    <span class="label label-plain">Accepted</span>
   </div>
 
-  <h1 class="w-title">One future-dated oracle round froze an entire vault</h1>
-  <p class="w-subtitle">A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.</p>
+  <h1 class="title">One future-dated oracle round froze an entire vault</h1>
+  <p class="subtitle">A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.</p>
 
-  <div class="w-author">
-    <span class="w-avatar" id="byline-avatar"></span>
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
     <div>
-      <div class="w-author-name" id="byline-name"></div>
-      <div class="w-author-meta" id="byline-meta"></div>
+      <div class="author-name" id="byline-name"></div>
+      <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
 
-  <div class="w-body">
+  <div class="body">
 
     <blockquote>
       Demonstration article. Replace with a real writeup, or delete the file and its entry
@@ -170,25 +172,36 @@ require(block.timestamp - updatedAt &lt;= MAX_AGE, "stale price");
 
 </article>
 
-<div class="w-foot">
-  <div class="w-foot-tags">
-    <span class="w-chip">Oracle</span>
-    <span class="w-chip">DoS</span>
-    <span class="w-chip">Solidity</span>
+<div class="afoot">
+  <div class="afoot-tags">
+    <span class="chip">Oracle</span>
+    <span class="chip">DoS</span>
+    <span class="chip">Solidity</span>
   </div>
-  <div class="w-more">
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
     <h3>More writeups</h3>
     <div id="more"></div>
   </div>
 </div>
 
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
 <script src="/assets/js/data/writeups.js"></script>
-<script src="/assets/js/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
 <script>
-  initTheme();
-  initProgress();
-  initByline("2026-06-14");
-  renderMore("example-oracle-dos", "more", 2);
+  initArticle({
+    slug:  "example-oracle-dos",
+    date:  "2026-06-14",
+    title: "One future-dated oracle round froze an entire vault"
+  });
 </script>
 
 </body>

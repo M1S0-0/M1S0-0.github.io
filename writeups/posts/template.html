@@ -12,61 +12,64 @@
 <!-- ======================================= -->
 
 <meta property="og:type" content="article">
-<link rel="stylesheet" href="/assets/css/writeups.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <script>
   (function () {
     var t = "light";
-    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    try { t = localStorage.getItem("theme") || "light"; } catch (e) {}
     document.documentElement.setAttribute("data-theme", t);
   })();
 </script>
 </head>
 <body>
 
-<div class="w-progress"><i></i></div>
+<div class="progress"><i></i></div>
 
-<nav class="w-nav">
-  <div class="w-nav-inner">
-    <a class="w-brand" href="/">m1s0</a>
-    <div class="w-nav-right">
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-right">
       <a href="/writeups/">All writeups</a>
-      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<article class="w-article">
+<!-- auto-generated from the h2 headings; hides itself if under 3 -->
+<nav class="toc" id="toc"></nav>
 
-  <a class="w-back" href="/writeups/">&larr; Writeups</a>
+<article class="article">
 
-  <!-- optional severity / status labels; delete if not a finding -->
-  <div class="w-labels" style="margin-top:24px">
-    <span class="w-label w-label-high">High</span>
-    <span class="w-label w-label-plain">PLATFORM</span>
-    <span class="w-label w-label-plain">STATUS</span>
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <!-- optional labels; delete the block if this is not a finding -->
+  <div class="labels">
+    <span class="label label-high">High</span>
+    <span class="label label-plain">PLATFORM</span>
+    <span class="label label-plain">STATUS</span>
   </div>
 
-  <h1 class="w-title">POST TITLE</h1>
-  <p class="w-subtitle">The deck line. One sentence that makes someone want to read the rest.</p>
+  <h1 class="title">POST TITLE</h1>
+  <p class="subtitle">The deck line. One sentence that makes someone want to read the rest.</p>
 
-  <div class="w-author">
-    <span class="w-avatar" id="byline-avatar"></span>
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
     <div>
-      <div class="w-author-name" id="byline-name"></div>
-      <div class="w-author-meta" id="byline-meta"></div>
+      <div class="author-name" id="byline-name"></div>
+      <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
 
   <!-- ============ ARTICLE BODY ============ -->
-  <div class="w-body">
+  <div class="body">
 
     <p>
       Open with the story, not the definition. What were you looking at, and what
-      made you stop and look twice. Two or three sentences.
+      made you stop and look twice.
     </p>
 
     <h2>The bug</h2>
-    <p>What is wrong with the code, in plain language, before any code appears.</p>
+    <p>What is wrong, in plain language, before any code appears.</p>
 
     <pre><code>// paste the vulnerable code here
 </code></pre>
@@ -85,7 +88,7 @@
 </code></pre>
 
     <h2>The fix</h2>
-    <p>The patch, and why it actually closes the issue rather than moving it.</p>
+    <p>The patch, and why it closes the issue rather than moving it.</p>
 
     <h2>Timeline</h2>
     <table>
@@ -100,24 +103,36 @@
 
 </article>
 
-<div class="w-foot">
-  <div class="w-foot-tags">
-    <span class="w-chip">Tag One</span>
-    <span class="w-chip">Tag Two</span>
+<div class="afoot">
+  <div class="afoot-tags">
+    <span class="chip">Tag One</span>
+    <span class="chip">Tag Two</span>
   </div>
-  <div class="w-more">
+
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
     <h3>More writeups</h3>
     <div id="more"></div>
   </div>
 </div>
 
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
 <script src="/assets/js/data/writeups.js"></script>
-<script src="/assets/js/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
 <script>
-  initTheme();
-  initProgress();
-  initByline("2026-07-01");        /* <-- publish date */
-  renderMore("REPLACE-WITH-SLUG", "more", 2);
+  initArticle({
+    slug:  "REPLACE-WITH-SLUG",   /* must match the entry in writeups.js */
+    date:  "2026-07-01",
+    title: "POST TITLE"
+  });
 </script>
 
 </body>

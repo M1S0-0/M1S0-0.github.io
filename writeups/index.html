@@ -8,49 +8,74 @@
 <meta property="og:title" content="Writeups — M1S0">
 <meta property="og:description" content="Technical writeups on vulnerability research, exploitation, and smart contract auditing.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="/assets/css/writeups.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <script>
-  /* set theme before first paint so there is no flash */
   (function () {
     var t = "light";
-    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    try { t = localStorage.getItem("theme") || "light"; } catch (e) {}
     document.documentElement.setAttribute("data-theme", t);
   })();
 </script>
 </head>
 <body>
 
-<nav class="w-nav">
-  <div class="w-nav-inner">
-    <a class="w-brand" href="/">m1s0</a>
-    <div class="w-nav-right">
-      <a href="/web2/">Web2</a>
-      <a href="/web3/">Web3</a>
-      <a href="/tools/">Tools</a>
-      <a href="/hall-of-fame/">Hall of Fame</a>
-      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-right">
+      <a class="on" href="/writeups/">Writeups</a>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<div class="w-wrap">
+<div class="wrap">
 
-  <header class="w-head">
+  <header class="page-head">
     <h1>Writeups</h1>
     <p>How the bug was found, why the code was wrong, and what it took to prove it.</p>
   </header>
 
-  <div class="w-tabs" id="tabs"></div>
-  <div class="w-feed" id="feed"></div>
+  <div id="featured"></div>
+
+  <div class="controls">
+    <label class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.2-4.2"></path>
+      </svg>
+      <input type="search" id="search" placeholder="Search writeups" aria-label="Search writeups">
+    </label>
+    <div class="tagbar" id="tagbar"></div>
+    <p class="count" id="count"></p>
+  </div>
+
+  <div class="feed" id="feed"></div>
 
 </div>
 
+<footer class="foot">
+  <div class="foot-links">
+    <a href="/">Home</a>
+    <a href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
+    <a href="mailto:unknowbughunter@gmail.com">Email</a>
+  </div>
+  <small>&copy; 2026 M1S0</small>
+</footer>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
 <script src="/assets/js/data/writeups.js"></script>
-<script src="/assets/js/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
 <script>
   initTheme();
-  renderFeed(WRITEUPS, "feed");
-  initTabs("tabs", "feed", WRITEUPS);
+  renderFeatured(WRITEUPS, "featured");
+  initSearch(WRITEUPS, {
+    inputId:  "search",
+    tagbarId: "tagbar",
+    countId:  "count",
+    mountId:  "feed"
+  });
+  initToTop();
 </script>
 
 </body>

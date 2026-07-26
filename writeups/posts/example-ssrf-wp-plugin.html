@@ -8,51 +8,53 @@
 <meta property="og:title" content="Unauthenticated SSRF in a WordPress plugin import endpoint — M1S0">
 <meta property="og:description" content="An import handler that never checked who was calling it, and happily fetched any URL I handed over.">
 <meta property="og:type" content="article">
-<link rel="stylesheet" href="/assets/css/writeups.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <script>
   (function () {
     var t = "light";
-    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    try { t = localStorage.getItem("theme") || "light"; } catch (e) {}
     document.documentElement.setAttribute("data-theme", t);
   })();
 </script>
 </head>
 <body>
 
-<div class="w-progress"><i></i></div>
+<div class="progress"><i></i></div>
 
-<nav class="w-nav">
-  <div class="w-nav-inner">
-    <a class="w-brand" href="/">m1s0</a>
-    <div class="w-nav-right">
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-right">
       <a href="/writeups/">All writeups</a>
-      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<article class="w-article">
+<nav class="toc" id="toc"></nav>
 
-  <a class="w-back" href="/writeups/">&larr; Writeups</a>
+<article class="article">
 
-  <div class="w-labels" style="margin-top:24px">
-    <span class="w-label w-label-high">High</span>
-    <span class="w-label w-label-plain">Patchstack</span>
-    <span class="w-label w-label-plain">Disclosed</span>
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div class="labels">
+    <span class="label label-high">High</span>
+    <span class="label label-plain">Patchstack</span>
+    <span class="label label-plain">Disclosed</span>
   </div>
 
-  <h1 class="w-title">Unauthenticated SSRF in a WordPress plugin import endpoint</h1>
-  <p class="w-subtitle">An import handler that never checked who was calling it, and happily fetched any URL I handed over.</p>
+  <h1 class="title">Unauthenticated SSRF in a WordPress plugin import endpoint</h1>
+  <p class="subtitle">An import handler that never checked who was calling it, and happily fetched any URL I handed over.</p>
 
-  <div class="w-author">
-    <span class="w-avatar" id="byline-avatar"></span>
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
     <div>
-      <div class="w-author-name" id="byline-name"></div>
-      <div class="w-author-meta" id="byline-meta"></div>
+      <div class="author-name" id="byline-name"></div>
+      <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
 
-  <div class="w-body">
+  <div class="body">
 
     <blockquote>
       This is a demonstration article showing the layout. Replace it with a real writeup,
@@ -192,25 +194,36 @@ function plugin_import() {
 
 </article>
 
-<div class="w-foot">
-  <div class="w-foot-tags">
-    <span class="w-chip">SSRF</span>
-    <span class="w-chip">WordPress</span>
-    <span class="w-chip">Unauth</span>
+<div class="afoot">
+  <div class="afoot-tags">
+    <span class="chip">SSRF</span>
+    <span class="chip">WordPress</span>
+    <span class="chip">Unauth</span>
   </div>
-  <div class="w-more">
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
     <h3>More writeups</h3>
     <div id="more"></div>
   </div>
 </div>
 
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
 <script src="/assets/js/data/writeups.js"></script>
-<script src="/assets/js/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
 <script>
-  initTheme();
-  initProgress();
-  initByline("2026-07-20");
-  renderMore("example-ssrf-wp-plugin", "more", 2);
+  initArticle({
+    slug:  "example-ssrf-wp-plugin",
+    date:  "2026-07-20",
+    title: "Unauthenticated SSRF in a WordPress plugin import endpoint"
+  });
 </script>
 
 </body>

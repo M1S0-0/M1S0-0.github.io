@@ -8,49 +8,51 @@
 <meta property="og:title" content="How I actually read a smart contract for the first time — M1S0">
 <meta property="og:description" content="Not line by line from the top. Here is the order I go in, and why invariants come before implementation.">
 <meta property="og:type" content="article">
-<link rel="stylesheet" href="/assets/css/writeups.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <script>
   (function () {
     var t = "light";
-    try { t = localStorage.getItem("w-theme") || "light"; } catch (e) {}
+    try { t = localStorage.getItem("theme") || "light"; } catch (e) {}
     document.documentElement.setAttribute("data-theme", t);
   })();
 </script>
 </head>
 <body>
 
-<div class="w-progress"><i></i></div>
+<div class="progress"><i></i></div>
 
-<nav class="w-nav">
-  <div class="w-nav-inner">
-    <a class="w-brand" href="/">m1s0</a>
-    <div class="w-nav-right">
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">m1s0</a>
+    <div class="nav-right">
       <a href="/writeups/">All writeups</a>
-      <button class="w-theme" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
-<article class="w-article">
+<nav class="toc" id="toc"></nav>
 
-  <a class="w-back" href="/writeups/">&larr; Writeups</a>
+<article class="article">
 
-  <div class="w-labels" style="margin-top:24px">
-    <span class="w-label w-label-plain">Research</span>
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div class="labels">
+    <span class="label label-plain">Research</span>
   </div>
 
-  <h1 class="w-title">How I actually read a smart contract for the first time</h1>
-  <p class="w-subtitle">Not line by line from the top. Here is the order I go in, and why invariants come before implementation.</p>
+  <h1 class="title">How I actually read a smart contract for the first time</h1>
+  <p class="subtitle">Not line by line from the top. Here is the order I go in, and why invariants come before implementation.</p>
 
-  <div class="w-author">
-    <span class="w-avatar" id="byline-avatar"></span>
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
     <div>
-      <div class="w-author-name" id="byline-name"></div>
-      <div class="w-author-meta" id="byline-meta"></div>
+      <div class="author-name" id="byline-name"></div>
+      <div class="author-meta" id="byline-meta"></div>
     </div>
   </div>
 
-  <div class="w-body">
+  <div class="body">
 
     <blockquote>
       Demonstration article. Replace with a real writeup, or delete the file and its entry
@@ -130,24 +132,35 @@
 
 </article>
 
-<div class="w-foot">
-  <div class="w-foot-tags">
-    <span class="w-chip">Methodology</span>
-    <span class="w-chip">Auditing</span>
+<div class="afoot">
+  <div class="afoot-tags">
+    <span class="chip">Methodology</span>
+    <span class="chip">Auditing</span>
   </div>
-  <div class="w-more">
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
     <h3>More writeups</h3>
     <div id="more"></div>
   </div>
 </div>
 
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
 <script src="/assets/js/data/writeups.js"></script>
-<script src="/assets/js/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
 <script>
-  initTheme();
-  initProgress();
-  initByline("2026-05-02");
-  renderMore("example-methodology", "more", 2);
+  initArticle({
+    slug:  "example-methodology",
+    date:  "2026-05-02",
+    title: "How I actually read a smart contract for the first time"
+  });
 </script>
 
 </body>

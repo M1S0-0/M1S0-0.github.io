@@ -4,31 +4,41 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>404 — M1S0</title>
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>
+  (function () {
+    var t = "light";
+    try { t = localStorage.getItem("theme") || "light"; } catch (e) {}
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 </head>
 <body>
 
 <nav class="nav">
   <div class="nav-inner">
     <a class="brand" href="/">m1s0</a>
-    <div class="nav-links">
-      <a href="/web2/">Web2</a>
-      <a href="/web3/">Web3</a>
+    <div class="nav-right">
       <a href="/writeups/">Writeups</a>
-      <a href="/tools/">Tools</a>
-      <a href="/hall-of-fame/">Hall of Fame</a>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
     </div>
   </div>
 </nav>
 
 <div class="wrap">
-  <header class="hero">
-    <p class="kicker">404</p>
+  <header class="masthead" style="border-bottom:0">
+    <p class="eyebrow">404</p>
     <h1>Nothing here.</h1>
-    <p>That page does not exist. Not every dead end is a vulnerability.</p>
-    <div class="cta"><a class="btn btn-primary" href="/">Back home</a></div>
+    <p class="lede">That page does not exist. Not every dead end is a vulnerability.</p>
+    <div class="masthead-links">
+      <a class="mlink mlink-primary" href="/">Home</a>
+      <a class="mlink" href="/writeups/">Writeups</a>
+    </div>
   </header>
 </div>
+
+<script src="/assets/js/site.js"></script>
+<script>initTheme();</script>
 
 </body>
 </html>

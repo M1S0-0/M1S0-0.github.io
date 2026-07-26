@@ -1,53 +1,45 @@
 # m1s0-0.github.io
 
-Personal security research portfolio. Live at **https://m1s0-0.github.io/**
+Security research writeups. Live at **https://m1s0-0.github.io/**
 
 Static HTML, no build step, no dependencies. Push to `main` and it is live.
-
-## How to add content
-
-Everything on the site is generated from four data files. **You never hand-edit HTML to add an entry.**
-
-| To add | Edit |
-|---|---|
-| A finding (web2 or web3) | `assets/js/data/findings.js` |
-| A tool you built | `assets/js/data/tools.js` |
-| A writeup | `assets/js/data/writeups.js` + an HTML file in `writeups/posts/` |
-| A hall of fame entry | `assets/js/data/halloffame.js` |
-
-Add one object to the array. The relevant page picks it up, and the stat counters on
-the homepage recalculate on their own.
-
-### Adding a writeup
-
-1. Copy `writeups/posts/template.html` to `writeups/posts/<slug>.html`
-2. Fill it in
-3. Add an entry to `writeups.js` with a matching `slug`
-
-### Disclosure control
-
-Findings support `visibility: "public" | "redacted"`.
-
-Set it to `redacted` while a report is still embargoed. The card renders as severity,
-platform and payout only, with no title, target or detail. It still counts toward the
-homepage totals. Flip it to `public` once the program authorises disclosure.
 
 ## Structure
 
 ```
-index.html              home: stats, featured findings, tools, writeups, about
-web2/                   web application findings
-web3/                   smart contract findings
-writeups/               article index
-  posts/                one HTML file per article
-tools/                  tools built
-hall-of-fame/           acknowledgements and CVE credits
+index.html                  Home — masthead + latest writeups
+writeups/index.html         Feed — featured post, search, tag filter
+writeups/posts/<slug>.html  One file per article
+writeups/posts/template.html
 404.html
 assets/
-  css/style.css         all styling, CSS variables at the top
-  js/render.js          turns the data arrays into cards
-  js/data/*.js          the content
+  css/site.css              all styling; CSS variables at the top
+  js/site.js                feed, theme, syntax highlighting, TOC
+  js/data/writeups.js       the article list
 ```
+
+## Adding a writeup
+
+1. Copy `writeups/posts/template.html` to `writeups/posts/<slug>.html`
+2. Edit the four marked lines in `<head>`, write the body, and set the
+   `initArticle({ slug, date, title })` call at the bottom
+3. Add a matching entry to `assets/js/data/writeups.js`
+
+The `slug` in the data file must match the filename. Nothing else needs touching —
+the feed, the homepage, prev/next links and the "More writeups" block all update
+themselves.
+
+## What runs automatically
+
+| Feature | Notes |
+|---|---|
+| Read time | Computed from the real word count on article pages |
+| Table of contents | Built from the `h2` headings, hidden if fewer than 3 |
+| Syntax highlighting | Strings matched before comments, so URLs are not mangled |
+| Copy button | Added to every code block |
+| Prev / next | Derived from publication date order |
+| Thumbnails | Gradient generated from a hash of the slug, so it never changes |
+| Theme | Light by default, toggle persists in localStorage |
 
 ## Local preview
 
@@ -57,5 +49,5 @@ python3 -m http.server 8000
 
 Then open http://localhost:8000
 
-Opening the HTML files directly with `file://` also works, but absolute paths like
-`/assets/css/style.css` will not resolve, so use the server.
+Use the server rather than opening files directly, since absolute paths like
+`/assets/css/site.css` will not resolve over `file://`.
