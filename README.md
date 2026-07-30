@@ -7,7 +7,7 @@ Static HTML, no build step, no dependencies. Push to `main` and it is live.
 ## Structure
 
 ```
-index.html                  Home — masthead, stats, about, latest writeups
+index.html                  Home — profile, hall of fame chain, about, latest
 writeups/index.html         Feed — featured post, search, tag filter
 writeups/posts/<slug>.html  One file per article
 writeups/posts/template.html
@@ -17,6 +17,7 @@ assets/
   css/site.css              all styling; CSS variables at the top
   js/site.js                feed, theme, syntax highlighting, TOC
   js/data/writeups.js       the article list
+  js/data/halloffame.js     hall of fame groups and entries
   img/                      generated favicons and link preview cards
 scripts/
   generate.js               rebuilds feed.xml, sitemap.xml, robots.txt
@@ -38,6 +39,23 @@ both light and dark.
 | Key takeaways | `<div class="takeaways">` | The generalisable lesson, not the specific bug. |
 | References | `<div class="refs">` | Numbered source list. |
 | Author box | `<div id="authorbox"></div>` | Rendered automatically. |
+
+## Hall of fame
+
+The home page is built from `assets/js/data/halloffame.js`. Two arrays:
+
+`HOF_GROUPS` are the sections and their order — currently Web2, Web3, Audits.
+
+Each entry sets `group` (a group key) and `visibility`:
+
+- `public` — the org name is shown, and the block links out if you give it a `proof` URL
+- `private` — the name renders masked with a lock. The entry still counts toward the
+  totals, so a credit under an NDA is represented without naming anything.
+
+Optional per entry: `kind` (Hall of Fame, Acknowledgement, CVE Credit, Audit, Contest),
+`detail` (one line on what you found), `year`, `proof`.
+
+Public entries sort above private ones within a group.
 
 ## Categories
 

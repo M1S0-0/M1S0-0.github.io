@@ -394,23 +394,6 @@ function initReveal() {
   });
 }
 
-/* counts shown on the home stat line */
-function renderStatline(mountId) {
-  var el = document.getElementById(mountId);
-  if (!el || typeof WRITEUPS === "undefined") return;
-
-  var tags = {};
-  WRITEUPS.forEach(function (w) { (w.tags || []).forEach(function (t) { tags[t] = 1; }); });
-
-  var cells = [
-    [WRITEUPS.length, WRITEUPS.length === 1 ? "Writeup" : "Writeups"],
-    [Object.keys(tags).length, "Topics"]
-  ];
-
-  el.innerHTML = cells.map(function (c) {
-    return "<div><strong>" + esc(c[0]) + "</strong><span>" + esc(c[1]) + "</span></div>";
-  }).join("");
-}
 
 /* =============================================================
    Article detail
@@ -704,4 +687,124 @@ function initWriteupsPage(items, opts) {
   }
 
   apply(false);
+}
+
+/* =============================================================
+   HOME — hall of fame chain + stats
+   ============================================================= */
+
+function hofOf(group) {
+  if (typeof HALLOFFAME === "undefined") return [];
+  return HALLOFFAME.filter(function (h) { return h.group === group; });
+}
+
+/* one entry, rendered as a block on the chain.
+   A private entry keeps its payload hidden but is still counted. */
+function hofBlock(h, i) {
+  var idx = "#" + String(i + 1).padStart(3, "0");
+
+  var org = h.visibility === "private"
+    ? '<span class="masked">' + "█".repeat(9) + "</span>" +
+      '<span class="lock" title="Private program">&#128274;</span>'
+    : esc(h.org || "Unnamed");
+
+  var vis = '<span class="vis vis-' + (h.visibility === "private" ? "private" : "public") + '">' +
+              (h.visibility === "private" ? "Private" : "Public") + "</span>";
+
+  var inner =
+    '<span class="block-idx">' + esc(idx) + "</span>" +
+    '<div class="block-main">' +
+      '<div class="block-org">' + org + "</div>" +
+      (h.detail ? '<div class="block-detail">' + esc(h.detail) + "</div>" : "") +
+    "</div>" +
+    (h.kind ? '<span class="kind">' + esc(h.kind) + "</span>" : "") +
+    vis +
+    (h.year ? '<span class="block-year">' + esc(h.year) + "</span>" : "");
+
+  /* only public entries with a proof link are clickable */
+  if (h.visibility !== "private" && h.proof) {
+    return '<a class="block" href="' + esc(h.proof) + '" rel="noopener">' + inner + "</a>";
+  }
+  return '<div class="block">' + inner + "</div>";
+}
+
+function renderHallOfFame(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || typeof HOF_GROUPS === "undefined") return;
+
+  el.innerHTML = HOF_GROUPS.map(function (g) {
+    var rows = hofOf(g.key);
+    if (!rows.length) return "";
+
+    /* public first, then private, so the named ones lead */
+    rows = rows.slice().sort(function (a, b) {
+      var av = a.visibility === "private" ? 1 : 0;
+      var bv = b.visibility === "private" ? 1 : 0;
+      return av - bv || String(b.year || "").localeCompare(String(a.year || ""));
+    });
+
+    return '<section class="hof-section reveal">' +
+             '<div class="hof-head">' +
+               "<h2>" + esc(g.label) + "</h2>" +
+               '<span class="note">' + esc(g.note || "") + "</span>" +
+               '<span class="n">' + rows.length + "</span>" +
+             "</div>" +
+             '<div class="chain">' + rows.map(hofBlock).join("") + "</div>" +
+           "</section>";
+  }).join("");
+}
+
+/* stat blocks, counted from the hall of fame and the writeups */
+function renderHomeStats(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el) return;
+
+  var hof = (typeof HALLOFFAME !== "undefined") ? HALLOFFAME : [];
+  var posts = (typeof WRITEUPS !== "undefined") ? WRITEUPS : [];
+
+  var cves = posts.filter(function (w) { return !!w.cve; }).length;
+
+  var cells = [
+    [hof.length, "Hall of Fame"],
+    [hofOf("web2").length, "Web2"],
+    [hofOf("web3").length, "Web3"],
+    [cves, "CVEs"],
+    [posts.length, "Writeups"]
+  ];
+
+  el.innerHTML = cells.map(function (c) {
+    return '<div class="hx-stat"><b data-to="' + esc(c[0]) + '">0</b><span>' + esc(c[1]) + "</span></div>";
+  }).join("");
+
+  countUp(el);
+}
+
+/* counts the stat numbers up once, when they first scroll into view */
+function countUp(scope) {
+  var nums = scope.querySelectorAll("[data-to]");
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function run(node) {
+    var to = parseInt(node.getAttribute("data-to"), 10) || 0;
+    if (reduce || to === 0) { node.textContent = to; return; }
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min(1, (ts - start) / 900);
+      node.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    Array.prototype.forEach.call(nums, run);
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { run(e.target); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.4 });
+  Array.prototype.forEach.call(nums, function (n) { io.observe(n); });
 }

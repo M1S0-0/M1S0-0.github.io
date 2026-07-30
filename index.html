@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>M1S0 — Security Researcher</title>
-<meta name="description" content="Bug bounty hunter and security researcher. Writeups on vulnerability research, exploitation, and smart contract auditing.">
+<meta name="description" content="Bug bounty hunter and smart contract auditor. Hall of fame across Web2 programs, Web3 protocols, and audit contests.">
 <link rel="canonical" href="https://m1s0-0.github.io/">
 
 <meta property="og:site_name" content="M1S0">
 <meta property="og:title" content="M1S0 — Security Researcher">
-<meta property="og:description" content="Bug bounty hunter and security researcher. Writeups on vulnerability research, exploitation, and smart contract auditing.">
+<meta property="og:description" content="Bug bounty hunter and smart contract auditor. Hall of fame across Web2 programs, Web3 protocols, and audit contests.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://m1s0-0.github.io/">
 <meta property="og:image" content="https://m1s0-0.github.io/assets/img/og.png">
@@ -45,28 +45,45 @@
   </div>
 </nav>
 
-<div class="wrap">
+<!-- ============ HERO ============ -->
+<header class="hx">
+  <div class="wide">
+    <p class="hx-term">m1s0@sec:~$ whoami<span class="caret"></span></p>
 
-  <header class="masthead">
-    <p class="eyebrow">Security Researcher</p>
-    <h1>I break things before someone else does.</h1>
-    <p class="lede">
-      Bug bounty hunting across smart contracts and web applications. This is where
-      I write down how the bugs were actually found.
+    <h1 class="hx-name">M1S0</h1>
+
+    <div class="hx-role">
+      <span>Security Researcher</span>
+      <span>Smart Contract Auditor</span>
+      <span>Bug Bounty Hunter</span>
+    </div>
+
+    <p class="hx-lede">
+      I break protocols holding real money, and the web applications everyone trusts
+      by default. Below is what has been publicly credited.
     </p>
+
     <div class="masthead-links">
       <a class="mlink mlink-primary" href="/writeups/">Read the writeups</a>
       <a class="mlink" href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
       <a class="mlink" href="mailto:unknowbughunter@gmail.com">Email</a>
-      <a class="mlink" href="/feed.xml">RSS</a>
     </div>
-  </header>
 
-  <div class="statline reveal" id="statline"></div>
+    <div class="hx-stats" id="stats"></div>
+  </div>
+</header>
 
-  <section class="about reveal">
-    <div class="about-grid">
-      <div class="about-body">
+<!-- ============ HALL OF FAME ============ -->
+<div class="wide">
+  <div id="hof"></div>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="hx-about reveal">
+    <div class="hof-head">
+      <h2>About</h2>
+    </div>
+    <div class="hx-about-grid">
+      <div>
         <p>
           I hunt vulnerabilities in two places that rarely share an audience:
           <strong>smart contracts</strong> holding real money, and the
@@ -78,12 +95,13 @@
           that looked like a bug and was not, and the proof that finally held up.
         </p>
         <p>
-          When the tooling gets in the way, I build my own.
+          Private entries above are real credits under programs that do not permit
+          disclosure. They are counted, never described.
         </p>
       </div>
 
       <div>
-        <div class="focus">
+        <div class="stack">
           <h4>Looking for</h4>
           <ul>
             <li>Broken accounting and rounding</li>
@@ -93,7 +111,7 @@
             <li>Authentication logic flaws</li>
           </ul>
         </div>
-        <div class="focus">
+        <div class="stack">
           <h4>Working with</h4>
           <ul>
             <li>Solidity &middot; Foundry &middot; Rust</li>
@@ -104,13 +122,15 @@
     </div>
   </section>
 
-  <div class="sec-head reveal">
-    <h2>Latest writeups</h2>
-    <a href="/writeups/">View all &rarr;</a>
-  </div>
-
-  <div class="feed reveal" id="feed"></div>
-
+  <!-- ============ LATEST WRITEUPS ============ -->
+  <section class="hx-latest reveal">
+    <div class="hof-head">
+      <h2>Latest</h2>
+      <span class="note">Recent writeups</span>
+      <a class="n" href="/writeups/">View all &rarr;</a>
+    </div>
+    <div class="feed" id="feed"></div>
+  </section>
 </div>
 
 <footer class="foot">
@@ -128,12 +148,14 @@
 
 <button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
 
+<script src="/assets/js/data/halloffame.js"></script>
 <script src="/assets/js/data/writeups.js"></script>
 <script src="/assets/js/site.js"></script>
 <script>
   initTheme();
-  renderStatline("statline");
-  renderFeed(sortedPosts(WRITEUPS).slice(0, 5), "feed");
+  renderHomeStats("stats");
+  renderHallOfFame("hof");
+  renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");
   initReveal();
   initToTop();
 </script>
