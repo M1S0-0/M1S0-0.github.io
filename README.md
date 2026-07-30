@@ -18,6 +18,7 @@ assets/
   js/site.js                feed, theme, syntax highlighting, TOC
   js/data/writeups.js       the article list
   js/data/halloffame.js     hall of fame groups and entries
+  js/data/platforms.js      platform profiles and severity totals
   img/                      generated favicons and link preview cards
 scripts/
   generate.js               rebuilds feed.xml, sitemap.xml, robots.txt
@@ -39,6 +40,27 @@ both light and dark.
 | Key takeaways | `<div class="takeaways">` | The generalisable lesson, not the specific bug. |
 | References | `<div class="refs">` | Numbered source list. |
 | Author box | `<div id="authorbox"></div>` | Rendered automatically. |
+
+## Platforms
+
+`assets/js/data/platforms.js` holds two things.
+
+`PLATFORMS` is the cross-platform strip. Every bounty site shows your record only on
+that site, so this is the one place the whole picture lives. Per entry: `name`, `handle`,
+`url` (omit it and the card renders unlinked), `stat` — whatever headline number that
+platform actually gives you, in its own vocabulary:
+
+| Platform | Use its own label |
+|---|---|
+| Immunefi | `Elite Auditor`, `Rank 412` |
+| HackerOne | `Rank 1,204`, `Reputation 892` |
+| Bugcrowd | `P4 · 92% accuracy` |
+| Cantina | `Rank 88` |
+| HackenProof | `Rank 40` |
+
+`SEVERITY` is the combined findings breakdown across every platform. Set the counts and
+the stacked bar draws itself. While every count is zero it shows a note instead of a bar,
+so an empty profile never looks like a full one.
 
 ## Hall of fame
 

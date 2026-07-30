@@ -769,3 +769,60 @@ function renderHallOfFame(mountId) {
            "</section>";
   }).join("");
 }
+
+/* =============================================================
+   Cross-platform presence + severity distribution
+   ============================================================= */
+
+function renderPlatforms(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || typeof PLATFORMS === "undefined") return;
+
+  el.innerHTML = PLATFORMS.map(function (p) {
+    var body =
+      '<div class="pcard-name">' + esc(p.name) + "</div>" +
+      '<div class="pcard-stat">' + esc(p.stat || "—") + "</div>" +
+      '<div class="pcard-handle">' + esc(p.handle || "") + "</div>" +
+      (p.note ? '<div class="pcard-note">' + esc(p.note) + "</div>" : "");
+
+    /* only linked when a real profile url is set */
+    if (p.url) {
+      return '<a class="pcard" href="' + esc(p.url) + '" rel="noopener">' +
+               body + '<span class="pcard-out">&#8599;</span>' +
+             "</a>";
+    }
+    return '<div class="pcard">' + body + "</div>";
+  }).join("");
+}
+
+function renderSeverity(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || typeof SEVERITY === "undefined") return;
+
+  var total = SEVERITY.reduce(function (s, x) { return s + (x.count || 0); }, 0);
+
+  var key = '<div class="sevkey">' +
+    SEVERITY.map(function (x) {
+      return "<div>" +
+               '<em class="' + esc(x.key) + '"></em>' +
+               "<b>" + esc(x.count || 0) + "</b>" +
+               "<span>" + esc(x.label) + "</span>" +
+             "</div>";
+    }).join("") + "</div>";
+
+  if (!total) {
+    /* nothing tallied yet: show the key without a misleading bar */
+    el.innerHTML = '<p class="sev-empty">// no findings tallied yet</p>' + key;
+    return;
+  }
+
+  var bar = '<div class="sevbar">' +
+    SEVERITY.map(function (x) {
+      var pct = ((x.count || 0) / total) * 100;
+      return pct > 0
+        ? '<i class="' + esc(x.key) + '" style="width:' + pct.toFixed(2) + '%"></i>'
+        : "";
+    }).join("") + "</div>";
+
+  el.innerHTML = bar + key;
+}

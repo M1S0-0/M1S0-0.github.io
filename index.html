@@ -81,6 +81,28 @@
   </div>
 </header>
 
+<!-- ============ CROSS-PLATFORM PRESENCE ============ -->
+<div class="wide">
+  <section class="hof-section reveal">
+    <div class="hof-head">
+      <h2>Platforms</h2>
+      <span class="note">Every profile in one place</span>
+      <span class="n" id="platform-count"></span>
+    </div>
+    <div class="platforms" id="platforms"></div>
+  </section>
+
+  <!-- ============ SEVERITY DISTRIBUTION ============ -->
+  <section class="hof-section reveal">
+    <div class="hof-head">
+      <h2>Findings</h2>
+      <span class="note">Every platform combined</span>
+      <span class="n" id="finding-count"></span>
+    </div>
+    <div class="sev-wrap" id="severity"></div>
+  </section>
+</div>
+
 <!-- ============ HALL OF FAME ============ -->
 <div class="wide">
   <div id="hof"></div>
@@ -156,11 +178,19 @@
 
 <button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
 
+<script src="/assets/js/data/platforms.js"></script>
 <script src="/assets/js/data/halloffame.js"></script>
 <script src="/assets/js/data/writeups.js"></script>
 <script src="/assets/js/site.js"></script>
 <script>
   initTheme();
+
+  renderPlatforms("platforms");
+  renderSeverity("severity");
+  document.getElementById("platform-count").textContent = PLATFORMS.length;
+  document.getElementById("finding-count").textContent =
+    SEVERITY.reduce(function (s, x) { return s + (x.count || 0); }, 0);
+
   renderHallOfFame("hof");
   renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");
   initReveal();
