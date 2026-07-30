@@ -909,7 +909,7 @@ html[data-theme="dark"] {
    PROFILE BANNER
    =========================================================== */
 
-.pb-outer { padding: 34px 0 0; }
+.pb-outer { padding-top: 34px; }   /* shorthand here would zero .wide's side padding */
 
 .pb {
   position: relative; overflow: hidden;
@@ -1142,3 +1142,94 @@ html[data-theme="dark"] .ethm.m7 { opacity: .058; }
 }
 
 .sub-head h3::before, .lbl::before { content: none; }
+
+/* ===========================================================
+   Section headings, about strip and the 404 masthead
+
+   These were dropped by an over-broad cleanup while the hero
+   and reports table were being removed. Kept together here so
+   a section-scoped edit cannot take them again.
+   =========================================================== */
+
+/* ---------- hall of fame / platforms section headings ---------- */
+.hof-section { padding: 72px 0 0; }
+
+.hof-head {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 14px;
+  padding-bottom: 18px; margin-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+}
+.hof-head h2 {
+  font-family: var(--mono); font-size: clamp(19px, 1.7vw, 24px); font-weight: 700;
+  letter-spacing: -.01em; margin: 0; line-height: 1.2;
+}
+.hof-head .note { font-size: 13.5px; color: var(--faint); line-height: 1.4; }
+
+/* pushed to the far right, which only works while this is a flex row */
+.hof-head .n {
+  margin-left: auto; font-family: var(--mono); font-size: 12px;
+  color: var(--faint); text-decoration: none;
+}
+a.n:hover { color: var(--text); }
+
+@media (max-width: 560px) {
+  .hof-head { gap: 8px; }
+  .hof-head .n { margin-left: 0; }
+}
+
+/* ---------- chips on the hall of fame cards ---------- */
+.kind {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 3px 8px;
+}
+.block-year { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+
+/* ---------- about strip ---------- */
+.hx-about { padding: 76px 0 0; }
+.hx-about-grid { display: grid; gap: 44px; grid-template-columns: 1.3fr 1fr; }
+@media (max-width: 780px) { .hx-about-grid { grid-template-columns: 1fr; gap: 30px; } }
+.hx-about p {
+  font-family: var(--serif); font-size: clamp(17px, 1.3vw, 19px); line-height: 1.6;
+  color: var(--muted); margin: 0 0 20px;
+}
+.hx-about strong { color: var(--text); font-weight: 600; }
+
+.stack h4 {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--faint); margin: 0 0 12px;
+}
+.stack + .stack { margin-top: 26px; }
+.stack ul { list-style: none; margin: 0; padding: 0; }
+.stack li {
+  font-size: 14.5px; color: var(--muted); padding: 5px 0 5px 18px; position: relative;
+}
+.stack li::before {
+  content: ""; position: absolute; left: 0; top: 12px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+}
+
+.hx-latest { padding: 76px 0 0; }
+
+/* ---------- masthead, used by 404 ---------- */
+.masthead { padding: 84px 0 56px; border-bottom: 1px solid var(--rule); }
+.masthead .eyebrow {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 20px;
+}
+.masthead h1 {
+  font-size: clamp(40px, 8vw, 68px); font-weight: 700;
+  letter-spacing: -.035em; line-height: 1.04; margin: 0 0 22px;
+}
+.masthead .lede {
+  font-family: var(--serif); font-size: clamp(18px, 2.4vw, 21px);
+  line-height: 1.55; color: var(--muted); margin: 0 0 32px; max-width: 46ch;
+}
+.masthead-links { display: flex; flex-wrap: wrap; gap: 12px; }
+.mlink {
+  font-size: 14px; text-decoration: none; color: var(--text);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 9px 18px;
+}
+.mlink:hover { border-color: var(--text); text-decoration: none; }
+.mlink-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+.mlink-primary:hover { opacity: .88; }
