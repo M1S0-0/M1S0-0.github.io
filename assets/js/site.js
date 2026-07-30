@@ -782,9 +782,11 @@ function renderProfile(bannerId, rowId, bioId) {
     row.innerHTML =
       (p.tier ? '<span class="tier">' + esc(p.tier) + "</span>" : "") +
       (p.links || []).map(function (l) {
-        return l.url
-          ? '<a class="pb-link" href="' + esc(l.url) + '" rel="noopener">' + esc(l.label) + "</a>"
-          : '<span class="pb-link">' + esc(l.label) + "</span>";
+        if (!l.url) return '<span class="pb-link">' + esc(l.label) + "</span>";
+        /* off-site links open in a new tab so the profile stays put */
+        var ext = /^https?:/i.test(l.url) ? ' target="_blank"' : "";
+        return '<a class="pb-link" href="' + esc(l.url) + '"' + ext +
+               ' rel="noopener noreferrer">' + esc(l.label) + "</a>";
       }).join("");
   }
 

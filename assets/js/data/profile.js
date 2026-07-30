@@ -25,9 +25,9 @@ const PROFILE = {
   headline: [],
 
   links: [
-    { label: "X",      url: null },
-    { label: "GitHub", url: "https://github.com/M1S0-0" },
-    { label: "Email",  url: "mailto:unknowbughunter@gmail.com" }
+    { label: "X",        url: "https://x.com/M1S00000" },
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/m1s0/" },
+    { label: "Telegram", url: "https://t.me/M1S0_MS" }
   ],
 
 };
