@@ -933,14 +933,6 @@ html[data-theme="dark"] {
 }
 @media (max-width: 860px) { .pb { grid-template-columns: 1fr; gap: 22px; padding: 24px; } }
 
-/* ethereum mark, drifting inside the banner */
-.pb .eth {
-  position: absolute; right: 12%; top: 50%; transform: translateY(-50%);
-  width: clamp(240px, 22vw, 420px); height: auto; color: #fff; opacity: .10; z-index: 0;
-  animation: float 9s ease-in-out infinite;
-}
-html[data-theme="dark"] .pb .eth { opacity: .18; }
-@media (max-width: 860px) { .pb .eth { right: -60px; width: 230px; opacity: .08; } }
 .pb::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-image:
@@ -950,7 +942,19 @@ html[data-theme="dark"] .pb .eth { opacity: .18; }
   mask-image: radial-gradient(ellipse 80% 70% at 70% 20%, #000 10%, transparent 72%);
   -webkit-mask-image: radial-gradient(ellipse 80% 70% at 70% 20%, #000 10%, transparent 72%);
 }
+/* generated hacker panel, pinned to the empty right side */
+.pb-art {
+  position: absolute; right: 0; top: 0; height: 100%;
+  width: min(58%, 640px); z-index: 0;
+  pointer-events: none; user-select: none;
+}
+@media (max-width: 860px) { .pb-art { width: 100%; opacity: .5; } }
+
 .pb > * { position: relative; z-index: 1; }
+
+/* must outrank `.pb > *` above, which would otherwise force this back
+   into the grid flow and push the identity block sideways */
+.pb > .pb-art { position: absolute; z-index: 0; }
 
 .pb-crumb {
   display: inline-flex; align-items: center; gap: 8px;

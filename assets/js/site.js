@@ -808,6 +808,7 @@ function renderProfile(bannerId, rowId, bioId) {
   var banner = document.getElementById(bannerId);
   if (banner) {
     banner.innerHTML =
+      hackerArt(p.handle) +
       '<div>' +
         '<div class="pb-crumb">Profile <span>/</span> <b>' + esc(p.handle) + "</b></div>" +
         '<div class="pb-id">' +
@@ -1032,6 +1033,96 @@ function nftAvatar(seed) {
 
       '<rect width="100" height="100" rx="22" fill="none" ' +
             'stroke="rgba(255,255,255,.14)" stroke-width="1"/>' +
+    "</g>" +
+  "</svg>";
+}
+
+/* =============================================================
+   Generative hacker panel
+
+   Fills the empty right side of the banner. Same deterministic
+   seeding as the avatar, so it is fixed to the handle rather
+   than reshuffling on load.
+
+   Layers: a hex data field, a node graph traced over it, and a
+   couple of scan lines. Masked so it dissolves toward the text
+   instead of stopping at a hard edge.
+   ============================================================= */
+
+var HEXCHARS = "0123456789ABCDEF";
+
+function hackerArt(seed) {
+  var rnd = rngFrom(hashSeed(String(seed) + "::art"));
+  var uid = "hk" + (hashSeed(seed) % 100000);
+
+  var W = 420, H = 260;
+  var COLS = 13, ROWS = 13;
+  var cw = W / COLS, ch = H / ROWS;
+
+  /* hex field */
+  var glyphs = "";
+  for (var c = 0; c < COLS; c++) {
+    /* each column gets its own density and brightness, so it reads
+       as a stream rather than a uniform table */
+    var density = 0.35 + rnd() * 0.5;
+    var hot = Math.floor(rnd() * ROWS);
+
+    for (var r = 0; r < ROWS; r++) {
+      if (rnd() > density) continue;
+      var ch2 = HEXCHARS[Math.floor(rnd() * 16)] + HEXCHARS[Math.floor(rnd() * 16)];
+      var isHot = (r === hot);
+      var op = isHot ? 0.95 : (0.18 + rnd() * 0.42);
+      glyphs += '<text x="' + (c * cw + 4).toFixed(1) + '" y="' + (r * ch + 13).toFixed(1) +
+                '" font-family="ui-monospace,monospace" font-size="10.5" ' +
+                'fill="' + (isHot ? "#c8ffe6" : "#3ddc97") + '" opacity="' + op.toFixed(2) + '">' +
+                ch2 + "</text>";
+    }
+  }
+
+  /* node graph traced over the field */
+  var nodes = [];
+  var n = 6 + Math.floor(rnd() * 3);
+  for (var i = 0; i < n; i++) {
+    nodes.push([40 + rnd() * (W - 80), 24 + rnd() * (H - 48)]);
+  }
+  var links = "";
+  for (var j = 0; j < nodes.length - 1; j++) {
+    var a = nodes[j], b = nodes[j + 1];
+    links += '<line x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) +
+             '" x2="' + b[0].toFixed(1) + '" y2="' + b[1].toFixed(1) +
+             '" stroke="#3ddc97" stroke-width="1" opacity=".34"/>';
+  }
+  var dots = nodes.map(function (p, k) {
+    var big = k === 0 || k === nodes.length - 1;
+    return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) +
+           '" r="' + (big ? 3.4 : 2) + '" fill="' + (big ? "#c8ffe6" : "#3ddc97") +
+           '" opacity="' + (big ? ".95" : ".6") + '"/>';
+  }).join("");
+
+  /* scan lines */
+  var scans = "";
+  for (var s = 0; s < 3; s++) {
+    var y = rnd() * H;
+    scans += '<rect x="0" y="' + y.toFixed(1) + '" width="' + W +
+             '" height="1" fill="#3ddc97" opacity=".16"/>';
+  }
+
+  return '' +
+  '<svg class="pb-art" viewBox="0 0 ' + W + " " + H + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    "<defs>" +
+      /* SVG masks are luminance based, so these stops must be white.
+         Black would mask the whole panel out. */
+      '<linearGradient id="' + uid + 'fade" x1="0" y1="0" x2="1" y2="0">' +
+        '<stop offset="0"   stop-color="#fff" stop-opacity="0"/>' +
+        '<stop offset=".34" stop-color="#fff" stop-opacity=".65"/>' +
+        '<stop offset=".72" stop-color="#fff" stop-opacity="1"/>' +
+        '<stop offset="1"   stop-color="#fff" stop-opacity=".5"/>' +
+      "</linearGradient>" +
+      '<mask id="' + uid + 'm"><rect width="' + W + '" height="' + H +
+        '" fill="url(#' + uid + 'fade)"/></mask>' +
+    "</defs>" +
+    '<g mask="url(#' + uid + 'm)">' +
+      glyphs + scans + links + dots +
     "</g>" +
   "</svg>";
 }
