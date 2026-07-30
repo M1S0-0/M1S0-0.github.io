@@ -535,15 +535,31 @@ function markMatch(text, q) {
   return out;
 }
 
+/* maps a category key to its display label */
+function categoryLabel(key) {
+  if (!key || typeof CATEGORIES === "undefined") return "";
+  for (var i = 0; i < CATEGORIES.length; i++) {
+    if (CATEGORIES[i].key === key) return CATEGORIES[i].label;
+  }
+  return key;
+}
+
+/* The newest post by date. Publishing a new writeup promotes it here
+   automatically, whatever category it is in. */
 function heroCard(w, mountId) {
   var el = document.getElementById(mountId);
   if (!el || !w) { if (el) el.innerHTML = ""; return; }
+
   var label = (w.tags && w.tags[0]) ? w.tags[0] : "";
+  var cat = categoryLabel(w.category);
 
   el.innerHTML =
     '<a class="hero-post" href="/writeups/posts/' + esc(w.slug) + '.html">' +
       '<div class="hero-main">' +
-        '<span class="hero-badge">Latest</span>' +
+        '<div class="hero-badges">' +
+          '<span class="hero-badge">Latest</span>' +
+          (cat ? '<span class="hero-cat">' + esc(cat) + "</span>" : "") +
+        "</div>" +
         "<h2>" + esc(w.title) + "</h2>" +
         "<p>" + esc(w.subtitle) + "</p>" +
         metaHtml(w) +
