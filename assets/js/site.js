@@ -821,34 +821,100 @@ function renderPlatforms(mountId) {
   }).join("");
 }
 
-function renderSeverity(mountId) {
-  var el = document.getElementById(mountId);
-  if (!el || typeof SEVERITY === "undefined") return;
 
-  var total = SEVERITY.reduce(function (s, x) { return s + (x.count || 0); }, 0);
+/* =============================================================
+   PROFILE banner, reports table, programs secured
+   ============================================================= */
 
-  var key = '<div class="sevkey">' +
-    SEVERITY.map(function (x) {
-      return "<div>" +
-               '<em class="' + esc(x.key) + '"></em>' +
-               "<b>" + esc(x.count || 0) + "</b>" +
-               "<span>" + esc(x.label) + "</span>" +
-             "</div>";
-    }).join("") + "</div>";
+function renderProfile(bannerId, rowId, bioId, shieldsId) {
+  if (typeof PROFILE === "undefined") return;
+  var p = PROFILE;
 
-  if (!total) {
-    /* nothing tallied yet: show the key without a misleading bar */
-    el.innerHTML = '<p class="sev-empty">// no findings tallied yet</p>' + key;
-    return;
+  var banner = document.getElementById(bannerId);
+  if (banner) {
+    banner.innerHTML =
+      '<div>' +
+        '<div class="pb-crumb">Profile <span>/</span> <b>' + esc(p.handle) + "</b></div>" +
+        '<div class="pb-id">' +
+          '<div class="pb-avatar">' + esc(orgMonogram(p.handle)) + "</div>" +
+          "<div>" +
+            '<h1 class="pb-handle">' + esc(p.handle) + "</h1>" +
+            '<p class="pb-since">Member since ' + esc(p.memberSince) + "</p>" +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+      '<div class="pb-cards">' +
+        (p.headline || []).map(function (h) {
+          return '<div class="pb-card"><span>' + esc(h.label) + "</span><b>" + esc(h.value) + "</b></div>";
+        }).join("") +
+      "</div>";
   }
 
-  var bar = '<div class="sevbar">' +
-    SEVERITY.map(function (x) {
-      var pct = ((x.count || 0) / total) * 100;
-      return pct > 0
-        ? '<i class="' + esc(x.key) + '" style="width:' + pct.toFixed(2) + '%"></i>'
-        : "";
-    }).join("") + "</div>";
+  var row = document.getElementById(rowId);
+  if (row) {
+    row.innerHTML =
+      (p.tier ? '<span class="tier">' + esc(p.tier) + "</span>" : "") +
+      (p.links || []).map(function (l) {
+        return l.url
+          ? '<a class="pb-link" href="' + esc(l.url) + '" rel="noopener">' + esc(l.label) + "</a>"
+          : '<span class="pb-link">' + esc(l.label) + "</span>";
+      }).join("");
+  }
 
-  el.innerHTML = bar + key;
+  var bio = document.getElementById(bioId);
+  if (bio && p.bio) bio.textContent = p.bio;
+
+  var shields = document.getElementById(shieldsId);
+  if (shields) {
+    shields.innerHTML = (p.achievements || []).map(function (a) {
+      return '<div class="shield' + (a.earned ? " earned" : "") + '" title="' + esc(a.label) +
+             (a.earned ? "" : " (locked)") + '">&#10003;</div>';
+    }).join("");
+  }
+}
+
+function renderReports(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || typeof REPORTS === "undefined") return;
+
+  var head = "<tr><th>Reports</th>" +
+    REPORT_COLS.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") +
+    "</tr>";
+
+  var body = REPORTS.map(function (r) {
+    return "<tr>" +
+      "<td>" + esc(r.label) + "<b>" + esc(r.total) + "</b></td>" +
+      REPORT_COLS.map(function (c) {
+        var v = r.cols[c];
+        if (v === null || v === undefined) return '<td class="dash">&ndash;</td>';
+        var cls = v === 0 ? "zero" : "c-" + c;
+        return '<td class="' + cls + '">' + esc(v) + "</td>";
+      }).join("") +
+    "</tr>";
+  }).join("");
+
+  el.innerHTML = '<p class="lbl">Reports information</p>' +
+                 '<table class="rep"><thead>' + head + "</thead><tbody>" + body + "</tbody></table>";
+}
+
+/* small logo chips, reusing the hall of fame entries */
+function renderSecured(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || typeof HALLOFFAME === "undefined") return;
+
+  var items = HALLOFFAME.map(function (h) {
+    var isPrivate = h.visibility === "private";
+    var mark = isPrivate
+      ? '<div class="secured-mark"><span>&#128274;</span></div>'
+      : (h.logo
+          ? '<div class="secured-mark"><img src="' + esc(h.logo) + '" alt="" loading="lazy"></div>'
+          : '<div class="secured-mark"><span>' + esc(orgMonogram(h.org || "?")) + "</span></div>");
+
+    return '<div class="secured-item' + (isPrivate ? " is-private" : "") + '">' +
+             mark +
+             '<div class="secured-name">' + esc(isPrivate ? "Private" : (h.org || "")) + "</div>" +
+           "</div>";
+  }).join("");
+
+  el.innerHTML = '<p class="lbl">Programs secured</p><div class="secured">' + items + "</div>";
 }

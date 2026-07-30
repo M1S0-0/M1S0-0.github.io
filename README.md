@@ -18,7 +18,8 @@ assets/
   js/site.js                feed, theme, syntax highlighting, TOC
   js/data/writeups.js       the article list
   js/data/halloffame.js     hall of fame groups and entries
-  js/data/platforms.js      platform profiles and severity totals
+  js/data/platforms.js      platform profiles
+  js/data/profile.js        banner, bio, achievements, report counts
   img/                      generated favicons and link preview cards
 scripts/
   generate.js               rebuilds feed.xml, sitemap.xml, robots.txt
@@ -58,9 +59,17 @@ platform actually gives you, in its own vocabulary:
 | Cantina | `Rank 88` |
 | HackenProof | `Rank 40` |
 
-`SEVERITY` is the combined findings breakdown across every platform. Set the counts and
-the stacked bar draws itself. While every count is zero it shows a note instead of a bar,
-so an empty profile never looks like a full one.
+## Profile
+
+`assets/js/data/profile.js` drives the banner and the report table, laid out after the
+Immunefi researcher profile.
+
+`PROFILE` holds the handle, join date, tier, bio, the headline cards on the banner
+(`headline`), the link row, and the achievement shields (`earned: false` renders greyed).
+
+`REPORTS` is one row per report type with a `cols` object of severity counts. A bucket set
+to `null` renders an em dash rather than a zero, so a bug bounty row without an Insights
+bucket does not claim one.
 
 ## Hall of fame
 

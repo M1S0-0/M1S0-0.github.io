@@ -45,43 +45,40 @@
   </div>
 </nav>
 
-<!-- ============ HERO ============ -->
-<header class="hx">
-    <svg class="eth" viewBox="0 0 256 417" fill="currentColor" aria-hidden="true">
-      <path d="M127.96 0l-2.8 9.5v275.67l2.8 2.79 127.96-75.64z" opacity=".62"/>
-      <path d="M127.96 0L0 212.32l127.96 75.64V0z"/>
-      <path d="M127.96 312.19l-1.58 1.92v98.2l1.58 4.6L256 236.59z" opacity=".62"/>
-      <path d="M127.96 416.91V312.19L0 236.59z"/>
-      <path d="M127.96 287.96l127.96-75.64-127.96-58.16z" opacity=".36"/>
-      <path d="M0 212.32l127.96 75.64V154.16z" opacity=".8"/>
-    </svg>
-
-  <div class="wide">
-    <p class="hx-term">m1s0@sec:~$ whoami<span class="caret"></span></p>
-
-    <h1 class="hx-name">M1S0</h1>
-
-    <div class="hx-role">
-      <span>Security Researcher</span>
-      <span>Smart Contract Auditor</span>
-      <span>Bug Bounty Hunter</span>
-    </div>
-
-    <p class="hx-lede">
-      I break protocols holding real money, and the web applications everyone trusts
-      by default. Below is what has been publicly credited.
-    </p>
-
-    <div class="masthead-links">
-      <a class="mlink mlink-primary" href="/writeups/">Read the writeups</a>
-      <a class="mlink" href="https://github.com/M1S0-0" rel="noopener">GitHub</a>
-      <a class="mlink" href="mailto:unknowbughunter@gmail.com">Email</a>
-    </div>
-
+<!-- ============ PROFILE BANNER ============ -->
+<div class="wide pb-outer">
+  <div class="pb" id="banner">
+      <svg class="eth" viewBox="0 0 256 417" fill="currentColor" aria-hidden="true">
+        <path d="M127.96 0l-2.8 9.5v275.67l2.8 2.79 127.96-75.64z" opacity=".62"/>
+        <path d="M127.96 0L0 212.32l127.96 75.64V0z"/>
+        <path d="M127.96 312.19l-1.58 1.92v98.2l1.58 4.6L256 236.59z" opacity=".62"/>
+        <path d="M127.96 416.91V312.19L0 236.59z"/>
+        <path d="M127.96 287.96l127.96-75.64-127.96-58.16z" opacity=".36"/>
+        <path d="M0 212.32l127.96 75.64V154.16z" opacity=".8"/>
+      </svg>
   </div>
-</header>
+  <div class="pb-row" id="pb-row"></div>
 
-<!-- ============ CROSS-PLATFORM PRESENCE ============ -->
+  <!-- ============ BIO + ACHIEVEMENTS ============ -->
+  <div class="bio-row reveal">
+    <div>
+      <p class="lbl">Bio</p>
+      <p class="bio-text" id="bio"></p>
+    </div>
+    <div>
+      <p class="lbl">Achievements</p>
+      <div class="shields" id="shields"></div>
+    </div>
+  </div>
+
+  <!-- ============ REPORTS + PROGRAMS ============ -->
+  <div class="panels reveal">
+    <div class="panel" id="reports"></div>
+    <div class="panel" id="secured"></div>
+  </div>
+</div>
+
+<!-- ============ PLATFORMS ============ -->
 <div class="wide">
   <section class="hof-section reveal">
     <div class="hof-head">
@@ -90,16 +87,6 @@
       <span class="n" id="platform-count"></span>
     </div>
     <div class="platforms" id="platforms"></div>
-  </section>
-
-  <!-- ============ SEVERITY DISTRIBUTION ============ -->
-  <section class="hof-section reveal">
-    <div class="hof-head">
-      <h2>Findings</h2>
-      <span class="note">Every platform combined</span>
-      <span class="n" id="finding-count"></span>
-    </div>
-    <div class="sev-wrap" id="severity"></div>
   </section>
 </div>
 
@@ -178,6 +165,7 @@
 
 <button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
 
+<script src="/assets/js/data/profile.js"></script>
 <script src="/assets/js/data/platforms.js"></script>
 <script src="/assets/js/data/halloffame.js"></script>
 <script src="/assets/js/data/writeups.js"></script>
@@ -185,11 +173,12 @@
 <script>
   initTheme();
 
+  renderProfile("banner", "pb-row", "bio", "shields");
+  renderReports("reports");
+  renderSecured("secured");
+
   renderPlatforms("platforms");
-  renderSeverity("severity");
   document.getElementById("platform-count").textContent = PLATFORMS.length;
-  document.getElementById("finding-count").textContent =
-    SEVERITY.reduce(function (s, x) { return s + (x.count || 0); }, 0);
 
   renderHallOfFame("hof");
   renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");
