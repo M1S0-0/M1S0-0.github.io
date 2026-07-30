@@ -71,24 +71,25 @@ Immunefi researcher profile.
 render. Add `{ label, value }` objects to bring them back. `tier` is `null` for the same
 reason — set it to a string and the tier pill returns.
 
-Programs secured shows one tab per hall of fame group, so clicking Web3 lists the Web3
-companies and clicking Web2 lists the Web2 ones. Tabs come from `HOF_GROUPS`, so a new
-group appears there on its own.
+Programs secured shows one tab per hall of fame group. Findings themselves are not
+tracked here — those live in the writeups.
 
-`REPORTS` is one row per report type with a `cols` object of severity counts. A bucket set
-to `null` renders an em dash rather than a zero, so a bug bounty row without an Insights
-bucket does not claim one.
 
 ## Hall of fame
 
 The home page is built from `assets/js/data/halloffame.js`. Two arrays:
 
-`HOF_GROUPS` are the sections and their order — currently **Web2** and **Web3 & Audits**.
+`HOF_GROUPS` are the sections and their order — currently four:
 
-Web2 sets `split: true`, which renders it as two separate walls with their own sub
-headings, taken from `subLabels`: public entries under **Bug Bounty**, private ones under
-**Private Companies**. Any group without `split` renders as a single wall with named
-entries first.
+| Key | Label |
+|---|---|
+| `web2-bounty` | Web2 Bug Bounty Programs |
+| `web2-private` | Web2 Private Programs |
+| `web3-bounty` | Web3 Bug Bounty Programs |
+| `web3-audits` | Web3 Audit Competitions |
+
+The same list drives the tabs under Programs Secured, so adding a group here adds a tab
+there with nothing else to change. Every entry needs a `group` matching one of the keys.
 
 Each entry sets `group` (a group key) and `visibility`:
 

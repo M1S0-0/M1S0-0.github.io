@@ -748,42 +748,16 @@ function renderHallOfFame(mountId) {
   var el = document.getElementById(mountId);
   if (!el || typeof HOF_GROUPS === "undefined") return;
 
-  /* newest first within a wall */
-  function byYear(a, b) { return String(b.year || "").localeCompare(String(a.year || "")); }
-
-  function wall(rows) {
-    return '<div class="logo-grid">' + rows.map(hofCard).join("") + "</div>";
-  }
-
   el.innerHTML = HOF_GROUPS.map(function (g) {
     var rows = hofOf(g.key);
     if (!rows.length) return "";
 
-    var body;
-
-    if (g.split) {
-      /* two walls: public programs, then private companies */
-      var pub  = rows.filter(function (h) { return h.visibility !== "private"; }).sort(byYear);
-      var priv = rows.filter(function (h) { return h.visibility === "private"; }).sort(byYear);
-      var subs = g.subLabels || {};
-
-      body = "";
-      if (pub.length) {
-        body += '<div class="sub-head"><h3>' + esc(subs.public || "Public") + "</h3>" +
-                '<span class="n">' + pub.length + "</span></div>" + wall(pub);
-      }
-      if (priv.length) {
-        body += '<div class="sub-head"><h3>' + esc(subs.private || "Private") + "</h3>" +
-                '<span class="n">' + priv.length + "</span></div>" + wall(priv);
-      }
-    } else {
-      /* one wall, named entries lead */
-      body = wall(rows.slice().sort(function (a, b) {
-        var av = a.visibility === "private" ? 1 : 0;
-        var bv = b.visibility === "private" ? 1 : 0;
-        return av - bv || byYear(a, b);
-      }));
-    }
+    /* named entries first, then newest */
+    rows = rows.slice().sort(function (a, b) {
+      var av = a.visibility === "private" ? 1 : 0;
+      var bv = b.visibility === "private" ? 1 : 0;
+      return av - bv || String(b.year || "").localeCompare(String(a.year || ""));
+    });
 
     return '<section class="hof-section reveal">' +
              '<div class="hof-head">' +
@@ -791,7 +765,7 @@ function renderHallOfFame(mountId) {
                '<span class="note">' + esc(g.note || "") + "</span>" +
                '<span class="n">' + rows.length + "</span>" +
              "</div>" +
-             body +
+             '<div class="logo-grid">' + rows.map(hofCard).join("") + "</div>" +
            "</section>";
   }).join("");
 }
@@ -870,29 +844,6 @@ function renderProfile(bannerId, rowId, bioId) {
 
 }
 
-function renderReports(mountId) {
-  var el = document.getElementById(mountId);
-  if (!el || typeof REPORTS === "undefined") return;
-
-  var head = "<tr><th>Reports</th>" +
-    REPORT_COLS.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") +
-    "</tr>";
-
-  var body = REPORTS.map(function (r) {
-    return "<tr>" +
-      "<td>" + esc(r.label) + "<b>" + esc(r.total) + "</b></td>" +
-      REPORT_COLS.map(function (c) {
-        var v = r.cols[c];
-        if (v === null || v === undefined) return '<td class="dash">&ndash;</td>';
-        var cls = v === 0 ? "zero" : "c-" + c;
-        return '<td class="' + cls + '">' + esc(v) + "</td>";
-      }).join("") +
-    "</tr>";
-  }).join("");
-
-  el.innerHTML = '<p class="lbl">Reports information</p>' +
-                 '<table class="rep"><thead>' + head + "</thead><tbody>" + body + "</tbody></table>";
-}
 
 /* Programs secured: one tab per hall of fame group, chips built from
    the same entries, so logos are never maintained in two places. */

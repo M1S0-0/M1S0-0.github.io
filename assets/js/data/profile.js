@@ -27,36 +27,3 @@ const PROFILE = {
 
 };
 
-
-/* =============================================================
-   REPORTS — the severity table.
-
-   One row per report type. `cols` picks which severity columns
-   that row shows, so a row without an Insights bucket simply
-   leaves it out.
-   ============================================================= */
-
-const REPORT_COLS = ["insights", "low", "medium", "high", "critical"];
-
-const REPORTS = [
-  {
-    label: "Web2 Bug Bounty Programs",
-    total: 0,
-    cols: { insights: null, low: 0, medium: 0, high: 0, critical: 0 }
-  },
-  {
-    label: "Web3 Bug Bounty Programs",
-    total: 0,
-    cols: { insights: null, low: 0, medium: 0, high: 0, critical: 0 }
-  },
-  {
-    label: "Web2 Private Programs",
-    total: 0,
-    cols: { insights: null, low: 0, medium: 0, high: 0, critical: 0 }
-  },
-  {
-    label: "Web3 Audit Competitions",
-    total: 3,
-    cols: { insights: 0, low: 2, medium: 1, high: 0, critical: 0 }
-  }
-];
