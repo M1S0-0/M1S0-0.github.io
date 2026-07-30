@@ -23,21 +23,21 @@ const PLATFORMS = [
     name: "Immunefi",
     handle: "@M1S00",
     url: "https://immunefi.com/profile/M1S00/",
-    mark: "immunefi",
+    logo: "/assets/img/logos/immunefi.png",
     note: "Web3 bug bounty"
   },
   {
     name: "Bugcrowd",
     handle: "@M1S0",
     url: "https://bugcrowd.com/h/M1S0",
-    mark: "bugcrowd",
+    logo: "/assets/img/logos/bugcrowd.png",
     note: "Web2 bug bounty"
   },
   {
     name: "HackenProof",
     handle: "@M1S0",
     url: "https://hackenproof.com/hackers/M1S0",
-    mark: "hackenproof",
+    logo: "/assets/img/logos/hackenproof.png",
     note: "Web3 bug bounty"
   }
 ];

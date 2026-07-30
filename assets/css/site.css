@@ -820,11 +820,11 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
 .pcard-mark {
   position: absolute; right: -14px; bottom: -18px;
   width: 108px; height: 108px;
-  opacity: .13; pointer-events: none;
+  opacity: .20; pointer-events: none; object-fit: contain;
   transition: opacity .25s ease, transform .25s ease;
 }
-html[data-theme="dark"] .pcard-mark { opacity: .17; }
-.pcard:hover .pcard-mark { opacity: .3; transform: scale(1.06) rotate(-4deg); }
+html[data-theme="dark"] .pcard-mark { opacity: .26; }
+.pcard:hover .pcard-mark { opacity: .48; transform: scale(1.06) rotate(-4deg); }
 .pcard-handle {
   font-family: var(--mono); font-size: 14px; font-weight: 700;
   color: var(--accent); margin-top: 2px;
