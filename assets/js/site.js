@@ -753,7 +753,16 @@ function renderProfile(bannerId, rowId, bioId) {
           '<div class="pb-avatar">' + nftAvatar(p.handle) + "</div>" +
           "<div>" +
             '<h1 class="pb-handle">' + esc(p.handle) + "</h1>" +
-            '<p class="pb-since">Member since ' + esc(p.memberSince) + "</p>" +
+            ((p.exposure && p.exposure.length)
+              ? '<div class="pb-exposure">' +
+                  '<span class="pb-exposure-lbl">Exposure</span>' +
+                  p.exposure.map(function (e) {
+                    var unit = e.years === 1 ? "yr" : "yrs";
+                    return '<span class="pb-exp">' + esc(e.label) +
+                           ' <b>~' + esc(e.years) + " " + unit + "</b></span>";
+                  }).join("") +
+                "</div>"
+              : "") +
           "</div>" +
         "</div>" +
       "</div>" +

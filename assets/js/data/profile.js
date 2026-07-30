@@ -7,7 +7,12 @@
 
 const PROFILE = {
   handle: "M1S00",
-  memberSince: "January 29, 2026",
+  /* shown as pills under the handle. `years` is approximate and
+     renders with a leading tilde. */
+  exposure: [
+    { label: "Web2", years: 3 },
+    { label: "Web3", years: 1 }
+  ],
   tier: null,          /* set a string to show a tier pill again */
 
   bio: "Offensive security researcher and digital ghost. Breaking systems before the " +
