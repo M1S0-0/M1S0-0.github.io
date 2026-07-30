@@ -794,42 +794,69 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
 
 /* ---------- platform strip ---------- */
 .platforms {
-  display: grid; gap: 12px; padding: 26px 0 0;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: grid; gap: 14px; padding: 26px 0 0;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
 .pcard {
-  display: block; text-decoration: none; position: relative; overflow: hidden;
-  padding: 20px 20px 18px; min-height: 118px;
-  border: 1px solid var(--rule); border-radius: 11px; background: var(--bg);
-  transition: border-color .2s ease, transform .2s ease;
+  --tint: var(--accent);
+  display: block; text-decoration: none;
+  position: relative; overflow: hidden; isolation: isolate;
+  min-height: 148px; padding: 22px 22px 20px;
+  border: 1px solid var(--rule); border-radius: 13px; background: var(--bg);
+  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
 }
+
+/* bloom in the platform's own colour, sitting behind its logo */
+.pcard::before {
+  content: ""; position: absolute; inset: 0; z-index: -2;
+  background: radial-gradient(78% 110% at 82% 55%,
+              color-mix(in srgb, var(--tint) 34%, transparent), transparent 72%);
+  opacity: .5; transition: opacity .25s ease;
+}
+
+/* the logo, scaled past the card so it reads as covering rather than
+   sitting in it, and bled off the right edge */
+.pcard-mark {
+  position: absolute; z-index: -1;
+  right: -12%; top: 50%; transform: translateY(-50%);
+  height: 150%; width: auto; max-width: none;
+  object-fit: contain; pointer-events: none;
+  opacity: .17; filter: saturate(1.1);
+  transition: opacity .3s ease, transform .3s cubic-bezier(.2,.6,.2,1);
+}
+html[data-theme="dark"] .pcard-mark { opacity: .22; }
+
+/* scrim, so the handle stays legible over the artwork */
 .pcard::after {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
-  background: var(--accent); opacity: 0; transition: opacity .2s ease;
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(96deg,
+              var(--bg) 12%,
+              color-mix(in srgb, var(--bg) 72%, transparent) 46%,
+              transparent 82%);
+  pointer-events: none;
 }
-.pcard:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
-.pcard:hover::after { opacity: 1; }
+
+.pcard:hover {
+  border-color: color-mix(in srgb, var(--tint) 55%, var(--rule));
+  transform: translateY(-3px);
+  box-shadow: 0 14px 38px -16px color-mix(in srgb, var(--tint) 45%, transparent);
+  text-decoration: none;
+}
+.pcard:hover::before { opacity: .8; }
+.pcard:hover .pcard-mark {
+  opacity: .38; transform: translateY(-50%) scale(1.07) rotate(-3deg);
+}
 
 .pcard-name {
   font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
   text-transform: uppercase; color: var(--text); margin-bottom: 12px;
 }
-
-/* brand mark, sunk into the corner of the card */
-.pcard-mark {
-  position: absolute; right: -14px; bottom: -18px;
-  width: 108px; height: 108px;
-  opacity: .20; pointer-events: none; object-fit: contain;
-  transition: opacity .25s ease, transform .25s ease;
-}
-html[data-theme="dark"] .pcard-mark { opacity: .26; }
-.pcard:hover .pcard-mark { opacity: .48; transform: scale(1.06) rotate(-4deg); }
 .pcard-handle {
-  font-family: var(--mono); font-size: 14px; font-weight: 700;
+  font-family: var(--mono); font-size: 15px; font-weight: 700;
   color: var(--accent); margin-top: 2px;
 }
-.pcard-note { font-size: 12px; color: var(--faint); margin-top: 3px; }
+.pcard-note { font-size: 12.5px; color: var(--faint); margin-top: 4px; }
 
 .pcard-out {
   position: absolute; top: 14px; right: 14px;

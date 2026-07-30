@@ -15,6 +15,7 @@
              each platform's colour family, not their trademark
              files. Drop a real SVG in assets/img/logos/ and point
              `logo` at it instead if you would rather use theirs.
+     tint    brand colour, used for the bloom behind the logo
      note    optional second line
    ============================================================= */
 
@@ -24,6 +25,7 @@ const PLATFORMS = [
     handle: "@M1S00",
     url: "https://immunefi.com/profile/M1S00/",
     logo: "/assets/img/logos/immunefi.png",
+    tint: "#e6218a",
     note: "Web3 bug bounty"
   },
   {
@@ -31,6 +33,7 @@ const PLATFORMS = [
     handle: "@M1S0",
     url: "https://bugcrowd.com/h/M1S0",
     logo: "/assets/img/logos/bugcrowd.png",
+    tint: "#f26122",
     note: "Web2 bug bounty"
   },
   {
@@ -38,6 +41,7 @@ const PLATFORMS = [
     handle: "@M1S0",
     url: "https://hackenproof.com/hackers/M1S0",
     logo: "/assets/img/logos/hackenproof.png",
+    tint: "#8b8cff",
     note: "Web3 bug bounty"
   }
 ];

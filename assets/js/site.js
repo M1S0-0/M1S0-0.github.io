@@ -772,13 +772,16 @@ function renderPlatforms(mountId) {
       (p.note ? '<div class="pcard-note">' + esc(p.note) + "</div>" : "");
 
     /* only linked when a real profile url is set */
+    /* the tint drives the bloom behind the logo, set per card */
+    var style = p.tint ? ' style="--tint:' + esc(p.tint) + '"' : "";
+
     if (p.url) {
       return '<a class="pcard" href="' + esc(p.url) + '" target="_blank" ' +
-             'rel="noopener noreferrer">' +
+             'rel="noopener noreferrer"' + style + ">" +
                body + '<span class="pcard-out">&#8599;</span>' +
              "</a>";
     }
-    return '<div class="pcard">' + body + "</div>";
+    return '<div class="pcard"' + style + ">" + body + "</div>";
   }).join("");
 }
 
