@@ -811,7 +811,7 @@ function renderProfile(bannerId, rowId, bioId) {
       '<div>' +
         '<div class="pb-crumb">Profile <span>/</span> <b>' + esc(p.handle) + "</b></div>" +
         '<div class="pb-id">' +
-          '<div class="pb-avatar">' + esc(orgMonogram(p.handle)) + "</div>" +
+          '<div class="pb-avatar">' + nftAvatar(p.handle) + "</div>" +
           "<div>" +
             '<h1 class="pb-handle">' + esc(p.handle) + "</h1>" +
             '<p class="pb-since">Member since ' + esc(p.memberSince) + "</p>" +
@@ -927,4 +927,111 @@ function initEthField() {
   field.setAttribute("aria-hidden", "true");
   field.innerHTML = marks;
   document.body.insertBefore(field, document.body.firstChild);
+}
+
+/* =============================================================
+   Generative NFT avatar
+
+   Deterministic from the handle: same input always produces the
+   same artwork, so it behaves like a minted PFP rather than
+   something that reshuffles on every load.
+
+   Structure borrows from Ethereum identicons: a mirrored pixel
+   grid over a gradient field, with the Ethereum diamond cut
+   through the middle.
+   ============================================================= */
+
+/* FNV-1a, so small handle changes land somewhere completely different */
+function hashSeed(str) {
+  var h = 2166136261 >>> 0;
+  for (var i = 0; i < String(str).length; i++) {
+    h ^= String(str).charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h >>> 0;
+}
+
+/* xorshift32, seeded, so the sequence is reproducible */
+function rngFrom(seed) {
+  var s = (seed || 1) >>> 0;
+  return function () {
+    s ^= s << 13; s >>>= 0;
+    s ^= s >>> 17;
+    s ^= s << 5;  s >>>= 0;
+    return s / 4294967296;
+  };
+}
+
+/* palettes kept in the site's family so the art never clashes */
+var AVATAR_PALETTES = [
+  { a: "#3ddc97", b: "#0e7490", bg1: "#0b2a22", bg2: "#04120e" },
+  { a: "#5eead4", b: "#0f766e", bg1: "#082a26", bg2: "#04120f" },
+  { a: "#4ade80", b: "#0891b2", bg1: "#0a241a", bg2: "#03110c" },
+  { a: "#2dd4bf", b: "#15803d", bg1: "#07231f", bg2: "#030f0d" },
+  { a: "#22d3ee", b: "#047857", bg1: "#072229", bg2: "#030f12" }
+];
+
+function nftAvatar(seed) {
+  var rnd = rngFrom(hashSeed(seed));
+  var pal = AVATAR_PALETTES[Math.floor(rnd() * AVATAR_PALETTES.length)];
+  var uid = "av" + (hashSeed(seed) % 100000);
+
+  var COLS = 5, ROWS = 5, CELL = 20;   /* 100 x 100 viewBox */
+  var cells = "";
+
+  /* left half plus centre column, then mirrored, which is what gives
+     identicons their face-like symmetry */
+  for (var y = 0; y < ROWS; y++) {
+    for (var x = 0; x < 3; x++) {
+      if (rnd() > 0.52) continue;
+      var fill = rnd() > 0.42 ? pal.a : pal.b;
+      var op = (0.55 + rnd() * 0.45).toFixed(2);
+      var mirror = COLS - 1 - x;
+
+      cells += '<rect x="' + (x * CELL) + '" y="' + (y * CELL) +
+               '" width="' + CELL + '" height="' + CELL + '" rx="3" fill="' + fill +
+               '" opacity="' + op + '"/>';
+      if (mirror !== x) {
+        cells += '<rect x="' + (mirror * CELL) + '" y="' + (y * CELL) +
+                 '" width="' + CELL + '" height="' + CELL + '" rx="3" fill="' + fill +
+                 '" opacity="' + op + '"/>';
+      }
+    }
+  }
+
+  var rot = Math.floor(rnd() * 30) - 15;
+
+  return '' +
+  '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" ' +
+       'aria-label="Generated avatar for ' + esc(seed) + '">' +
+    "<defs>" +
+      '<linearGradient id="' + uid + 'bg" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="' + pal.bg1 + '"/>' +
+        '<stop offset="1" stop-color="' + pal.bg2 + '"/>' +
+      "</linearGradient>" +
+      '<radialGradient id="' + uid + 'glow" cx="0.7" cy="0.2" r="0.9">' +
+        '<stop offset="0" stop-color="' + pal.a + '" stop-opacity=".38"/>' +
+        '<stop offset="1" stop-color="' + pal.a + '" stop-opacity="0"/>' +
+      "</radialGradient>" +
+      '<clipPath id="' + uid + 'clip"><rect width="100" height="100" rx="22"/></clipPath>' +
+    "</defs>" +
+
+    '<g clip-path="url(#' + uid + 'clip)">' +
+      '<rect width="100" height="100" fill="url(#' + uid + 'bg)"/>' +
+      '<g opacity=".9">' + cells + "</g>" +
+      '<rect width="100" height="100" fill="url(#' + uid + 'glow)"/>' +
+
+      /* the ethereum diamond, knocked through the middle */
+      '<g transform="translate(50 50) rotate(' + rot + ') scale(.085) translate(-128 -208)" ' +
+         'fill="#fff" opacity=".92">' +
+        '<path d="M127.96 0l-2.8 9.5v275.67l2.8 2.79 127.96-75.64z" opacity=".55"/>' +
+        '<path d="M127.96 0L0 212.32l127.96 75.64V0z"/>' +
+        '<path d="M127.96 312.19l-1.58 1.92v98.2l1.58 4.6L256 236.59z" opacity=".55"/>' +
+        '<path d="M127.96 416.91V312.19L0 236.59z"/>' +
+      "</g>" +
+
+      '<rect width="100" height="100" rx="22" fill="none" ' +
+            'stroke="rgba(255,255,255,.14)" stroke-width="1"/>' +
+    "</g>" +
+  "</svg>";
 }
