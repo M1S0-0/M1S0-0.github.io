@@ -347,6 +347,7 @@ function initToTop() {
 
 function initArticle(opts) {
   initTheme();
+  initEthField();
   initProgress();
   initByline();
 
@@ -897,4 +898,33 @@ function renderSecured(mountId) {
   });
 
   paint();
+}
+
+/* =============================================================
+   Ethereum backdrop
+   Injected once per page so every page gets it from one place.
+   ============================================================= */
+
+var ETH_PATHS =
+  '<path d="M127.96 0l-2.8 9.5v275.67l2.8 2.79 127.96-75.64z" opacity=".62"/>' +
+  '<path d="M127.96 0L0 212.32l127.96 75.64V0z"/>' +
+  '<path d="M127.96 312.19l-1.58 1.92v98.2l1.58 4.6L256 236.59z" opacity=".62"/>' +
+  '<path d="M127.96 416.91V312.19L0 236.59z"/>' +
+  '<path d="M127.96 287.96l127.96-75.64-127.96-58.16z" opacity=".36"/>' +
+  '<path d="M0 212.32l127.96 75.64V154.16z" opacity=".8"/>';
+
+function initEthField() {
+  if (document.querySelector(".eth-field")) return;
+
+  var marks = "";
+  for (var i = 1; i <= 7; i++) {
+    marks += '<svg class="ethm m' + i + '" viewBox="0 0 256 417" fill="currentColor" ' +
+             'aria-hidden="true">' + ETH_PATHS + "</svg>";
+  }
+
+  var field = document.createElement("div");
+  field.className = "eth-field";
+  field.setAttribute("aria-hidden", "true");
+  field.innerHTML = marks;
+  document.body.insertBefore(field, document.body.firstChild);
 }

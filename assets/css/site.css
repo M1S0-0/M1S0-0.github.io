@@ -55,9 +55,11 @@ html[data-theme="dark"] {
 
 html { scroll-behavior: smooth; }
 
+html { background: var(--bg); transition: background .2s ease; }
+
 body {
   margin: 0;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
@@ -1048,3 +1050,64 @@ html[data-theme="dark"] .pb .eth { opacity: .12; }
 }
 .secured-tabs .catbtn.on b { opacity: .75; }
 
+
+/* ===========================================================
+   Ethereum backdrop
+   Fixed field of marks behind everything. z-index -1 keeps it
+   above the page background (which lives on <html>) and below
+   every bit of content, with no stacking games needed.
+   =========================================================== */
+
+.eth-field {
+  position: fixed; inset: 0; z-index: -1;
+  pointer-events: none; overflow: hidden;
+}
+
+.ethm {
+  position: absolute; color: var(--accent);
+  will-change: transform;
+  animation: ethdrift linear infinite;
+}
+html[data-theme="dark"] .ethm { color: var(--accent); }
+
+@keyframes ethdrift {
+  0%   { transform: translate3d(0, 0, 0) rotate(var(--rot, 0deg)); }
+  50%  { transform: translate3d(0, -26px, 0) rotate(calc(var(--rot, 0deg) + 6deg)); }
+  100% { transform: translate3d(0, 0, 0) rotate(var(--rot, 0deg)); }
+}
+
+/* each mark gets its own size, corner, tilt and tempo so the field
+   never reads as a repeating pattern */
+.ethm.m1 { top:  6%;  left:  4%;  width: 190px; opacity: .050; --rot: -12deg; animation-duration: 17s; }
+.ethm.m2 { top: 22%;  right: 6%;  width: 300px; opacity: .038; --rot:  14deg; animation-duration: 23s; animation-delay: -4s; }
+.ethm.m3 { top: 58%;  left: 12%;  width: 130px; opacity: .058; --rot:  22deg; animation-duration: 14s; animation-delay: -8s; }
+.ethm.m4 { bottom: 8%; right: 16%; width: 220px; opacity: .042; --rot: -18deg; animation-duration: 20s; animation-delay: -2s; }
+.ethm.m5 { top: 44%;  left: 46%;  width:  92px; opacity: .034; --rot:   8deg; animation-duration: 26s; animation-delay: -11s; }
+.ethm.m6 { bottom: 26%; left: 2%;  width: 150px; opacity: .040; --rot: -26deg; animation-duration: 19s; animation-delay: -6s; }
+.ethm.m7 { top:  2%;  right: 34%; width: 110px; opacity: .036; --rot:  30deg; animation-duration: 22s; animation-delay: -14s; }
+
+html[data-theme="dark"] .ethm.m1 { opacity: .075; }
+html[data-theme="dark"] .ethm.m2 { opacity: .060; }
+html[data-theme="dark"] .ethm.m3 { opacity: .085; }
+html[data-theme="dark"] .ethm.m4 { opacity: .065; }
+html[data-theme="dark"] .ethm.m5 { opacity: .055; }
+html[data-theme="dark"] .ethm.m6 { opacity: .062; }
+html[data-theme="dark"] .ethm.m7 { opacity: .058; }
+
+@media (prefers-reduced-motion: reduce) { .ethm { animation: none; } }
+@media (max-width: 720px) {
+  .ethm.m2, .ethm.m5, .ethm.m7 { display: none; }
+  .ethm { opacity: .03 !important; }
+  html[data-theme="dark"] .ethm { opacity: .05 !important; }
+}
+
+/* ---------- ethereum glyph on section headings ---------- */
+.hof-head h2::before {
+  content: ""; display: inline-block;
+  width: .58em; height: .8em; margin-right: .48em; vertical-align: -.05em;
+  background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 417'%3E%3Cpath d='M127.96 0 0 212.32l127.96 75.64 127.96-75.64z'/%3E%3Cpath d='M127.96 312.19 0 236.59l127.96 180.32 127.96-180.32z'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 417'%3E%3Cpath d='M127.96 0 0 212.32l127.96 75.64 127.96-75.64z'/%3E%3Cpath d='M127.96 312.19 0 236.59l127.96 180.32 127.96-180.32z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+.sub-head h3::before, .lbl::before { content: none; }
