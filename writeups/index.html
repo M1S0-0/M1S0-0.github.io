@@ -67,11 +67,11 @@
       <button class="sort" id="sort" type="button">Newest first</button>
     </div>
 
-    <div class="tagbar" id="tagbar"></div>
+    <div class="catbar" id="catbar"></div>
 
     <p class="count">
       <span id="count"></span>
-      <button class="tag-clear" id="tag-clear" type="button">Clear filters</button>
+      <button class="filter-clear" id="filter-clear" type="button">Clear filters</button>
     </p>
   </div>
 
@@ -111,13 +111,13 @@
   heroCard(sortedPosts(WRITEUPS)[0], "hero");
 
   initWriteupsPage(WRITEUPS, {
-    inputId:    "search",
-    clearId:    "search-clear",
-    tagbarId:   "tagbar",
-    tagClearId: "tag-clear",
-    sortId:     "sort",
-    countId:    "count",
-    mountId:    "feed"
+    inputId:        "search",
+    clearId:        "search-clear",
+    catbarId:       "catbar",
+    clearFiltersId: "filter-clear",
+    sortId:         "sort",
+    countId:        "count",
+    mountId:        "feed"
   });
 
   initToTop();

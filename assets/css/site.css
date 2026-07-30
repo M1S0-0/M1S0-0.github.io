@@ -163,14 +163,14 @@ a { color: inherit; }
 }
 .search input::placeholder { color: var(--faint); }
 
-.tagbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-.tagbtn {
+.catbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.catbtn {
   font-family: var(--sans); font-size: 13px; cursor: pointer;
   background: var(--chip); color: var(--muted);
   border: 1px solid transparent; border-radius: 999px; padding: 6px 14px;
 }
-.tagbtn:hover { color: var(--text); }
-.tagbtn.on { background: var(--chip-on); color: var(--bg); }
+.catbtn:hover { color: var(--text); }
+.catbtn.on { background: var(--chip-on); color: var(--bg); }
 
 .count { font-size: 13px; color: var(--faint); margin: 20px 0 0; }
 
@@ -481,7 +481,7 @@ html[data-theme="dark"] .label-low      { background: #10322c; color: #62d6bb; }
 .item:hover .thumb { transform: scale(1.035); }
 .featured:hover .featured-art { transform: scale(1.012); }
 
-.mlink, .tagbtn, .sbtn, .pn, .chip { transition: border-color .18s ease, background .18s ease, color .18s ease; }
+.mlink, .catbtn, .sbtn, .pn, .chip { transition: border-color .18s ease, background .18s ease, color .18s ease; }
 
 .sec-head a, .foot-links a { position: relative; }
 .sec-head a::after, .foot-links a::after {
@@ -796,18 +796,18 @@ figcaption {
 .sort:hover { border-color: var(--faint); color: var(--text); }
 
 /* ---------- tag bar with counts ---------- */
-.tagbar { align-items: center; }
-.tagbtn b {
+.catbar { align-items: center; }
+.catbtn b {
   font-family: var(--mono); font-weight: 400; font-size: 11px;
   opacity: .6; margin-left: 6px;
 }
-.tag-clear {
+.filter-clear {
   font-family: var(--sans); font-size: 13px; cursor: pointer;
   background: none; border: 0; color: var(--faint); padding: 6px 4px;
   text-decoration: underline; display: none;
 }
-.tag-clear.show { display: inline-block; }
-.tag-clear:hover { color: var(--text); }
+.filter-clear.show { display: inline-block; }
+.filter-clear:hover { color: var(--text); }
 
 /* ---------- search highlight ---------- */
 mark {

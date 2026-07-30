@@ -39,6 +39,22 @@ both light and dark.
 | References | `<div class="refs">` | Numbered source list. |
 | Author box | `<div id="authorbox"></div>` | Rendered automatically. |
 
+## Categories
+
+The filter buttons on the writeups page come from the `CATEGORIES` array at the top of
+`assets/js/data/writeups.js`:
+
+```js
+const CATEGORIES = [
+  { key: "web2",     label: "Web2" },
+  { key: "web3",     label: "Web3" },
+  { key: "research", label: "Blockchain Research" }
+];
+```
+
+Add, rename or reorder entries there and the buttons follow. `All` is always first and is
+not declared. Every writeup needs a `category` matching one of the keys.
+
 Optional fields on a data entry — `severity`, `cve`, `program`, `target`, `platform` —
 put a severity badge and CVE chip on the feed card, drive the By severity sort, and are
 all searchable from the writeups page.

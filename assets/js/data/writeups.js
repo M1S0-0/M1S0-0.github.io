@@ -1,4 +1,19 @@
 /* =============================================================
+   CATEGORIES — the filter buttons on the writeups page.
+   Edit this list to add, rename, or reorder them. "all" is
+   always first and is not declared here.
+
+   `key` is what a writeup's `category` field must match.
+   ============================================================= */
+
+const CATEGORIES = [
+  { key: "web2",     label: "Web2" },
+  { key: "web3",     label: "Web3" },
+  { key: "research", label: "Blockchain Research" }
+];
+
+
+/* =============================================================
    WRITEUPS — the article list. Single source of truth.
    `slug` must match a file at /writeups/posts/<slug>.html
 
@@ -9,7 +24,9 @@
      title     shown everywhere
      subtitle  the deck line under the title
      date      YYYY-MM-DD (or YYYY-MM)
-     tags      first tag labels the thumbnail; all become filter buttons
+     category  one of the CATEGORIES keys above
+     tags      first tag labels the thumbnail; the rest show on
+               the card and are all searchable
 
    OPTIONAL
      severity  Critical | High | Medium | Low | Info
@@ -25,8 +42,8 @@
      series    { name: "...", part: 1 }
                  -> banner above the article title
 
-   All of severity, cve, program, target and platform are searchable
-   from the writeups page.
+   severity, cve, program, target, platform and tags are all
+   searchable from the writeups page.
    ============================================================= */
 
 const WRITEUPS = [
@@ -36,6 +53,7 @@ const WRITEUPS = [
     title: "Unauthenticated SSRF in a WordPress plugin import endpoint",
     subtitle: "An import handler that never checked who was calling it, and happily fetched any URL I handed over.",
     date: "2026-07-20",
+    category: "web2",
     readTime: "7 min read",
     tags: ["SSRF", "WordPress", "Unauth"],
 
@@ -51,6 +69,7 @@ const WRITEUPS = [
     title: "One future-dated oracle round froze an entire vault",
     subtitle: "A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.",
     date: "2026-06-14",
+    category: "web3",
     readTime: "9 min read",
     tags: ["Oracle", "DoS", "Solidity"],
 
@@ -65,6 +84,7 @@ const WRITEUPS = [
     title: "How I actually read a smart contract for the first time",
     subtitle: "Not line by line from the top. Here is the order I go in, and why invariants come before implementation.",
     date: "2026-05-02",
+    category: "research",
     readTime: "6 min read",
     tags: ["Methodology", "Auditing"]
   }

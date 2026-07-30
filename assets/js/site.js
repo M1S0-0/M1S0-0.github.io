@@ -557,8 +557,8 @@ function heroCard(w, mountId) {
 function initWriteupsPage(items, opts) {
   var input = document.getElementById(opts.inputId);
   var clearBtn = document.getElementById(opts.clearId);
-  var tagbar = document.getElementById(opts.tagbarId);
-  var tagClear = document.getElementById(opts.tagClearId);
+  var catbar = document.getElementById(opts.catbarId);
+  var filterClear = document.getElementById(opts.clearFiltersId);
   var sortBtn = document.getElementById(opts.sortId);
   var countEl = document.getElementById(opts.countId);
   var mount = opts.mountId;
@@ -569,7 +569,7 @@ function initWriteupsPage(items, opts) {
     { key: "severity", label: "By severity" }
   ];
 
-  var state = { q: "", tag: "All", sort: "newest" };
+  var state = { q: "", cat: "all", sort: "newest" };
 
   /* ---- url hash <-> state ---- */
   function readHash() {
@@ -580,7 +580,7 @@ function initWriteupsPage(items, opts) {
       var k = decodeURIComponent(kv[0] || "");
       var v = decodeURIComponent(kv[1] || "");
       if (k === "q") state.q = v;
-      if (k === "tag") state.tag = v;
+      if (k === "cat") state.cat = v;
       if (k === "sort" && SORTS.some(function (s) { return s.key === v; })) state.sort = v;
     });
   }
@@ -588,34 +588,38 @@ function initWriteupsPage(items, opts) {
   function writeHash() {
     var parts = [];
     if (state.q) parts.push("q=" + encodeURIComponent(state.q));
-    if (state.tag !== "All") parts.push("tag=" + encodeURIComponent(state.tag));
+    if (state.cat !== "all") parts.push("cat=" + encodeURIComponent(state.cat));
     if (state.sort !== "newest") parts.push("sort=" + encodeURIComponent(state.sort));
     var next = parts.length ? "#" + parts.join("&") : " ";
     history.replaceState(null, "", location.pathname + (parts.length ? next : ""));
   }
 
-  /* ---- tag buttons, with a count each ---- */
-  function buildTags() {
+  /* ---- category buttons, with a count each ---- */
+  function buildCats() {
+    if (!catbar) return;
     var counts = {};
     items.forEach(function (w) {
-      (w.tags || []).forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
-    });
-    var names = Object.keys(counts).sort(function (a, b) {
-      return counts[b] - counts[a] || a.localeCompare(b);
+      if (w.category) counts[w.category] = (counts[w.category] || 0) + 1;
     });
 
-    tagbar.innerHTML =
-      '<button class="tagbtn" data-tag="All">All<b>' + items.length + "</b></button>" +
-      names.map(function (t) {
-        return '<button class="tagbtn" data-tag="' + esc(t) + '">' + esc(t) + "<b>" + counts[t] + "</b></button>";
+    var list = (typeof CATEGORIES !== "undefined" ? CATEGORIES : []);
+
+    catbar.innerHTML =
+      '<button class="catbtn" data-cat="all">All<b>' + items.length + "</b></button>" +
+      list.map(function (c) {
+        var n = counts[c.key] || 0;
+        return '<button class="catbtn" data-cat="' + esc(c.key) + '">' +
+                 esc(c.label) + "<b>" + n + "</b></button>";
       }).join("");
   }
 
-  function paintTags() {
-    Array.prototype.forEach.call(tagbar.querySelectorAll(".tagbtn"), function (b) {
-      b.classList.toggle("on", b.getAttribute("data-tag") === state.tag);
-    });
-    if (tagClear) tagClear.classList.toggle("show", state.tag !== "All" || !!state.q);
+  function paintCats() {
+    if (catbar) {
+      Array.prototype.forEach.call(catbar.querySelectorAll(".catbtn"), function (b) {
+        b.classList.toggle("on", b.getAttribute("data-cat") === state.cat);
+      });
+    }
+    if (filterClear) filterClear.classList.toggle("show", state.cat !== "all" || !!state.q);
   }
 
   /* ---- filter + sort + render ---- */
@@ -623,7 +627,7 @@ function initWriteupsPage(items, opts) {
     var q = state.q.trim().toLowerCase();
 
     var out = items.filter(function (w) {
-      if (state.tag !== "All" && (w.tags || []).indexOf(state.tag) === -1) return false;
+      if (state.cat !== "all" && w.category !== state.cat) return false;
       if (!q) return true;
       var hay = [w.title, w.subtitle, (w.tags || []).join(" "),
                  w.program, w.target, w.cve, w.platform, w.severity]
@@ -657,19 +661,19 @@ function initWriteupsPage(items, opts) {
     }
 
     if (clearBtn) clearBtn.classList.toggle("show", !!state.q);
-    paintTags();
+    paintCats();
     if (pushHash !== false) writeHash();
   }
 
   function reset() {
-    state.q = ""; state.tag = "All";
+    state.q = ""; state.cat = "all";
     if (input) input.value = "";
     apply();
   }
   window.__writeupsReset = reset;   /* used by the empty-state button */
 
   /* ---- wire up ---- */
-  buildTags();
+  buildCats();
   readHash();
   if (input) input.value = state.q;
   if (sortBtn) {
@@ -692,15 +696,17 @@ function initWriteupsPage(items, opts) {
       state.q = ""; input.value = ""; input.focus(); apply();
     });
   }
-  if (tagClear) tagClear.addEventListener("click", reset);
+  if (filterClear) filterClear.addEventListener("click", reset);
 
-  tagbar.addEventListener("click", function (e) {
-    var btn = e.target.closest(".tagbtn");
-    if (!btn) return;
-    var t = btn.getAttribute("data-tag");
-    state.tag = (state.tag === t && t !== "All") ? "All" : t;   /* click again to unset */
-    apply();
-  });
+  if (catbar) {
+    catbar.addEventListener("click", function (e) {
+      var btn = e.target.closest(".catbtn");
+      if (!btn) return;
+      var c = btn.getAttribute("data-cat");
+      state.cat = (state.cat === c && c !== "all") ? "all" : c;   /* click again to unset */
+      apply();
+    });
+  }
 
   /* keyboard: / focuses search, Escape clears it */
   document.addEventListener("keydown", function (e) {
