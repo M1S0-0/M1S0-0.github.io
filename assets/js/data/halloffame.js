@@ -18,6 +18,11 @@ const HOF_GROUPS = [
 
      org         organisation or protocol. For a private program
                  leave this out and it renders masked.
+     logo        path to the company logo, e.g.
+                 "/assets/img/logos/acme.svg". Drop the file in
+                 assets/img/logos/. If you leave this out the card
+                 shows the org's initials instead, so nothing breaks
+                 while you are still collecting logos.
      group       web2 | web3 | audits  (a HOF_GROUPS key)
      visibility  public | private
                    public  -> org name shown, links out if `proof` is set
@@ -34,6 +39,7 @@ const HALLOFFAME = [
   /* ---------------- web2 ---------------- */
   {
     org: "Example Corporation",
+    logo: null,
     group: "web2",
     visibility: "public",
     kind: "Hall of Fame",
@@ -43,6 +49,7 @@ const HALLOFFAME = [
   },
   {
     org: "Example Foundation",
+    logo: null,
     group: "web2",
     visibility: "public",
     kind: "Acknowledgement",
@@ -68,6 +75,7 @@ const HALLOFFAME = [
   /* ---------------- web3 ---------------- */
   {
     org: "Example Protocol",
+    logo: null,
     group: "web3",
     visibility: "public",
     kind: "Audit",
@@ -77,6 +85,7 @@ const HALLOFFAME = [
   },
   {
     org: "Example DAO",
+    logo: null,
     group: "web3",
     visibility: "public",
     kind: "Audit",
@@ -88,6 +97,7 @@ const HALLOFFAME = [
   /* ---------------- audits ---------------- */
   {
     org: "Example Contest",
+    logo: null,
     group: "audits",
     visibility: "public",
     kind: "Contest",

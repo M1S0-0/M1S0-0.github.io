@@ -52,8 +52,13 @@ Each entry sets `group` (a group key) and `visibility`:
 - `private` — the name renders masked with a lock. The entry still counts toward the
   totals, so a credit under an NDA is represented without naming anything.
 
-Optional per entry: `kind` (Hall of Fame, Acknowledgement, CVE Credit, Audit, Contest),
-`detail` (one line on what you found), `year`, `proof`.
+Optional per entry: `logo`, `kind` (Hall of Fame, Acknowledgement, CVE Credit, Audit,
+Contest), `detail` (one line on what you found), `year`, `proof`.
+
+Logos go in `assets/img/logos/` and are referenced as
+`logo: "/assets/img/logos/acme.svg"`. Leave `logo` out and the card shows the
+organisation's initials instead, so the wall never renders a broken image while you are
+still collecting them.
 
 Public entries sort above private ones within a group.
 

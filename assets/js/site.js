@@ -698,34 +698,50 @@ function hofOf(group) {
   return HALLOFFAME.filter(function (h) { return h.group === group; });
 }
 
-/* one entry, rendered as a block on the chain.
-   A private entry keeps its payload hidden but is still counted. */
-function hofBlock(h, i) {
-  var idx = "#" + String(i + 1).padStart(3, "0");
 
-  var org = h.visibility === "private"
-    ? '<span class="masked">' + "█".repeat(9) + "</span>" +
-      '<span class="lock" title="Private program">&#128274;</span>'
-    : esc(h.org || "Unnamed");
+/* first letter of the first two words: "Example Corporation" -> "EC" */
+function orgMonogram(name) {
+  var words = String(name).trim().split(/[\s\-_.]+/).filter(Boolean);
+  if (!words.length) return "?";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
 
-  var vis = '<span class="vis vis-' + (h.visibility === "private" ? "private" : "public") + '">' +
-              (h.visibility === "private" ? "Private" : "Public") + "</span>";
+/* one company on the wall: logo (or a monogram) above the name */
+function hofCard(h) {
+  var isPrivate = h.visibility === "private";
 
-  var inner =
-    '<span class="block-idx">' + esc(idx) + "</span>" +
-    '<div class="block-main">' +
-      '<div class="block-org">' + org + "</div>" +
-      (h.detail ? '<div class="block-detail">' + esc(h.detail) + "</div>" : "") +
-    "</div>" +
-    (h.kind ? '<span class="kind">' + esc(h.kind) + "</span>" : "") +
-    vis +
-    (h.year ? '<span class="block-year">' + esc(h.year) + "</span>" : "");
-
-  /* only public entries with a proof link are clickable */
-  if (h.visibility !== "private" && h.proof) {
-    return '<a class="block" href="' + esc(h.proof) + '" rel="noopener">' + inner + "</a>";
+  var mark;
+  if (isPrivate) {
+    mark = '<div class="logo-mark"><span class="logo-mono">&#128274;</span></div>';
+  } else if (h.logo) {
+    mark = '<div class="logo-mark"><img src="' + esc(h.logo) +
+           '" alt="' + esc(h.org || "") + ' logo" loading="lazy"></div>';
+  } else {
+    /* no logo supplied yet: initials, so the wall never shows a broken image */
+    mark = '<div class="logo-mark"><span class="logo-mono">' +
+           esc(orgMonogram(h.org || "?")) + "</span></div>";
   }
-  return '<div class="block">' + inner + "</div>";
+
+  var name = isPrivate
+    ? '<div class="logo-name">Private program</div>'
+    : '<div class="logo-name">' + esc(h.org || "Unnamed") + "</div>";
+
+  var body =
+    mark +
+    name +
+    (!isPrivate && h.detail ? '<div class="logo-detail">' + esc(h.detail) + "</div>" : "") +
+    '<div class="logo-foot">' +
+      (h.kind ? '<span class="kind">' + esc(h.kind) + "</span>" : "") +
+      (h.year ? '<span class="block-year">' + esc(h.year) + "</span>" : "") +
+    "</div>";
+
+  var cls = "logo-card" + (isPrivate ? " is-private" : "");
+
+  if (!isPrivate && h.proof) {
+    return '<a class="' + cls + '" href="' + esc(h.proof) + '" rel="noopener">' + body + "</a>";
+  }
+  return '<div class="' + cls + '">' + body + "</div>";
 }
 
 function renderHallOfFame(mountId) {
@@ -736,7 +752,7 @@ function renderHallOfFame(mountId) {
     var rows = hofOf(g.key);
     if (!rows.length) return "";
 
-    /* public first, then private, so the named ones lead */
+    /* named entries lead, private ones follow */
     rows = rows.slice().sort(function (a, b) {
       var av = a.visibility === "private" ? 1 : 0;
       var bv = b.visibility === "private" ? 1 : 0;
@@ -749,62 +765,7 @@ function renderHallOfFame(mountId) {
                '<span class="note">' + esc(g.note || "") + "</span>" +
                '<span class="n">' + rows.length + "</span>" +
              "</div>" +
-             '<div class="chain">' + rows.map(hofBlock).join("") + "</div>" +
+             '<div class="logo-grid">' + rows.map(hofCard).join("") + "</div>" +
            "</section>";
   }).join("");
-}
-
-/* stat blocks, counted from the hall of fame and the writeups */
-function renderHomeStats(mountId) {
-  var el = document.getElementById(mountId);
-  if (!el) return;
-
-  var hof = (typeof HALLOFFAME !== "undefined") ? HALLOFFAME : [];
-  var posts = (typeof WRITEUPS !== "undefined") ? WRITEUPS : [];
-
-  var cves = posts.filter(function (w) { return !!w.cve; }).length;
-
-  var cells = [
-    [hof.length, "Hall of Fame"],
-    [hofOf("web2").length, "Web2"],
-    [hofOf("web3").length, "Web3"],
-    [cves, "CVEs"],
-    [posts.length, "Writeups"]
-  ];
-
-  el.innerHTML = cells.map(function (c) {
-    return '<div class="hx-stat"><b data-to="' + esc(c[0]) + '">0</b><span>' + esc(c[1]) + "</span></div>";
-  }).join("");
-
-  countUp(el);
-}
-
-/* counts the stat numbers up once, when they first scroll into view */
-function countUp(scope) {
-  var nums = scope.querySelectorAll("[data-to]");
-  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  function run(node) {
-    var to = parseInt(node.getAttribute("data-to"), 10) || 0;
-    if (reduce || to === 0) { node.textContent = to; return; }
-    var start = null;
-    function step(ts) {
-      if (!start) start = ts;
-      var p = Math.min(1, (ts - start) / 900);
-      node.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  if (!("IntersectionObserver" in window)) {
-    Array.prototype.forEach.call(nums, run);
-    return;
-  }
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { run(e.target); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.4 });
-  Array.prototype.forEach.call(nums, function (n) { io.observe(n); });
 }

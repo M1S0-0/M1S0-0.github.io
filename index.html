@@ -47,6 +47,15 @@
 
 <!-- ============ HERO ============ -->
 <header class="hx">
+    <svg class="eth" viewBox="0 0 256 417" fill="currentColor" aria-hidden="true">
+      <path d="M127.96 0l-2.8 9.5v275.67l2.8 2.79 127.96-75.64z" opacity=".62"/>
+      <path d="M127.96 0L0 212.32l127.96 75.64V0z"/>
+      <path d="M127.96 312.19l-1.58 1.92v98.2l1.58 4.6L256 236.59z" opacity=".62"/>
+      <path d="M127.96 416.91V312.19L0 236.59z"/>
+      <path d="M127.96 287.96l127.96-75.64-127.96-58.16z" opacity=".36"/>
+      <path d="M0 212.32l127.96 75.64V154.16z" opacity=".8"/>
+    </svg>
+
   <div class="wide">
     <p class="hx-term">m1s0@sec:~$ whoami<span class="caret"></span></p>
 
@@ -69,7 +78,6 @@
       <a class="mlink" href="mailto:unknowbughunter@gmail.com">Email</a>
     </div>
 
-    <div class="hx-stats" id="stats"></div>
   </div>
 </header>
 
@@ -153,7 +161,6 @@
 <script src="/assets/js/site.js"></script>
 <script>
   initTheme();
-  renderHomeStats("stats");
   renderHallOfFame("hof");
   renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");
   initReveal();
