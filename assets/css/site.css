@@ -1008,6 +1008,13 @@ html[data-theme="dark"] .pb .eth { opacity: .12; }
 }
 
 
+/* ---------- panel box ---------- */
+.panels { padding: 46px 0 0; }
+.panel {
+  border: 1px solid var(--rule); border-radius: 14px;
+  padding: 26px 28px; background: var(--bg);
+}
+
 /* ---------- programs secured ---------- */
 .secured { display: flex; flex-wrap: wrap; gap: 18px; padding-top: 4px; }
 .secured-item { width: 76px; text-align: center; }
