@@ -28,6 +28,11 @@ const HOF_GROUPS = [
     key: "web3-audits",
     label: "Smart Contract Audits",
     note: "Audit competitions and engagements"
+  },
+  {
+    key: "blockchain-dlt",
+    label: "Blockchain / DLT",
+    note: "Protocol, consensus and node level"
   }
 ];
 
@@ -124,6 +129,18 @@ const HALLOFFAME = [
     visibility: "public",
     kind: "Contest",
     detail: "Lending protocol, placed in the leaderboard",
+    year: "2026",
+    proof: null
+  },
+
+  /* ---------- Blockchain / DLT ---------- */
+  {
+    org: "Example Chain",
+    logo: null,
+    group: "blockchain-dlt",
+    visibility: "public",
+    kind: "Bug Bounty",
+    detail: "Consensus layer denial of service via malformed block",
     year: "2026",
     proof: null
   }

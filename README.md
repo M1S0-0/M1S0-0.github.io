@@ -87,9 +87,13 @@ The home page is built from `assets/js/data/halloffame.js`. Two arrays:
 | `web2-private` | Web2 Private Programs |
 | `web3-bounty` | Smart Contract Bug Bounty |
 | `web3-audits` | Smart Contract Audits |
+| `blockchain-dlt` | Blockchain / DLT |
 
 The same list drives the tabs under Programs Secured, so adding a group here adds a tab
 there with nothing else to change. Every entry needs a `group` matching one of the keys.
+
+A group with no entries is skipped entirely — it gets no tab and no section — so an empty
+category never shows up as a blank box.
 
 Each entry sets `group` (a group key) and `visibility`:
 
