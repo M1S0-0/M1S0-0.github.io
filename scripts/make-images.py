@@ -59,7 +59,7 @@ def make_og():
     # > m1s0
     f_brand = font(MONO_B, 40)
     d.text((pad, 78), ">", font=f_brand, fill=ACCENT)
-    d.text((pad + 34, 78), " m1s0", font=f_brand, fill=FG)
+    d.text((pad + 34, 78), " M1S0", font=f_brand, fill=FG)
 
     # eyebrow
     f_eye = font(MONO_R, 21)
@@ -143,7 +143,7 @@ def make_post_og(w):
 
     f_brand = font(MONO_B, 32)
     d.text((pad, 70), ">", font=f_brand, fill=ACCENT)
-    d.text((pad + 27, 70), " m1s0", font=f_brand, fill=FG)
+    d.text((pad + 27, 70), " M1S0", font=f_brand, fill=FG)
 
     if w["tag"]:
         f_tag = font(MONO_R, 19)

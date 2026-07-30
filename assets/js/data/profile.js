@@ -6,7 +6,7 @@
    ============================================================= */
 
 const PROFILE = {
-  handle: "M1S00",
+  handle: "M1S0",
   /* shown as pills under the handle. `years` is approximate and
      renders with a leading tilde. */
   exposure: [
