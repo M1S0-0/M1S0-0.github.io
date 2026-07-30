@@ -23,7 +23,9 @@ const CATEGORIES = [
      slug      matches the filename
      title     shown everywhere
      subtitle  the deck line under the title
-     date      YYYY-MM-DD (or YYYY-MM)
+     date      YYYY-MM-DD (or YYYY-MM). NEVER DISPLAYED — it only
+               orders the feed, picks the Latest hero, and drives
+               prev/next and the RSS feed.
      category  one of the CATEGORIES keys above
      tags      first tag labels the thumbnail; the rest show on
                the card and are all searchable

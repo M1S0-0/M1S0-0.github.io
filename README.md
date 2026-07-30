@@ -89,6 +89,7 @@ themselves.
 | Feature | Notes |
 |---|---|
 | Read time | Computed from the real word count on article pages |
+| Dates | Never shown anywhere. `date` only orders the feed, picks the Latest hero, and feeds RSS |
 | Table of contents | Built from the `h2` headings, hidden if fewer than 3 |
 | Syntax highlighting | Strings matched before comments, so URLs are not mangled |
 | Copy button | Added to every code block |

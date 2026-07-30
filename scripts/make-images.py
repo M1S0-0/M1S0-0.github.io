@@ -163,7 +163,7 @@ def make_post_og(w):
         y += int(size * 1.18)
 
     f_foot = font(MONO_R, 22)
-    foot = "  ·  ".join([x for x in (w["date"], w["read"], "m1s0-0.github.io") if x])
+    foot = "  ·  ".join([x for x in (w["read"], "m1s0-0.github.io") if x])
     d.text((pad, 536), foot, font=f_foot, fill=MUTED)
 
     outdir = IMG / "og"

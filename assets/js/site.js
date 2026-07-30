@@ -54,13 +54,6 @@ function initials(name) {
   return clean.slice(0, 2).toUpperCase();
 }
 
-function prettyDate(d) {
-  var p = String(d).split("-");
-  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var m = months[parseInt(p[1], 10) - 1] || "";
-  return p[2] ? m + " " + parseInt(p[2], 10) + ", " + p[0] : m + " " + p[0];
-}
-
 function readTimeOf(w) {
   if (w.readTime) return w.readTime;
   var words = ((w.summary || "") + " " + (w.subtitle || "")).split(/\s+/).length;
@@ -76,8 +69,6 @@ function bylineHtml() {
 
 function metaHtml(w) {
   var bits = [
-    "<span>" + esc(prettyDate(w.date)) + "</span>",
-    '<span class="dot">&middot;</span>',
     "<span>" + esc(readTimeOf(w)) + "</span>"
   ];
 
@@ -122,20 +113,9 @@ function renderFeed(items, mountId, opts) {
     return;
   }
 
-  var seenYear = null;
-
   el.innerHTML = list.map(function (w) {
     var label = (w.tags && w.tags[0]) ? w.tags[0] : "";
 
-    /* a year divider whenever the year changes, if asked for */
-    var divider = "";
-    if (opts.groupByYear) {
-      var y = String(w.date).slice(0, 4);
-      if (y !== seenYear) {
-        seenYear = y;
-        divider = '<div class="year">' + esc(y) + "</div>";
-      }
-    }
 
     /* program line, only when the post declares one */
     var program = "";
@@ -152,8 +132,7 @@ function renderFeed(items, mountId, opts) {
         "</div>";
     }
 
-    return divider +
-           '<a class="item" href="/writeups/posts/' + esc(w.slug) + '.html">' +
+    return            '<a class="item" href="/writeups/posts/' + esc(w.slug) + '.html">' +
              '<div class="item-main">' +
                bylineHtml() +
                program +
@@ -186,7 +165,7 @@ function initProgress() {
 
 /* ---------- byline on an article ---------- */
 
-function initByline(dateStr) {
+function initByline() {
   var body = document.querySelector(".body");
   var av = document.getElementById("byline-avatar");
   var nm = document.getElementById("byline-name");
@@ -195,7 +174,7 @@ function initByline(dateStr) {
   if (nm) nm.textContent = AUTHOR;
   if (!body || !meta) return;
   var words = body.textContent.trim().split(/\s+/).length;
-  meta.textContent = prettyDate(dateStr) + " · " + Math.max(1, Math.round(words / 200)) + " min read";
+  meta.textContent = Math.max(1, Math.round(words / 200)) + " min read";
 }
 
 /* ---------- syntax highlighting ----------
@@ -382,7 +361,7 @@ function initToTop() {
 function initArticle(opts) {
   initTheme();
   initProgress();
-  initByline(opts.date);
+  initByline();
 
   renderSeries(opts.slug, "series");
 
@@ -436,13 +415,9 @@ function renderStatline(mountId) {
   var tags = {};
   WRITEUPS.forEach(function (w) { (w.tags || []).forEach(function (t) { tags[t] = 1; }); });
 
-  var years = {};
-  WRITEUPS.forEach(function (w) { years[String(w.date).slice(0, 4)] = 1; });
-
   var cells = [
     [WRITEUPS.length, WRITEUPS.length === 1 ? "Writeup" : "Writeups"],
-    [Object.keys(tags).length, "Topics"],
-    [Object.keys(years).length, Object.keys(years).length === 1 ? "Year" : "Years"]
+    [Object.keys(tags).length, "Topics"]
   ];
 
   el.innerHTML = cells.map(function (c) {
@@ -664,7 +639,6 @@ function initWriteupsPage(items, opts) {
     }
 
     renderFeed(out, mount, {
-      groupByYear: state.sort !== "severity",
       presorted: true,
       allTags: true,
       query: state.q.trim()

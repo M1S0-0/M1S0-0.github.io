@@ -573,15 +573,6 @@ html[data-theme="dark"] .label-low      { background: #10322c; color: #62d6bb; }
   border: 1px solid currentColor; border-radius: 4px; padding: 3px 7px;
 }
 
-/* ---------- year divider in the feed ---------- */
-.year {
-  display: flex; align-items: center; gap: 16px;
-  padding: 34px 0 6px;
-  font-family: var(--mono); font-size: 12px; letter-spacing: .16em;
-  color: var(--faint);
-}
-.year::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
-
 /* ---------- callouts ---------- */
 .callout {
   margin: 32px 0; padding: 16px 20px;
@@ -830,12 +821,6 @@ mark {
 }
 html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
 
-/* ---------- sticky year divider ---------- */
-.year {
-  position: sticky; top: 122px; z-index: 20;
-  background: var(--bg);
-}
-
 /* ---------- richer feed cards ---------- */
 .item-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .item .program {
@@ -855,7 +840,6 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
 
 @media (max-width: 620px) {
   .controls { top: 0; }
-  .year { top: 0; }
   .controls-row { flex-wrap: wrap; }
   .sort { flex: 1 1 auto; }
 }
