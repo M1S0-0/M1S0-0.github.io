@@ -285,8 +285,7 @@ html[data-theme="dark"] .label-low      { background: #10322c; color: #62d6bb; }
   padding: 6px 0 22px; border-bottom: 1px solid var(--rule); margin-bottom: 44px;
 }
 .author .avatar { width: 44px; height: 44px; font-size: 15px; }
-.author-name { font-size: 15px; font-weight: 500; line-height: 1.4; }
-.author-meta { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.author-name { font-size: 15.5px; font-weight: 500; line-height: 1.4; }
 
 /* body typography */
 .body { font-family: var(--serif); font-size: 20px; line-height: 1.65; letter-spacing: -.003em; }

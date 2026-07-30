@@ -54,12 +54,6 @@ function initials(name) {
   return clean.slice(0, 2).toUpperCase();
 }
 
-function readTimeOf(w) {
-  if (w.readTime) return w.readTime;
-  var words = ((w.summary || "") + " " + (w.subtitle || "")).split(/\s+/).length;
-  return Math.max(1, Math.round(words / 200)) + " min read";
-}
-
 function bylineHtml() {
   return '<div class="byline">' +
            '<span class="avatar">' + esc(initials(AUTHOR)) + "</span>" +
@@ -68,9 +62,7 @@ function bylineHtml() {
 }
 
 function metaHtml(w) {
-  var bits = [
-    "<span>" + esc(readTimeOf(w)) + "</span>"
-  ];
+  var bits = [];
 
   if (w.severity) {
     bits.push('<span class="sev sev-' + esc(w.severity.toLowerCase()) + '">' + esc(w.severity) + "</span>");
@@ -166,15 +158,10 @@ function initProgress() {
 /* ---------- byline on an article ---------- */
 
 function initByline() {
-  var body = document.querySelector(".body");
   var av = document.getElementById("byline-avatar");
   var nm = document.getElementById("byline-name");
-  var meta = document.getElementById("byline-meta");
   if (av) av.textContent = initials(AUTHOR);
   if (nm) nm.textContent = AUTHOR;
-  if (!body || !meta) return;
-  var words = body.textContent.trim().split(/\s+/).length;
-  meta.textContent = Math.max(1, Math.round(words / 200)) + " min read";
 }
 
 /* ---------- syntax highlighting ----------

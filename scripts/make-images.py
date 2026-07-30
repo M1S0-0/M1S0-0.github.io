@@ -117,14 +117,12 @@ def load_writeups():
         slug = re.search(r'slug:\s*"([^"]+)"', block)
         title = re.search(r'title:\s*"([^"]+)"', block)
         date = re.search(r'date:\s*"([^"]+)"', block)
-        read = re.search(r'readTime:\s*"([^"]+)"', block)
         tags = re.search(r"tags:\s*\[(.*?)\]", block, re.S)
         if slug and title:
             out.append({
                 "slug": slug.group(1),
                 "title": title.group(1),
                 "date": date.group(1) if date else "",
-                "read": read.group(1) if read else "",
                 "tag": re.findall(r'"([^"]+)"', tags.group(1))[0] if tags else "",
             })
     return out
@@ -163,7 +161,7 @@ def make_post_og(w):
         y += int(size * 1.18)
 
     f_foot = font(MONO_R, 22)
-    foot = "  ·  ".join([x for x in (w["read"], "m1s0-0.github.io") if x])
+    foot = "m1s0-0.github.io"
     d.text((pad, 536), foot, font=f_foot, fill=MUTED)
 
     outdir = IMG / "og"

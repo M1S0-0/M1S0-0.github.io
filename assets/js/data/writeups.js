@@ -40,7 +40,6 @@ const CATEGORIES = [
                  -> the small line above the title on the feed card
      platform  Immunefi | HackenProof | Bugcrowd | Cantina | Patchstack
                  -> searchable only
-     readTime  overrides the computed estimate
      series    { name: "...", part: 1 }
                  -> banner above the article title
 
@@ -56,7 +55,6 @@ const WRITEUPS = [
     subtitle: "An import handler that never checked who was calling it, and happily fetched any URL I handed over.",
     date: "2026-07-20",
     category: "web2",
-    readTime: "7 min read",
     tags: ["SSRF", "WordPress", "Unauth"],
 
     severity: "High",
@@ -72,7 +70,6 @@ const WRITEUPS = [
     subtitle: "A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.",
     date: "2026-06-14",
     category: "web3",
-    readTime: "9 min read",
     tags: ["Oracle", "DoS", "Solidity"],
 
     severity: "High",
@@ -87,7 +84,6 @@ const WRITEUPS = [
     subtitle: "Not line by line from the top. Here is the order I go in, and why invariants come before implementation.",
     date: "2026-05-02",
     category: "research",
-    readTime: "6 min read",
     tags: ["Methodology", "Auditing"]
   }
 
