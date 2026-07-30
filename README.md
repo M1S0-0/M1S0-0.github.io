@@ -64,8 +64,16 @@ platform actually gives you, in its own vocabulary:
 `assets/js/data/profile.js` drives the banner and the report table, laid out after the
 Immunefi researcher profile.
 
-`PROFILE` holds the handle, join date, tier, bio, the headline cards on the banner
-(`headline`), the link row, and the achievement shields (`earned: false` renders greyed).
+`PROFILE` holds the handle, join date, bio, the link row, and the achievement shields
+(`earned: false` renders greyed).
+
+`headline` is the row of stat cards on the banner and is currently empty, so no cards
+render. Add `{ label, value }` objects to bring them back. `tier` is `null` for the same
+reason — set it to a string and the tier pill returns.
+
+Programs secured shows one tab per hall of fame group, so clicking Web3 lists the Web3
+companies and clicking Web2 lists the Web2 ones. Tabs come from `HOF_GROUPS`, so a new
+group appears there on its own.
 
 `REPORTS` is one row per report type with a `cols` object of severity counts. A bucket set
 to `null` renders an em dash rather than a zero, so a bug bounty row without an Insights

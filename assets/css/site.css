@@ -1076,3 +1076,17 @@ html[data-theme="dark"] .pb .eth { opacity: .12; }
   font-size: 11.5px; line-height: 1.3; color: var(--faint);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
+/* ---------- programs secured: group tabs ---------- */
+.secured-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 2px 0 18px;
+}
+.secured-tabs .catbtn { font-size: 12.5px; padding: 6px 13px; }
+.secured-tabs .catbtn b {
+  font-family: var(--mono); font-weight: 400; font-size: 10.5px;
+  opacity: .6; margin-left: 6px;
+}
+.secured-tabs .catbtn.on b { opacity: .75; }
+
+.secured { min-height: 84px; align-items: flex-start; }

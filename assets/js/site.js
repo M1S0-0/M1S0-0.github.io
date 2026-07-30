@@ -843,11 +843,15 @@ function renderProfile(bannerId, rowId, bioId, shieldsId) {
           "</div>" +
         "</div>" +
       "</div>" +
-      '<div class="pb-cards">' +
-        (p.headline || []).map(function (h) {
-          return '<div class="pb-card"><span>' + esc(h.label) + "</span><b>" + esc(h.value) + "</b></div>";
-        }).join("") +
-      "</div>";
+      /* the cards block is omitted entirely when there is nothing to show,
+         so the banner does not keep an empty column */
+      ((p.headline && p.headline.length)
+        ? '<div class="pb-cards">' +
+            p.headline.map(function (h) {
+              return '<div class="pb-card"><span>' + esc(h.label) + "</span><b>" + esc(h.value) + "</b></div>";
+            }).join("") +
+          "</div>"
+        : "");
   }
 
   var row = document.getElementById(rowId);
@@ -897,24 +901,56 @@ function renderReports(mountId) {
                  '<table class="rep"><thead>' + head + "</thead><tbody>" + body + "</tbody></table>";
 }
 
-/* small logo chips, reusing the hall of fame entries */
+/* Programs secured: one tab per hall of fame group, chips built from
+   the same entries, so logos are never maintained in two places. */
+function securedChip(h) {
+  var isPrivate = h.visibility === "private";
+  var mark = isPrivate
+    ? '<div class="secured-mark"><span>&#128274;</span></div>'
+    : (h.logo
+        ? '<div class="secured-mark"><img src="' + esc(h.logo) + '" alt="" loading="lazy"></div>'
+        : '<div class="secured-mark"><span>' + esc(orgMonogram(h.org || "?")) + "</span></div>");
+
+  return '<div class="secured-item' + (isPrivate ? " is-private" : "") + '" title="' +
+           esc(isPrivate ? "Private program" : (h.org || "")) + '">' +
+           mark +
+           '<div class="secured-name">' + esc(isPrivate ? "Private" : (h.org || "")) + "</div>" +
+         "</div>";
+}
+
 function renderSecured(mountId) {
   var el = document.getElementById(mountId);
-  if (!el || typeof HALLOFFAME === "undefined") return;
+  if (!el || typeof HOF_GROUPS === "undefined" || typeof HALLOFFAME === "undefined") return;
 
-  var items = HALLOFFAME.map(function (h) {
-    var isPrivate = h.visibility === "private";
-    var mark = isPrivate
-      ? '<div class="secured-mark"><span>&#128274;</span></div>'
-      : (h.logo
-          ? '<div class="secured-mark"><img src="' + esc(h.logo) + '" alt="" loading="lazy"></div>'
-          : '<div class="secured-mark"><span>' + esc(orgMonogram(h.org || "?")) + "</span></div>");
+  var groups = HOF_GROUPS.filter(function (g) { return hofOf(g.key).length; });
+  if (!groups.length) { el.innerHTML = ""; return; }
 
-    return '<div class="secured-item' + (isPrivate ? " is-private" : "") + '">' +
-             mark +
-             '<div class="secured-name">' + esc(isPrivate ? "Private" : (h.org || "")) + "</div>" +
-           "</div>";
-  }).join("");
+  var active = groups[0].key;
 
-  el.innerHTML = '<p class="lbl">Programs secured</p><div class="secured">' + items + "</div>";
+  function paint() {
+    var rows = hofOf(active);
+    el.querySelector("[data-list]").innerHTML = rows.map(securedChip).join("");
+    Array.prototype.forEach.call(el.querySelectorAll("[data-tab]"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-tab") === active);
+    });
+  }
+
+  el.innerHTML =
+    '<p class="lbl">Programs secured</p>' +
+    '<div class="secured-tabs">' +
+      groups.map(function (g) {
+        return '<button class="catbtn" type="button" data-tab="' + esc(g.key) + '">' +
+                 esc(g.label) + "<b>" + hofOf(g.key).length + "</b></button>";
+      }).join("") +
+    "</div>" +
+    '<div class="secured" data-list></div>';
+
+  el.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-tab]");
+    if (!btn) return;
+    active = btn.getAttribute("data-tab");
+    paint();
+  });
+
+  paint();
 }
