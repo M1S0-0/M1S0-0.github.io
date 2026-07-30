@@ -726,7 +726,8 @@ function renderPlatforms(mountId) {
 
     /* only linked when a real profile url is set */
     if (p.url) {
-      return '<a class="pcard" href="' + esc(p.url) + '" rel="noopener">' +
+      return '<a class="pcard" href="' + esc(p.url) + '" target="_blank" ' +
+             'rel="noopener noreferrer">' +
                body + '<span class="pcard-out">&#8599;</span>' +
              "</a>";
     }

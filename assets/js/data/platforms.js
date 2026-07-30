@@ -25,22 +25,22 @@
 const PLATFORMS = [
   {
     name: "Immunefi",
-    handle: "@m1s0",
-    url: null,
+    handle: "@M1S00",
+    url: "https://immunefi.com/profile/M1S00/",
     stat: "Associate",
     note: "Web3 bug bounty"
   },
   {
     name: "Bugcrowd",
-    handle: "@m1s0",
-    url: null,
+    handle: "@M1S0",
+    url: "https://bugcrowd.com/h/M1S0",
     stat: "— accuracy",
     note: "Web2 bug bounty"
   },
   {
     name: "HackenProof",
-    handle: "@m1s0",
-    url: null,
+    handle: "@M1S0",
+    url: "https://hackenproof.com/hackers/M1S0",
     stat: "Rank —",
     note: "Web3 bug bounty"
   }
