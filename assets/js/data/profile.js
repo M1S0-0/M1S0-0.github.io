@@ -25,12 +25,6 @@ const PROFILE = {
     { label: "Email",  url: "mailto:unknowbughunter@gmail.com" }
   ],
 
-  /* shields under ACHIEVEMENTS. earned:false renders greyed out. */
-  achievements: [
-    { label: "First blood",       earned: true },
-    { label: "Ten reports",       earned: false },
-    { label: "Critical finding",  earned: false }
-  ]
 };
 
 
@@ -46,12 +40,22 @@ const REPORT_COLS = ["insights", "low", "medium", "high", "critical"];
 
 const REPORTS = [
   {
-    label: "Bug bounty reports",
+    label: "Web2 Bug Bounty Programs",
     total: 0,
     cols: { insights: null, low: 0, medium: 0, high: 0, critical: 0 }
   },
   {
-    label: "Audit competition reports",
+    label: "Web3 Bug Bounty Programs",
+    total: 0,
+    cols: { insights: null, low: 0, medium: 0, high: 0, critical: 0 }
+  },
+  {
+    label: "Web2 Private Programs",
+    total: 0,
+    cols: { insights: null, low: 0, medium: 0, high: 0, critical: 0 }
+  },
+  {
+    label: "Web3 Audit Competitions",
     total: 3,
     cols: { insights: 0, low: 2, medium: 1, high: 0, critical: 0 }
   }

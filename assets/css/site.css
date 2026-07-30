@@ -76,7 +76,7 @@ a { color: inherit; }
   border-bottom: 1px solid var(--rule);
 }
 .nav-inner {
-  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  max-width: 1460px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 60px);
   height: 57px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
 .brand {
@@ -784,7 +784,11 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
    HOME — blockchain profile
    =========================================================== */
 
-.wide { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+/* fluid: fills a wide screen instead of stranding it at a fixed column */
+.wide {
+  width: 100%; max-width: 1460px; margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 60px);
+}
 
 /* ---------- hall of fame: company logo grid ---------- */
 .logo-grid {
@@ -919,7 +923,8 @@ html[data-theme="dark"] {
 
 .pb {
   position: relative; overflow: hidden;
-  border-radius: 18px; padding: 30px 32px 34px;
+  border-radius: 20px;
+  padding: clamp(28px, 3.2vw, 46px) clamp(24px, 3.4vw, 52px) clamp(32px, 3.4vw, 50px);
   background: linear-gradient(115deg, #3b1178 0%, #6d28d9 38%, #b32bc4 72%, #d6277a 100%);
   color: #fff;
   display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center;
@@ -928,8 +933,8 @@ html[data-theme="dark"] {
 
 /* ethereum mark, drifting inside the banner */
 .pb .eth {
-  position: absolute; right: 14%; top: 50%; transform: translateY(-50%);
-  width: 300px; height: auto; color: #fff; opacity: .10; z-index: 0;
+  position: absolute; right: 12%; top: 50%; transform: translateY(-50%);
+  width: clamp(240px, 22vw, 420px); height: auto; color: #fff; opacity: .10; z-index: 0;
   animation: float 9s ease-in-out infinite;
 }
 html[data-theme="dark"] .pb .eth { opacity: .12; }
@@ -947,17 +952,18 @@ html[data-theme="dark"] .pb .eth { opacity: .12; }
 .pb-id { display: flex; align-items: center; gap: 22px; }
 
 .pb-avatar {
-  width: 96px; height: 96px; border-radius: 50%; flex: 0 0 auto;
+  width: clamp(84px, 8vw, 128px); height: clamp(84px, 8vw, 128px);
+  border-radius: 50%; flex: 0 0 auto;
   display: grid; place-items: center;
   background: radial-gradient(circle at 32% 28%, #a78bfa, #7c3aed 45%, #4c1d95 100%);
   box-shadow: 0 0 0 4px rgba(255,255,255,.16), 0 8px 26px rgba(0,0,0,.3);
-  font-family: var(--mono); font-size: 26px; font-weight: 700; color: #fff;
+  font-family: var(--mono); font-size: clamp(24px, 2.6vw, 36px); font-weight: 700; color: #fff;
   letter-spacing: -.02em;
 }
 @media (max-width: 520px) { .pb-avatar { width: 72px; height: 72px; font-size: 20px; } }
 
 .pb-handle {
-  font-family: var(--mono); font-size: clamp(30px, 5.6vw, 46px); font-weight: 700;
+  font-family: var(--mono); font-size: clamp(32px, 4.6vw, 64px); font-weight: 700;
   letter-spacing: -.02em; line-height: 1.05; margin: 0 0 8px; color: #fff;
 }
 .pb-since { font-size: 14.5px; color: rgba(255,255,255,.78); margin: 0; }
@@ -1001,40 +1007,26 @@ html[data-theme="dark"] .pb .eth { opacity: .12; }
 }
 .pb-link:hover { color: var(--text); border-color: var(--faint); text-decoration: none; }
 
-/* ---------- bio + achievements ---------- */
-.bio-row {
-  display: grid; grid-template-columns: 1.7fr 1fr; gap: 44px; padding: 44px 0 0;
-}
-@media (max-width: 780px) { .bio-row { grid-template-columns: 1fr; gap: 26px; } }
+/* ---------- bio ---------- */
+.bio-row { padding: 46px 0 0; }
 
 .lbl {
   font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
   text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
 }
 .bio-text {
-  font-family: var(--serif); font-size: 17.5px; line-height: 1.6;
-  color: var(--muted); margin: 0; max-width: 62ch;
+  font-family: var(--serif); font-size: clamp(17px, 1.35vw, 20px); line-height: 1.6;
+  color: var(--muted); margin: 0; max-width: 78ch;
 }
 
-.shields { display: flex; flex-wrap: wrap; gap: 12px; }
-.shield {
-  width: 46px; height: 52px; display: grid; place-items: center;
-  background: var(--chip); color: var(--faint);
-  clip-path: polygon(50% 0, 100% 18%, 100% 68%, 50% 100%, 0 68%, 0 18%);
-  font-size: 17px;
-}
-.shield.earned {
-  background: linear-gradient(160deg, #f2b632, #c98a12);
-  color: #3a2600;
-}
 
 /* ---------- reports table ---------- */
 .panel {
   border: 1px solid var(--rule); border-radius: 14px; padding: 24px 26px;
   background: var(--bg);
 }
-.panels { display: grid; grid-template-columns: 1.45fr 1fr; gap: 16px; padding: 44px 0 0; }
-@media (max-width: 860px) { .panels { grid-template-columns: 1fr; } }
+.panels { display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; padding: 46px 0 0; }
+@media (max-width: 1000px) { .panels { grid-template-columns: 1fr; } }
 
 .rep { width: 100%; border-collapse: collapse; }
 .rep th {

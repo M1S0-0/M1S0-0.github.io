@@ -826,7 +826,7 @@ function renderPlatforms(mountId) {
    PROFILE banner, reports table, programs secured
    ============================================================= */
 
-function renderProfile(bannerId, rowId, bioId, shieldsId) {
+function renderProfile(bannerId, rowId, bioId) {
   if (typeof PROFILE === "undefined") return;
   var p = PROFILE;
 
@@ -868,13 +868,6 @@ function renderProfile(bannerId, rowId, bioId, shieldsId) {
   var bio = document.getElementById(bioId);
   if (bio && p.bio) bio.textContent = p.bio;
 
-  var shields = document.getElementById(shieldsId);
-  if (shields) {
-    shields.innerHTML = (p.achievements || []).map(function (a) {
-      return '<div class="shield' + (a.earned ? " earned" : "") + '" title="' + esc(a.label) +
-             (a.earned ? "" : " (locked)") + '">&#10003;</div>';
-    }).join("");
-  }
 }
 
 function renderReports(mountId) {
