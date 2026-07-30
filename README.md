@@ -85,8 +85,8 @@ The home page is built from `assets/js/data/halloffame.js`. Two arrays:
 |---|---|
 | `web2-bounty` | Web2 Bug Bounty Programs |
 | `web2-private` | Web2 Private Programs |
-| `web3-bounty` | Web3 Bug Bounty Programs |
-| `web3-audits` | Web3 Audit Competitions |
+| `web3-bounty` | Smart Contract Bug Bounty |
+| `web3-audits` | Smart Contract Audits |
 
 The same list drives the tabs under Programs Secured, so adding a group here adds a tab
 there with nothing else to change. Every entry needs a `group` matching one of the keys.

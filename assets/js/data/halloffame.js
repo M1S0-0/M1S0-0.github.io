@@ -21,13 +21,13 @@ const HOF_GROUPS = [
   },
   {
     key: "web3-bounty",
-    label: "Web3 Bug Bounty Programs",
+    label: "Smart Contract Bug Bounty",
     note: "Protocol bounty programs"
   },
   {
     key: "web3-audits",
-    label: "Web3 Audit Competitions",
-    note: "Contests and audit engagements"
+    label: "Smart Contract Audits",
+    note: "Audit competitions and engagements"
   }
 ];
 
@@ -94,7 +94,7 @@ const HALLOFFAME = [
     year: "2025"
   },
 
-  /* ---------- Web3 bug bounty ---------- */
+  /* ---------- Smart contract bug bounty ---------- */
   {
     org: "Example Protocol",
     logo: null,
@@ -106,7 +106,7 @@ const HALLOFFAME = [
     proof: null
   },
 
-  /* ---------- Web3 audit competitions ---------- */
+  /* ---------- Smart contract audits ---------- */
   {
     org: "Example DAO",
     logo: null,
