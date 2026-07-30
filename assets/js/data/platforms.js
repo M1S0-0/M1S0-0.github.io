@@ -13,10 +13,12 @@
      stat    the headline number that platform gives you.
              Use whatever that platform actually calls it:
                Immunefi     -> "Elite Auditor" / "Rank 412"
-               HackerOne    -> "Rank 1,204" / "Reputation 892"
-               Bugcrowd     -> "P4 · 92% accuracy"
-               Cantina      -> "Rank 88"
                HackenProof  -> "Rank 40"
+               Bugcrowd     -> "P4 · 92% accuracy"
+
+             Add a platform by appending an object here. Set `url`
+             when you have the profile link and the card becomes
+             clickable on its own.
      note    optional second line, e.g. reports or earnings
    ============================================================= */
 
@@ -29,25 +31,11 @@ const PLATFORMS = [
     note: "Web3 bug bounty"
   },
   {
-    name: "HackerOne",
-    handle: "@m1s0",
-    url: null,
-    stat: "Rank —",
-    note: "Web2 bug bounty"
-  },
-  {
     name: "Bugcrowd",
     handle: "@m1s0",
     url: null,
     stat: "— accuracy",
     note: "Web2 bug bounty"
-  },
-  {
-    name: "Cantina",
-    handle: "@m1s0",
-    url: null,
-    stat: "Rank —",
-    note: "Audit competitions"
   },
   {
     name: "HackenProof",

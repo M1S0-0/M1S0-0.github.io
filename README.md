@@ -66,7 +66,12 @@ so an empty profile never looks like a full one.
 
 The home page is built from `assets/js/data/halloffame.js`. Two arrays:
 
-`HOF_GROUPS` are the sections and their order — currently Web2, Web3, Audits.
+`HOF_GROUPS` are the sections and their order — currently **Web2** and **Web3 & Audits**.
+
+Web2 sets `split: true`, which renders it as two separate walls with their own sub
+headings, taken from `subLabels`: public entries under **Bug Bounty**, private ones under
+**Private Companies**. Any group without `split` renders as a single wall with named
+entries first.
 
 Each entry sets `group` (a group key) and `visibility`:
 

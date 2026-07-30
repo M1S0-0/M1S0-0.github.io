@@ -748,16 +748,42 @@ function renderHallOfFame(mountId) {
   var el = document.getElementById(mountId);
   if (!el || typeof HOF_GROUPS === "undefined") return;
 
+  /* newest first within a wall */
+  function byYear(a, b) { return String(b.year || "").localeCompare(String(a.year || "")); }
+
+  function wall(rows) {
+    return '<div class="logo-grid">' + rows.map(hofCard).join("") + "</div>";
+  }
+
   el.innerHTML = HOF_GROUPS.map(function (g) {
     var rows = hofOf(g.key);
     if (!rows.length) return "";
 
-    /* named entries lead, private ones follow */
-    rows = rows.slice().sort(function (a, b) {
-      var av = a.visibility === "private" ? 1 : 0;
-      var bv = b.visibility === "private" ? 1 : 0;
-      return av - bv || String(b.year || "").localeCompare(String(a.year || ""));
-    });
+    var body;
+
+    if (g.split) {
+      /* two walls: public programs, then private companies */
+      var pub  = rows.filter(function (h) { return h.visibility !== "private"; }).sort(byYear);
+      var priv = rows.filter(function (h) { return h.visibility === "private"; }).sort(byYear);
+      var subs = g.subLabels || {};
+
+      body = "";
+      if (pub.length) {
+        body += '<div class="sub-head"><h3>' + esc(subs.public || "Public") + "</h3>" +
+                '<span class="n">' + pub.length + "</span></div>" + wall(pub);
+      }
+      if (priv.length) {
+        body += '<div class="sub-head"><h3>' + esc(subs.private || "Private") + "</h3>" +
+                '<span class="n">' + priv.length + "</span></div>" + wall(priv);
+      }
+    } else {
+      /* one wall, named entries lead */
+      body = wall(rows.slice().sort(function (a, b) {
+        var av = a.visibility === "private" ? 1 : 0;
+        var bv = b.visibility === "private" ? 1 : 0;
+        return av - bv || byYear(a, b);
+      }));
+    }
 
     return '<section class="hof-section reveal">' +
              '<div class="hof-head">' +
@@ -765,7 +791,7 @@ function renderHallOfFame(mountId) {
                '<span class="note">' + esc(g.note || "") + "</span>" +
                '<span class="n">' + rows.length + "</span>" +
              "</div>" +
-             '<div class="logo-grid">' + rows.map(hofCard).join("") + "</div>" +
+             body +
            "</section>";
   }).join("");
 }

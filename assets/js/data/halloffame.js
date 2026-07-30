@@ -4,39 +4,59 @@
    >>> PLACEHOLDER CONTENT. REPLACE WITH YOUR REAL ENTRIES. <<<
 
    GROUPS are the sections, in the order they appear.
+
+     split: true  splits the section into two walls, public first
+                  then private, each with its own sub heading from
+                  `subLabels`. Used for Web2, where bug bounty
+                  programs and private company work are shown apart.
    ============================================================= */
 
 const HOF_GROUPS = [
-  { key: "web2",   label: "Web2",   note: "Public and private programs" },
-  { key: "web3",   label: "Web3",   note: "Public audits" },
-  { key: "audits", label: "Audits", note: "Contests and engagements" }
+  {
+    key: "web2",
+    label: "Web2",
+    note: "Web application security",
+    split: true,
+    subLabels: {
+      public:  "Bug Bounty",
+      private: "Private Companies"
+    }
+  },
+  {
+    key: "web3",
+    label: "Web3 & Audits",
+    note: "Protocols, audits and contests"
+  }
 ];
 
 
 /* =============================================================
    ENTRIES
 
-     org         organisation or protocol. For a private program
-                 leave this out and it renders masked.
+     org         organisation or protocol. For a private company
+                 leave this out and the card renders masked.
      logo        path to the company logo, e.g.
                  "/assets/img/logos/acme.svg". Drop the file in
                  assets/img/logos/. If you leave this out the card
                  shows the org's initials instead, so nothing breaks
                  while you are still collecting logos.
-     group       web2 | web3 | audits  (a HOF_GROUPS key)
+     group       web2 | web3   (a HOF_GROUPS key)
      visibility  public | private
-                   public  -> org name shown, links out if `proof` is set
-                   private -> name masked, still counted in the totals
+                   public  -> name and logo shown, links out if
+                              `proof` is set
+                   private -> padlock card, no name, still counted.
+                              Inside Web2 these collect under the
+                              Private Companies heading.
      kind        short label: Hall of Fame, Acknowledgement,
                  CVE Credit, Audit, Contest
      detail      optional one-liner: what you found, or the scope
-     year        optional, shown on the right
+     year        optional
      proof       optional URL to the vendor's public thanks page
    ============================================================= */
 
 const HALLOFFAME = [
 
-  /* ---------------- web2 ---------------- */
+  /* ------- web2 · bug bounty (public) ------- */
   {
     org: "Example Corporation",
     logo: null,
@@ -57,6 +77,8 @@ const HALLOFFAME = [
     year: "2026",
     proof: null
   },
+
+  /* ------- web2 · private companies ------- */
   {
     group: "web2",
     visibility: "private",
@@ -72,7 +94,7 @@ const HALLOFFAME = [
     year: "2025"
   },
 
-  /* ---------------- web3 ---------------- */
+  /* ------- web3 & audits ------- */
   {
     org: "Example Protocol",
     logo: null,
@@ -93,12 +115,10 @@ const HALLOFFAME = [
     year: "2026",
     proof: null
   },
-
-  /* ---------------- audits ---------------- */
   {
     org: "Example Contest",
     logo: null,
-    group: "audits",
+    group: "web3",
     visibility: "public",
     kind: "Contest",
     detail: "Lending protocol, placed in the leaderboard",
