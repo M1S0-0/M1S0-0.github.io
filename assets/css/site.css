@@ -915,7 +915,9 @@ html[data-theme="dark"] {
   position: relative; overflow: hidden;
   border-radius: 20px;
   padding: clamp(28px, 3.2vw, 46px) clamp(24px, 3.4vw, 52px) clamp(32px, 3.4vw, 50px);
-  background: linear-gradient(115deg, #3b1178 0%, #6d28d9 38%, #b32bc4 72%, #d6277a 100%);
+  background:
+    radial-gradient(125% 150% at 10% 16%, rgba(255,255,255,.14), transparent 58%),
+    linear-gradient(118deg, #04150f 0%, #0b3a2d 30%, #12735a 64%, #2fc98c 100%);
   color: #fff;
   display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center;
 }
@@ -937,7 +939,7 @@ html[data-theme="dark"] .pb .eth { opacity: .12; }
   background: rgba(0,0,0,.34); border-radius: 999px; padding: 7px 14px;
   margin-bottom: 26px; color: rgba(255,255,255,.72);
 }
-.pb-crumb b { color: #ffd0ea; font-weight: 600; }
+.pb-crumb b { color: #8ef0c4; font-weight: 600; }
 
 .pb-id { display: flex; align-items: center; gap: 22px; }
 
@@ -945,9 +947,9 @@ html[data-theme="dark"] .pb .eth { opacity: .12; }
   width: clamp(84px, 8vw, 128px); height: clamp(84px, 8vw, 128px);
   border-radius: 50%; flex: 0 0 auto;
   display: grid; place-items: center;
-  background: radial-gradient(circle at 32% 28%, #a78bfa, #7c3aed 45%, #4c1d95 100%);
-  box-shadow: 0 0 0 4px rgba(255,255,255,.16), 0 8px 26px rgba(0,0,0,.3);
-  font-family: var(--mono); font-size: clamp(24px, 2.6vw, 36px); font-weight: 700; color: #fff;
+  background: radial-gradient(circle at 32% 28%, #8ff2c6, #2bbd84 46%, #0a4433 100%);
+  box-shadow: 0 0 0 4px rgba(255,255,255,.14), 0 10px 30px rgba(0,0,0,.38);
+  font-family: var(--mono); font-size: clamp(24px, 2.6vw, 36px); font-weight: 700; color: #04170f;
   letter-spacing: -.02em;
 }
 @media (max-width: 520px) { .pb-avatar { width: 72px; height: 72px; font-size: 20px; } }
