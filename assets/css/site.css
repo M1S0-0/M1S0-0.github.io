@@ -800,7 +800,7 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
 
 .pcard {
   display: block; text-decoration: none; position: relative; overflow: hidden;
-  padding: 18px 18px 16px;
+  padding: 20px 20px 18px; min-height: 118px;
   border: 1px solid var(--rule); border-radius: 11px; background: var(--bg);
   transition: border-color .2s ease, transform .2s ease;
 }
@@ -812,15 +812,22 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
 .pcard:hover::after { opacity: 1; }
 
 .pcard-name {
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--faint); margin-bottom: 10px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--text); margin-bottom: 12px;
 }
-.pcard-stat {
-  font-size: 18px; font-weight: 700; letter-spacing: -.015em;
-  color: var(--text); line-height: 1.2;
+
+/* brand mark, sunk into the corner of the card */
+.pcard-mark {
+  position: absolute; right: -14px; bottom: -18px;
+  width: 108px; height: 108px;
+  opacity: .13; pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
 }
+html[data-theme="dark"] .pcard-mark { opacity: .17; }
+.pcard:hover .pcard-mark { opacity: .3; transform: scale(1.06) rotate(-4deg); }
 .pcard-handle {
-  font-family: var(--mono); font-size: 12px; color: var(--accent); margin-top: 6px;
+  font-family: var(--mono); font-size: 14px; font-weight: 700;
+  color: var(--accent); margin-top: 2px;
 }
 .pcard-note { font-size: 12px; color: var(--faint); margin-top: 3px; }
 

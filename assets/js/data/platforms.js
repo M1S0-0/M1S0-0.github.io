@@ -10,16 +10,12 @@
      name    platform name
      handle  your handle there
      url     your public profile, or null to render it unlinked
-     stat    the headline number that platform gives you.
-             Use whatever that platform actually calls it:
-               Immunefi     -> "Elite Auditor" / "Rank 412"
-               HackenProof  -> "Rank 40"
-               Bugcrowd     -> "P4 · 92% accuracy"
-
-             Add a platform by appending an object here. Set `url`
-             when you have the profile link and the card becomes
-             clickable on its own.
-     note    optional second line, e.g. reports or earnings
+     mark    which stylised brand mark to watermark the card with:
+             immunefi | bugcrowd | hackenproof. These are drawn in
+             each platform's colour family, not their trademark
+             files. Drop a real SVG in assets/img/logos/ and point
+             `logo` at it instead if you would rather use theirs.
+     note    optional second line
    ============================================================= */
 
 const PLATFORMS = [
@@ -27,21 +23,21 @@ const PLATFORMS = [
     name: "Immunefi",
     handle: "@M1S00",
     url: "https://immunefi.com/profile/M1S00/",
-    stat: "Associate",
+    mark: "immunefi",
     note: "Web3 bug bounty"
   },
   {
     name: "Bugcrowd",
     handle: "@M1S0",
     url: "https://bugcrowd.com/h/M1S0",
-    stat: "— accuracy",
+    mark: "bugcrowd",
     note: "Web2 bug bounty"
   },
   {
     name: "HackenProof",
     handle: "@M1S0",
     url: "https://hackenproof.com/hackers/M1S0",
-    stat: "Rank —",
+    mark: "hackenproof",
     note: "Web3 bug bounty"
   }
 ];

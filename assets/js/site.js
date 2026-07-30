@@ -713,14 +713,61 @@ function orgMonogram(name) {
    Cross-platform presence + severity distribution
    ============================================================= */
 
+
+/* =============================================================
+   Platform marks
+
+   Stylised, drawn in each platform's colour family. These are
+   deliberately not their trademark files: they read as a brand
+   cue without claiming to be the official logo. Point a `logo`
+   at a real SVG in the data if you want theirs instead.
+   ============================================================= */
+
+var PLATFORM_MARKS = {
+  /* nested chevrons forming a shield */
+  immunefi: {
+    color: "#9b6cff",
+    body: '<path d="M50 6 88 24v34c0 22-16 34-38 42C28 92 12 80 12 58V24z" ' +
+            'fill="none" stroke="currentColor" stroke-width="6"/>' +
+          '<path d="M50 30 68 40v18c0 11-8 17-18 21-10-4-18-10-18-21V40z" fill="currentColor"/>'
+  },
+  /* overlapping discs, a crowd */
+  bugcrowd: {
+    color: "#f26122",
+    body: '<circle cx="50" cy="28" r="16" fill="currentColor" opacity=".9"/>' +
+          '<circle cx="28" cy="66" r="16" fill="currentColor" opacity=".6"/>' +
+          '<circle cx="72" cy="66" r="16" fill="currentColor" opacity=".75"/>' +
+          '<path d="M50 44 34 60M50 44l16 16" stroke="currentColor" stroke-width="5" opacity=".5"/>'
+  },
+  /* hexagon with a proof check cut through it */
+  hackenproof: {
+    color: "#4f8cff",
+    body: '<path d="M50 8 86 29v42L50 92 14 71V29z" fill="none" ' +
+            'stroke="currentColor" stroke-width="6"/>' +
+          '<path d="M33 50l12 13 23-24" fill="none" stroke="currentColor" ' +
+            'stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>'
+  }
+};
+
+function platformMark(key) {
+  var m = PLATFORM_MARKS[key];
+  if (!m) return "";
+  return '<svg class="pcard-mark" viewBox="0 0 100 100" aria-hidden="true" ' +
+         'style="color:' + m.color + '">' + m.body + "</svg>";
+}
+
 function renderPlatforms(mountId) {
   var el = document.getElementById(mountId);
   if (!el || typeof PLATFORMS === "undefined") return;
 
   el.innerHTML = PLATFORMS.map(function (p) {
+    var art = p.logo
+      ? '<img class="pcard-mark" src="' + esc(p.logo) + '" alt="" loading="lazy">'
+      : platformMark(p.mark);
+
     var body =
+      art +
       '<div class="pcard-name">' + esc(p.name) + "</div>" +
-      '<div class="pcard-stat">' + esc(p.stat || "—") + "</div>" +
       '<div class="pcard-handle">' + esc(p.handle || "") + "</div>" +
       (p.note ? '<div class="pcard-note">' + esc(p.note) + "</div>" : "");
 
