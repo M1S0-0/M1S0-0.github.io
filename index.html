@@ -161,6 +161,7 @@
   renderSecured("secured");
 
   renderPlatforms("platforms");
+  initCardSpotlight("platforms");
   document.getElementById("platform-count").textContent = PLATFORMS.length;
 
   renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");

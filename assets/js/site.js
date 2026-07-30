@@ -756,6 +756,29 @@ function platformMark(key) {
          'style="color:' + m.color + '">' + m.body + "</svg>";
 }
 
+/* Tracks the cursor inside a card and hands its position to CSS, so the
+   spotlight can follow without the stylesheet knowing about the mouse.
+   Delegated from the container, so it survives re-renders. */
+function initCardSpotlight(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el) return;
+
+  el.addEventListener("mousemove", function (e) {
+    var card = e.target.closest(".pcard");
+    if (!card) return;
+    var r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", (((e.clientX - r.left) / r.width) * 100).toFixed(1) + "%");
+    card.style.setProperty("--my", (((e.clientY - r.top) / r.height) * 100).toFixed(1) + "%");
+  }, { passive: true });
+
+  el.addEventListener("mouseleave", function () {
+    Array.prototype.forEach.call(el.querySelectorAll(".pcard"), function (c) {
+      c.style.removeProperty("--mx");
+      c.style.removeProperty("--my");
+    });
+  }, { passive: true });
+}
+
 function renderPlatforms(mountId) {
   var el = document.getElementById(mountId);
   if (!el || typeof PLATFORMS === "undefined") return;
@@ -767,6 +790,7 @@ function renderPlatforms(mountId) {
 
     var body =
       art +
+      '<i class="pcard-edge" aria-hidden="true"></i>' +
       '<div class="pcard-name">' + esc(p.name) + "</div>" +
       '<div class="pcard-handle">' + esc(p.handle || "") + "</div>" +
       (p.note ? '<div class="pcard-note">' + esc(p.note) + "</div>" : "");
