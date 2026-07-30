@@ -708,68 +708,6 @@ function orgMonogram(name) {
   return (words[0][0] + words[1][0]).toUpperCase();
 }
 
-/* one company on the wall: logo (or a monogram) above the name */
-function hofCard(h) {
-  var isPrivate = h.visibility === "private";
-
-  var mark;
-  if (isPrivate) {
-    mark = '<div class="logo-mark"><span class="logo-mono">&#128274;</span></div>';
-  } else if (h.logo) {
-    mark = '<div class="logo-mark"><img src="' + esc(h.logo) +
-           '" alt="' + esc(h.org || "") + ' logo" loading="lazy"></div>';
-  } else {
-    /* no logo supplied yet: initials, so the wall never shows a broken image */
-    mark = '<div class="logo-mark"><span class="logo-mono">' +
-           esc(orgMonogram(h.org || "?")) + "</span></div>";
-  }
-
-  var name = isPrivate
-    ? '<div class="logo-name">Private program</div>'
-    : '<div class="logo-name">' + esc(h.org || "Unnamed") + "</div>";
-
-  var body =
-    mark +
-    name +
-    (!isPrivate && h.detail ? '<div class="logo-detail">' + esc(h.detail) + "</div>" : "") +
-    '<div class="logo-foot">' +
-      (h.kind ? '<span class="kind">' + esc(h.kind) + "</span>" : "") +
-      (h.year ? '<span class="block-year">' + esc(h.year) + "</span>" : "") +
-    "</div>";
-
-  var cls = "logo-card" + (isPrivate ? " is-private" : "");
-
-  if (!isPrivate && h.proof) {
-    return '<a class="' + cls + '" href="' + esc(h.proof) + '" rel="noopener">' + body + "</a>";
-  }
-  return '<div class="' + cls + '">' + body + "</div>";
-}
-
-function renderHallOfFame(mountId) {
-  var el = document.getElementById(mountId);
-  if (!el || typeof HOF_GROUPS === "undefined") return;
-
-  el.innerHTML = HOF_GROUPS.map(function (g) {
-    var rows = hofOf(g.key);
-    if (!rows.length) return "";
-
-    /* named entries first, then newest */
-    rows = rows.slice().sort(function (a, b) {
-      var av = a.visibility === "private" ? 1 : 0;
-      var bv = b.visibility === "private" ? 1 : 0;
-      return av - bv || String(b.year || "").localeCompare(String(a.year || ""));
-    });
-
-    return '<section class="hof-section reveal">' +
-             '<div class="hof-head">' +
-               "<h2>" + esc(g.label) + "</h2>" +
-               '<span class="note">' + esc(g.note || "") + "</span>" +
-               '<span class="n">' + rows.length + "</span>" +
-             "</div>" +
-             '<div class="logo-grid">' + rows.map(hofCard).join("") + "</div>" +
-           "</section>";
-  }).join("");
-}
 
 /* =============================================================
    Cross-platform presence + severity distribution

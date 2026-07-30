@@ -75,9 +75,7 @@
   </section>
 </div>
 
-<!-- ============ HALL OF FAME ============ -->
 <div class="wide">
-  <div id="hof"></div>
 
   <!-- ============ ABOUT ============ -->
   <section class="hx-about reveal">
@@ -165,7 +163,6 @@
   renderPlatforms("platforms");
   document.getElementById("platform-count").textContent = PLATFORMS.length;
 
-  renderHallOfFame("hof");
   renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");
   initReveal();
   initToTop();
