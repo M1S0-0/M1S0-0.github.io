@@ -796,8 +796,9 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
    sitting in it, and bled off the right edge */
 .pcard-mark {
   position: absolute; z-index: -1;
-  right: -12%; top: 50%; transform: translateY(-50%);
-  height: 150%; width: auto; max-width: none;
+  right: 5%; top: 50%; transform: translateY(-50%);
+  /* sits fully inside the card: bleeding it off the edge clipped the mark */
+  height: 82%; width: auto; max-width: 44%;
   object-fit: contain; pointer-events: none;
   opacity: .17; filter: saturate(1.1);
   transition: opacity .3s ease, transform .3s cubic-bezier(.2,.6,.2,1);
@@ -805,7 +806,7 @@ html[data-theme="dark"] mark { background: rgba(61,220,151,.2); }
 }
 @keyframes markdrift {
   0%, 100% { transform: translateY(-50%) rotate(0deg); }
-  50%      { transform: translateY(-53%) rotate(3deg); }
+  50%      { transform: translateY(-54%) rotate(2.5deg); }
 }
 html[data-theme="dark"] .pcard-mark { opacity: .22; }
 
@@ -827,7 +828,7 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
 }
 .pcard:hover::before { opacity: .8; }
 .pcard:hover .pcard-mark {
-  opacity: .4; transform: translateY(-50%) scale(1.08) rotate(-3deg);
+  opacity: .42; transform: translateY(-50%) scale(1.06) rotate(-3deg);
   animation-play-state: paused;
 }
 
