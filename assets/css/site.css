@@ -1220,6 +1220,16 @@ a.n:hover { color: var(--text); }
 }
 .hx-about strong { color: var(--text); font-weight: 600; }
 
+/* skills columns. auto-fit so the groups reflow on their own as more
+   are added, rather than needing a column count maintained here */
+.skills-grid {
+  display: grid; gap: 34px 44px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+/* the stacked-siblings margin is for a single column; in the grid the
+   gap already handles it */
+.skills-grid .stack + .stack { margin-top: 0; }
+
 .stack h4 {
   font-family: var(--mono); font-size: 10.5px; letter-spacing: .15em;
   text-transform: uppercase; color: var(--faint); margin: 0 0 12px;
