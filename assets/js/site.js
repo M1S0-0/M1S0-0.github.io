@@ -940,8 +940,15 @@ function renderSecured(mountId) {
   var active = groups[0].key;
 
   function paint() {
+    var g    = groups.filter(function (x) { return x.key === active; })[0] || groups[0];
     var rows = hofOf(active);
+
     el.querySelector("[data-list]").innerHTML = rows.map(securedChip).join("");
+
+    /* the active group's note, so a tab can explain itself */
+    var note = el.querySelector("[data-note]");
+    if (note) note.textContent = g.note || "";
+
     Array.prototype.forEach.call(el.querySelectorAll("[data-tab]"), function (b) {
       b.classList.toggle("on", b.getAttribute("data-tab") === active);
     });
@@ -955,6 +962,7 @@ function renderSecured(mountId) {
                  esc(g.label) + "<b>" + hofOf(g.key).length + "</b></button>";
       }).join("") +
     "</div>" +
+    '<p class="secured-note" data-note></p>' +
     '<div class="secured" data-list></div>';
 
   el.addEventListener("click", function (e) {

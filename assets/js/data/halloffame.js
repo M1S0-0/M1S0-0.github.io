@@ -16,8 +16,8 @@ const HOF_GROUPS = [
   },
   {
     key: "web2-private",
-    label: "Web2 Private Audits",
-    note: "Invitation only and under NDA"
+    label: "Web2 Private Audits / NDA",
+    note: "Invitation only, under non-disclosure agreement. Counted, never described."
   },
   {
     key: "web3-bounty",

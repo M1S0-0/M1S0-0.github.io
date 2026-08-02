@@ -1067,6 +1067,13 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
 }
 .secured-tabs .catbtn.on b { opacity: .75; }
 
+/* the active tab's note, swapped in place as tabs change */
+.secured-note {
+  font-size: 12.5px; color: var(--faint);
+  margin: -8px 0 16px;
+}
+.secured-note:empty { display: none; }
+
 /* On a phone the 100px tiles only fit two to a row, which turned a 27
    program tab into a very long scroll. Tightening the tile and the panel
    padding fits three, cutting the list height by a third. */
