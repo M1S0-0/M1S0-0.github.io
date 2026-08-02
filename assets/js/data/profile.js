@@ -15,10 +15,16 @@ const PROFILE = {
   ],
   tier: null,          /* set a string to show a tier pill again */
 
-  bio: "Offensive security researcher and digital ghost. Breaking systems before the " +
-       "bad guys do. From APIs to smart contracts: I hunt, exploit, and report " +
-       "vulnerabilities that save millions. Bypassing limits, not ethics. " +
-       "Always learning, always hacking.",
+  /* Written for a prospective client reading this cold. Leads with what
+     can be checked (named organisations, how the work is delivered)
+     rather than adjectives, and closes on availability. */
+  bio: "Security researcher working across Web2 applications and Web3 protocols. " +
+       "Credited by 40+ organisations, among them OpenAI, PayPal, Cisco and Dell, " +
+       "for vulnerabilities confirmed in production systems. I work on what scanners " +
+       "miss: broken accounting and rounding, oracle and price manipulation, access " +
+       "control gaps, and authentication logic that holds right up until it does not. " +
+       "Every report ships with a reproducible proof of concept and a concrete fix. " +
+       "Available for smart contract audits and application security engagements.",
 
   /* headline cards on the right of the banner. Empty for now.
      Add { label, value } objects here to bring them back. */
