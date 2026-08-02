@@ -283,18 +283,52 @@ const HALLOFFAME = [
 
   /* ---------- Web2 private ---------- */
   {
+    org: "CredentiAI",
+    logo: "/assets/img/logos/credentiai.png",
     group: "web2-private",
-    visibility: "private",
+    visibility: "public",
     kind: "Hall of Fame",
-    detail: "Authentication logic flaw",
-    year: "2026"
+    proof: null
   },
   {
+    org: "Groww",
+    logo: "/assets/img/logos/groww.png",
     group: "web2-private",
-    visibility: "private",
-    kind: "Acknowledgement",
-    detail: "IDOR exposing other users' documents",
-    year: "2025"
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "VFS Global",
+    logo: "/assets/img/logos/vfsglobal.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Prudential",
+    logo: "/assets/img/logos/prudential.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Government of Maharashtra",
+    logo: "/assets/img/logos/maharashtra.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Block-Stars Pvt. Ltd.",
+    logo: null,
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
   },
 
   /* ---------- Smart contract bug bounty ---------- */
