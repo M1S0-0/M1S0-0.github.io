@@ -5,33 +5,6 @@
    =========================================================== */
 
 :root {
-  --bg:        #ffffff;
-  --text:      #242424;
-  --muted:     #6b6b6b;
-  --faint:     #a1a1a1;
-  --rule:      #e6e6e6;
-  --code-bg:   #f7f7f5;
-  --code-text: #1a1a1a;
-  --accent:    #1a8917;
-  --chip:      #f2f2f2;
-  --chip-on:   #242424;
-  --nav:       rgba(255,255,255,.94);
-  --shadow:    0 1px 3px rgba(0,0,0,.06);
-  --surface:   #fafbfc;   /* panels, so they read against the page */
-
-  /* syntax */
-  --syn-comment: #93a1a1;
-  --syn-string:  #b3541e;
-  --syn-keyword: #8250df;
-  --syn-type:    #0550ae;
-  --syn-number:  #0a7c5a;
-
-  --serif: Charter, Georgia, Cambria, "Times New Roman", Times, serif;
-  --sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --mono:  ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
-}
-
-html[data-theme="dark"] {
   --bg:        #0f1115;
   --text:      #e8e8e8;
   --muted:     #a3a3a3;
@@ -51,6 +24,10 @@ html[data-theme="dark"] {
   --syn-keyword: #cba6f7;
   --syn-type:    #7cb7ff;
   --syn-number:  #6ee7b7;
+
+  --serif: Charter, Georgia, Cambria, "Times New Roman", Times, serif;
+  --sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:  ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
 * { box-sizing: border-box; }
@@ -92,12 +69,6 @@ a { color: inherit; }
 .nav-right a { font-size: 14px; color: var(--muted); text-decoration: none; }
 .nav-right a:hover, .nav-right a.on { color: var(--text); }
 
-.theme-btn {
-  background: none; border: 1px solid var(--rule); border-radius: 999px;
-  width: 34px; height: 34px; cursor: pointer; color: var(--muted);
-  display: grid; place-items: center; font-size: 15px; padding: 0; line-height: 1;
-}
-.theme-btn:hover { color: var(--text); border-color: var(--faint); }
 
 /* ---------- reading progress ---------- */
 .progress {

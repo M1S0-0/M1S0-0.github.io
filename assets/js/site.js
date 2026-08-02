@@ -12,29 +12,6 @@ function esc(v) {
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-/* ---------- theme ---------- */
-
-function applyTheme(t) {
-  document.documentElement.setAttribute("data-theme", t);
-  try { localStorage.setItem("theme", t); } catch (e) {}
-  var btn = document.getElementById("theme-toggle");
-  if (btn) {
-    btn.textContent = t === "dark" ? "☀" : "☾";
-    btn.setAttribute("aria-label", t === "dark" ? "Switch to light theme" : "Switch to dark theme");
-  }
-}
-
-function initTheme() {
-  var saved;
-  try { saved = localStorage.getItem("theme"); } catch (e) {}
-  applyTheme(saved || "light");
-  var btn = document.getElementById("theme-toggle");
-  if (btn) {
-    btn.addEventListener("click", function () {
-      applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
-    });
-  }
-}
 
 /* ---------- helpers ---------- */
 
@@ -346,7 +323,6 @@ function initToTop() {
 /* ---------- one call to set up an article page ---------- */
 
 function initArticle(opts) {
-  initTheme();
   initEthField();
   initProgress();
   initByline();
