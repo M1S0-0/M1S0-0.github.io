@@ -1220,15 +1220,32 @@ a.n:hover { color: var(--text); }
 }
 .hx-about strong { color: var(--text); font-weight: 600; }
 
-/* skills columns. auto-fit so the groups reflow on their own as more
-   are added, rather than needing a column count maintained here */
-.skills-grid {
-  display: grid; gap: 34px 44px;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+/* Skills as rows of tags rather than columns of bullets: the groups have
+   very different lengths (nine items against two), and columns would
+   leave the short ones stranded beside a long one. */
+.skills-list { display: grid; gap: 28px; }
+
+.skill-row h4 {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 13px;
 }
-/* the stacked-siblings margin is for a single column; in the grid the
-   gap already handles it */
-.skills-grid .stack + .stack { margin-top: 0; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 9px; }
+.skill-tags span {
+  font-size: 13.5px; line-height: 1.2; color: var(--muted);
+  background: var(--chip); border: 1px solid var(--rule);
+  border-radius: 999px; padding: 8px 15px;
+  transition: color .18s ease, border-color .18s ease, background .18s ease;
+}
+.skill-tags span:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--rule));
+  background: color-mix(in srgb, var(--accent) 7%, var(--chip));
+}
+
+@media (max-width: 520px) {
+  .skill-tags { gap: 7px; }
+  .skill-tags span { font-size: 12.5px; padding: 7px 12px; }
+}
 
 .stack h4 {
   font-family: var(--mono); font-size: 10.5px; letter-spacing: .15em;
