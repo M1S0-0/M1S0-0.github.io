@@ -17,6 +17,7 @@
   --chip-on:   #242424;
   --nav:       rgba(255,255,255,.94);
   --shadow:    0 1px 3px rgba(0,0,0,.06);
+  --surface:   #fafbfc;   /* panels, so they read against the page */
 
   /* syntax */
   --syn-comment: #93a1a1;
@@ -43,6 +44,7 @@ html[data-theme="dark"] {
   --chip-on:   #e8e8e8;
   --nav:       rgba(15,17,21,.94);
   --shadow:    0 1px 3px rgba(0,0,0,.4);
+  --surface:   #12151b;
 
   --syn-comment: #5f6875;
   --syn-string:  #e5a06a;
@@ -1028,7 +1030,7 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
 .panels { padding: 46px 0 0; }
 .panel {
   border: 1px solid var(--rule); border-radius: 14px;
-  padding: 26px 28px; background: var(--bg);
+  padding: 26px 28px; background: var(--surface);
 }
 
 /* ---------- programs secured ---------- */
@@ -1048,7 +1050,7 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
 .secured-mark span { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--muted); }
 .secured-item.is-private .secured-mark { background: transparent; border: 1px dashed var(--rule); }
 .secured-name {
-  font-size: 11.5px; line-height: 1.3; color: var(--faint);
+  font-size: 11.5px; line-height: 1.3; color: var(--muted);
   /* two lines before clipping, so a long agency name is still readable
      rather than cut to its first word */
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -1095,13 +1097,13 @@ html[data-theme="dark"] .ethm { color: var(--accent); }
 
 /* each mark gets its own size, corner, tilt and tempo so the field
    never reads as a repeating pattern */
-.ethm.m1 { top:  6%;  left:  4%;  width: 190px; opacity: .050; --rot: -12deg; animation-duration: 17s; }
-.ethm.m2 { top: 22%;  right: 6%;  width: 300px; opacity: .038; --rot:  14deg; animation-duration: 23s; animation-delay: -4s; }
-.ethm.m3 { top: 58%;  left: 12%;  width: 130px; opacity: .058; --rot:  22deg; animation-duration: 14s; animation-delay: -8s; }
-.ethm.m4 { bottom: 8%; right: 16%; width: 220px; opacity: .042; --rot: -18deg; animation-duration: 20s; animation-delay: -2s; }
-.ethm.m5 { top: 44%;  left: 46%;  width:  92px; opacity: .034; --rot:   8deg; animation-duration: 26s; animation-delay: -11s; }
-.ethm.m6 { bottom: 26%; left: 2%;  width: 150px; opacity: .040; --rot: -26deg; animation-duration: 19s; animation-delay: -6s; }
-.ethm.m7 { top:  2%;  right: 34%; width: 110px; opacity: .036; --rot:  30deg; animation-duration: 22s; animation-delay: -14s; }
+.ethm.m1 { top:  6%;  left:  4%;  width: 190px; opacity: .026; --rot: -12deg; animation-duration: 17s; }
+.ethm.m2 { top: 22%;  right: 6%;  width: 300px; opacity: .020; --rot:  14deg; animation-duration: 23s; animation-delay: -4s; }
+.ethm.m3 { top: 58%;  left: 12%;  width: 130px; opacity: .030; --rot:  22deg; animation-duration: 14s; animation-delay: -8s; }
+.ethm.m4 { bottom: 8%; right: 16%; width: 220px; opacity: .022; --rot: -18deg; animation-duration: 20s; animation-delay: -2s; }
+.ethm.m5 { top: 44%;  left: 46%;  width:  92px; opacity: .018; --rot:   8deg; animation-duration: 26s; animation-delay: -11s; }
+.ethm.m6 { bottom: 26%; left: 2%;  width: 150px; opacity: .021; --rot: -26deg; animation-duration: 19s; animation-delay: -6s; }
+.ethm.m7 { top:  2%;  right: 34%; width: 110px; opacity: .019; --rot:  30deg; animation-duration: 22s; animation-delay: -14s; }
 
 html[data-theme="dark"] .ethm.m1 { opacity: .075; }
 html[data-theme="dark"] .ethm.m2 { opacity: .060; }
@@ -1261,7 +1263,8 @@ a.n:hover { color: var(--text); }
    tile keeps all of them legible regardless of the page theme. */
 .secured-mark.has-logo {
   background: #fff;
-  border: 1px solid var(--rule);
+  border: 1px solid #e3e6ea;
+  box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 4px 10px -6px rgba(15,23,42,.12);
 }
 html[data-theme="dark"] .secured-mark.has-logo {
   background: #f4f6f8;
