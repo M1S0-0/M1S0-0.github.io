@@ -1049,7 +1049,10 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
 .secured-item.is-private .secured-mark { background: transparent; border: 1px dashed var(--rule); }
 .secured-name {
   font-size: 11.5px; line-height: 1.3; color: var(--faint);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  /* two lines before clipping, so a long agency name is still readable
+     rather than cut to its first word */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
 }
 
 /* ---------- programs secured: group tabs ---------- */

@@ -272,6 +272,15 @@ const HALLOFFAME = [
     proof: null
   },
 
+  {
+    org: "Office of Natural Resources Revenue",
+    logo: "/assets/img/logos/onrr.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
   /* ---------- Web2 private ---------- */
   {
     group: "web2-private",
