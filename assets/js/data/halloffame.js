@@ -391,14 +391,6 @@ const HALLOFFAME = [
     proof: null
   },
   {
-    org: "Base Azul",
-    logo: "/assets/img/logos/baseazul.png",
-    group: "web3-bounty",
-    visibility: "public",
-    kind: "Bug Bounty",
-    proof: null
-  },
-  {
     org: "0xMarkets",
     logo: "/assets/img/logos/zeroxmarkets.png",
     group: "web3-bounty",
@@ -409,13 +401,11 @@ const HALLOFFAME = [
 
   /* ---------- Blockchain / DLT ---------- */
   {
-    org: "Example Chain",
-    logo: null,
+    org: "Base Azul",
+    logo: "/assets/img/logos/baseazul.png",
     group: "blockchain-dlt",
     visibility: "public",
     kind: "Bug Bounty",
-    detail: "Consensus layer denial of service via malformed block",
-    year: "2026",
     proof: null
   }
 

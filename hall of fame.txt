@@ -6,4 +6,4 @@ next one is 0xMarkets+
 
 
 Now under Blockchain/DLT
-but this: Base Azul
+put this: Base Azul
