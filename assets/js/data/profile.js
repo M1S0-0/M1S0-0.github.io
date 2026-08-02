@@ -24,6 +24,10 @@ const PROFILE = {
      Add { label, value } objects here to bring them back. */
   headline: [],
 
+  /* The brand mark is picked from the label, so "LinkedIn" finds the
+     LinkedIn glyph on its own. Known marks: x, linkedin, telegram,
+     github, email. Add `icon` to override, or `tint` for a custom
+     colour. A label with no matching mark renders as text only. */
   links: [
     { label: "X",        url: "https://x.com/M1S00000" },
     { label: "LinkedIn", url: "https://www.linkedin.com/in/m1s0/" },

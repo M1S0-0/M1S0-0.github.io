@@ -979,11 +979,37 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
   background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 26%, transparent);
 }
 .pb-link {
-  font-size: 13.5px; text-decoration: none; color: var(--muted);
+  --tint: var(--accent);
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 13.5px; font-weight: 600; text-decoration: none; color: var(--text);
   background: var(--bg); border: 1px solid var(--rule); border-radius: 999px;
-  padding: 9px 16px; box-shadow: var(--shadow);
+  padding: 9px 17px 9px 14px; box-shadow: var(--shadow);
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
-.pb-link:hover { color: var(--text); border-color: var(--faint); text-decoration: none; }
+/* the mark always carries its brand colour, so the row reads at a glance
+   rather than only on hover */
+.pb-link svg {
+  width: 16px; height: 16px; flex: 0 0 auto;
+  fill: var(--tint);
+  transition: transform .2s ease;
+}
+.pb-link:hover {
+  color: var(--text); text-decoration: none;
+  border-color: color-mix(in srgb, var(--tint) 62%, var(--rule));
+  background: color-mix(in srgb, var(--tint) 9%, var(--bg));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--tint) 75%, transparent),
+              var(--shadow);
+}
+.pb-link:hover svg { transform: scale(1.12); }
+.pb-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--tint) 70%, transparent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pb-link:hover { transform: none; }
+  .pb-link:hover svg { transform: none; }
+}
 
 /* ---------- bio ---------- */
 .bio-row { padding: 46px 0 0; }
