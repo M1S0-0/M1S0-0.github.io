@@ -63,23 +63,107 @@ const HALLOFFAME = [
 
   /* ---------- Web2 bug bounty ---------- */
   {
-    org: "Example Corporation",
+    org: "OpenAI",
+    logo: "/assets/img/logos/openai.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Cisco",
     logo: null,
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
-    detail: "Unauthenticated SSRF in an import endpoint",
-    year: "2026",
     proof: null
   },
   {
-    org: "Example Foundation",
+    org: "Dell",
+    logo: "/assets/img/logos/dell.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Groww",
+    logo: "/assets/img/logos/groww.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "PayPal",
+    logo: "/assets/img/logos/paypal.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Comcast",
     logo: null,
     group: "web2-bounty",
     visibility: "public",
-    kind: "Acknowledgement",
-    detail: "Access control bypass on the reporting API",
-    year: "2026",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Bolt",
+    logo: "/assets/img/logos/bolt.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Jetstar",
+    logo: null,
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Xfinity",
+    logo: "/assets/img/logos/xfinity.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Chime",
+    logo: "/assets/img/logos/chime.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "FusionAuth",
+    logo: "/assets/img/logos/fusionauth.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Gen Digital Inc",
+    logo: "/assets/img/logos/gendigital.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Aurory",
+    logo: "/assets/img/logos/aurory.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
     proof: null
   },
 

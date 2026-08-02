@@ -1253,3 +1253,15 @@ a.n:hover { color: var(--text); }
   .pcard:hover .pcard-edge { animation: none; opacity: .6; }
 }
 
+
+/* Real brand logos come in every colour, and many are dark. A light
+   tile keeps all of them legible regardless of the page theme. */
+.secured-mark.has-logo {
+  background: #fff;
+  border: 1px solid var(--rule);
+}
+html[data-theme="dark"] .secured-mark.has-logo {
+  background: #f4f6f8;
+  border-color: transparent;
+}
+.secured-mark.has-logo img { padding: 9px; }

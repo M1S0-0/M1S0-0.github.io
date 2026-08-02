@@ -878,7 +878,7 @@ function securedChip(h) {
   var mark = isPrivate
     ? '<div class="secured-mark"><span>&#128274;</span></div>'
     : (h.logo
-        ? '<div class="secured-mark"><img src="' + esc(h.logo) + '" alt="" loading="lazy"></div>'
+        ? '<div class="secured-mark has-logo"><img src="' + esc(h.logo) + '" alt="" loading="lazy"></div>'
         : '<div class="secured-mark"><span>' + esc(orgMonogram(h.org || "?")) + "</span></div>");
 
   return '<div class="secured-item' + (isPrivate ? " is-private" : "") + '" title="' +
