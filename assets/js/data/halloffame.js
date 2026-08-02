@@ -21,13 +21,8 @@ const HOF_GROUPS = [
   },
   {
     key: "web3-bounty",
-    label: "Smart Contract Bug Bounty",
-    note: "Protocol bounty programs"
-  },
-  {
-    key: "web3-audits",
-    label: "Smart Contract Audits",
-    note: "Audit competitions and engagements"
+    label: "Smart Contract Bug Bounty / Contest",
+    note: "Protocol bounty programs and contests"
   },
   {
     key: "blockchain-dlt",
@@ -393,28 +388,6 @@ const HALLOFFAME = [
     visibility: "public",
     kind: "Bug Bounty",
     detail: "Oracle round handling froze vault operations",
-    year: "2026",
-    proof: null
-  },
-
-  /* ---------- Smart contract audits ---------- */
-  {
-    org: "Example DAO",
-    logo: null,
-    group: "web3-audits",
-    visibility: "public",
-    kind: "Audit",
-    detail: "Share accounting rounding in the deposit path",
-    year: "2026",
-    proof: null
-  },
-  {
-    org: "Example Contest",
-    logo: null,
-    group: "web3-audits",
-    visibility: "public",
-    kind: "Contest",
-    detail: "Lending protocol, placed in the leaderboard",
     year: "2026",
     proof: null
   },
