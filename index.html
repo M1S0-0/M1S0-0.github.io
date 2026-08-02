@@ -168,6 +168,7 @@
   document.getElementById("platform-count").textContent = PLATFORMS.length;
 
   renderCerts("certs");
+  initCardSpotlight("certs", ".cert-card");
   document.getElementById("cert-count").textContent = CERTIFICATIONS.length;
 
   renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");

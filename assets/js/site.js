@@ -735,12 +735,14 @@ function platformMark(key) {
 /* Tracks the cursor inside a card and hands its position to CSS, so the
    spotlight can follow without the stylesheet knowing about the mouse.
    Delegated from the container, so it survives re-renders. */
-function initCardSpotlight(mountId) {
+/* sel defaults to the platform cards, so existing calls are unchanged */
+function initCardSpotlight(mountId, sel) {
   var el = document.getElementById(mountId);
   if (!el) return;
+  sel = sel || ".pcard";
 
   el.addEventListener("mousemove", function (e) {
-    var card = e.target.closest(".pcard");
+    var card = e.target.closest(sel);
     if (!card) return;
     var r = card.getBoundingClientRect();
     card.style.setProperty("--mx", (((e.clientX - r.left) / r.width) * 100).toFixed(1) + "%");
@@ -748,7 +750,7 @@ function initCardSpotlight(mountId) {
   }, { passive: true });
 
   el.addEventListener("mouseleave", function () {
-    Array.prototype.forEach.call(el.querySelectorAll(".pcard"), function (c) {
+    Array.prototype.forEach.call(el.querySelectorAll(sel), function (c) {
       c.style.removeProperty("--mx");
       c.style.removeProperty("--my");
     });
