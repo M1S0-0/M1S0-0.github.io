@@ -1205,10 +1205,12 @@ a.n:hover { color: var(--text); }
 .cert-art {
   flex: 1 1 auto; min-height: 0;
   display: grid; place-items: center; width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 18px;
 }
+/* max-height under 100% keeps a pointed badge, like a shield tip, from
+   reaching the title even when the art fills the whole slot */
 .cert-art img {
-  max-width: 82%; max-height: 100%; width: auto; height: auto;
+  max-width: 78%; max-height: 92%; width: auto; height: auto;
   object-fit: contain;
 }
 .cert-initials {
