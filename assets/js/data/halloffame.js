@@ -380,15 +380,30 @@ const HALLOFFAME = [
     proof: null
   },
 
-  /* ---------- Smart contract bug bounty ---------- */
+  /* ---------- Smart contract bug bounty / contest ---------- */
   {
-    org: "Example Protocol",
+    org: "Folks Finance",
+    logo: "/assets/img/logos/folksfinance.png",
+    group: "web3-bounty",
+    visibility: "public",
+    kind: "Bug Bounty",
+    detail: "Staking contracts",
+    proof: null
+  },
+  {
+    org: "Base Azul",
     logo: null,
     group: "web3-bounty",
     visibility: "public",
     kind: "Bug Bounty",
-    detail: "Oracle round handling froze vault operations",
-    year: "2026",
+    proof: null
+  },
+  {
+    org: "0xMarkets",
+    logo: "/assets/img/logos/zeroxmarkets.png",
+    group: "web3-bounty",
+    visibility: "public",
+    kind: "Bug Bounty",
     proof: null
   },
 
