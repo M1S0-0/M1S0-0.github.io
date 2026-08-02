@@ -903,9 +903,8 @@ function renderSecured(mountId) {
 
 /* =============================================================
    Certifications
-   Two stacked groups, one per CERT_GROUPS entry. A group with no
-   rows still renders its heading with a waiting tile, so the
-   structure is visible while the list is still being collected.
+   One flat grid in the order written in certs.js. An empty list
+   renders a waiting tile so the section is never blank.
    ============================================================= */
 
 /* Square badge tile. The whole tile is the link when a credential URL
@@ -936,47 +935,11 @@ function certCard(c) {
 
 function renderCerts(mountId) {
   var el = document.getElementById(mountId);
-  if (!el || typeof CERT_GROUPS === "undefined" || typeof CERTIFICATIONS === "undefined") return;
+  if (!el || typeof CERTIFICATIONS === "undefined") return;
 
-  var groups = CERT_GROUPS;
-  if (!groups.length) { el.innerHTML = ""; return; }
-
-  var active = groups[0].key;
-
-  function paint() {
-    var g    = groups.filter(function (x) { return x.key === active; })[0] || groups[0];
-    var rows = certsOf(active);
-
-    el.querySelector("[data-list]").innerHTML = rows.length
-      ? '<div class="cert-grid">' + rows.map(certCard).join("") + "</div>"
-      : '<p class="cert-empty">Nothing listed here yet.</p>';
-
-    var note = el.querySelector("[data-note]");
-    if (note) note.textContent = g.note || "";
-
-    Array.prototype.forEach.call(el.querySelectorAll("[data-tab]"), function (b) {
-      b.classList.toggle("on", b.getAttribute("data-tab") === active);
-    });
-  }
-
-  el.innerHTML =
-    '<div class="secured-tabs">' +
-      groups.map(function (g) {
-        return '<button class="catbtn" type="button" data-tab="' + esc(g.key) + '">' +
-                 esc(g.label) + "<b>" + certsOf(g.key).length + "</b></button>";
-      }).join("") +
-    "</div>" +
-    '<p class="cert-note" data-note></p>' +
-    "<div data-list></div>";
-
-  el.addEventListener("click", function (e) {
-    var btn = e.target.closest("[data-tab]");
-    if (!btn) return;
-    active = btn.getAttribute("data-tab");
-    paint();
-  });
-
-  paint();
+  el.innerHTML = CERTIFICATIONS.length
+    ? '<div class="cert-grid">' + CERTIFICATIONS.map(certCard).join("") + "</div>"
+    : '<p class="cert-empty">Nothing listed here yet.</p>';
 }
 
 /* =============================================================

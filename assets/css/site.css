@@ -1171,13 +1171,6 @@ a.n:hover { color: var(--text); }
 
 /* ---------- certifications ---------- */
 .hx-certs { padding: 76px 0 0; }
-/* the active tab's note, swapped in place as tabs change */
-.cert-note {
-  font-size: 12.5px; color: var(--faint);
-  margin: 0 0 14px;
-}
-.cert-note:empty { display: none; }
-
 /* square tiles. auto-fill lets the row split on its own as the list
    grows, so nothing needs touching when a certificate is added */
 .cert-grid {
