@@ -331,6 +331,60 @@ const HALLOFFAME = [
     proof: null
   },
 
+  {
+    org: "Spaceship",
+    logo: "/assets/img/logos/spaceship.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
+  {
+    org: "ManyVids",
+    logo: "/assets/img/logos/manyvids.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
+  {
+    org: "TryFinch",
+    logo: "/assets/img/logos/tryfinch.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
+  {
+    org: "Fintual",
+    logo: "/assets/img/logos/fintual.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
+  {
+    org: "Fansly",
+    logo: "/assets/img/logos/fansly.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
+  {
+    org: "Restorecord",
+    logo: "/assets/img/logos/restorecord.png",
+    group: "web2-private",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
   /* ---------- Smart contract bug bounty ---------- */
   {
     org: "Example Protocol",
