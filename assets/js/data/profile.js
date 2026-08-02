@@ -20,11 +20,10 @@ const PROFILE = {
      rather than adjectives, and closes on availability. */
   bio: "Security researcher working across Web2 applications and Web3 protocols. " +
        "Credited by 40+ organisations, among them OpenAI, PayPal, Cisco and Dell, " +
-       "for vulnerabilities confirmed in production systems. I work on what scanners " +
-       "miss: broken accounting and rounding, oracle and price manipulation, access " +
-       "control gaps, and authentication logic that holds right up until it does not. " +
-       "Every report ships with a reproducible proof of concept and a concrete fix. " +
-       "Available for smart contract audits and application security engagements.",
+       "for vulnerabilities confirmed in production systems. I work to one standard: " +
+       "every finding arrives with a reproducible proof of concept, a clear impact " +
+       "assessment, and a fix your team can ship. Need a smart contract audit or a " +
+       "penetration test? I take on freelance and contract engagements. Get in touch.",
 
   /* headline cards on the right of the banner. Empty for now.
      Add { label, value } objects here to bring them back. */
