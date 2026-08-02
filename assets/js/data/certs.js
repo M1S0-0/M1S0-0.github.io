@@ -20,7 +20,7 @@ const CERTIFICATIONS = [
   {
     name: "Certified Smart Contract Auditor",
     issuer: "Blockchain Council",
-    logo: "/assets/img/certs/blockchain-council-csca.png",
+    logo: "/assets/img/certs/blockchain-council-csca.jpg",
     year: "2026",
     credential: "https://www.credential.net/1ae4ee63-6c1f-4c9e-bcbf-cf7098ae5e8a"
   },
@@ -41,14 +41,14 @@ const CERTIFICATIONS = [
   {
     name: "The Complete Solidity Course - Blockchain - Zero to Expert",
     issuer: "Udemy",
-    logo: "/assets/img/certs/udemy-complete-solidity.png",
+    logo: "/assets/img/certs/udemy-complete-solidity.jpg",
     year: "2025",
     credential: "https://www.udemy.com/certificate/UC-0870257b-4316-43ab-b726-b0078f1df5d4/"
   },
   {
     name: "Namaste Arbitrum",
     issuer: "Arbitrum and PYOR",
-    logo: "/assets/img/certs/pyor-namaste-arbitrum.png",
+    logo: "/assets/img/certs/pyor-namaste-arbitrum.jpg",
     year: "2024",
     credential: "https://credsverse.com/credentials/8fcbc3aa-72bf-439b-ad5f-dbd1f0098eb6?recipient=true"
   },
@@ -104,14 +104,14 @@ const CERTIFICATIONS = [
   {
     name: "MITRE ATT&CK Framework",
     issuer: "Udemy",
-    logo: "/assets/img/certs/udemy-mitre-attack.png",
+    logo: "/assets/img/certs/udemy-mitre-attack.jpg",
     year: "2024",
     credential: "https://www.udemy.com/certificate/UC-d77209c8-8ae6-467b-b477-e52584928fc0/"
   },
   {
     name: "The Complete Web Penetration Testing & Bug Bounty Course",
     issuer: "Udemy",
-    logo: "/assets/img/certs/udemy-web-pentesting.png",
+    logo: "/assets/img/certs/udemy-web-pentesting.jpg",
     year: "2022",
     credential: "https://www.udemy.com/certificate/UC-87e1057d-861b-4773-acbb-d4885250b002/"
   }

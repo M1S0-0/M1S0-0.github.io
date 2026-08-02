@@ -1275,9 +1275,11 @@ a.n:hover { color: var(--text); }
   flex: 1 1 auto; min-height: 0; width: 100%;
   margin-bottom: 16px;
 }
+/* wide certificates are width bound, so a tighter max-width shrinks them
+   far more than it does the portrait badges, which are height bound */
 .cert-art img {
   position: absolute; inset: 0; margin: auto;
-  max-width: 78%; max-height: 100%; width: auto; height: auto;
+  max-width: 90%; max-height: 100%; width: auto; height: auto;
   object-fit: contain;
   transition: transform .3s cubic-bezier(.2,.6,.2,1);
 }
