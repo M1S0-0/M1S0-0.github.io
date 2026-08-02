@@ -392,7 +392,7 @@ const HALLOFFAME = [
   },
   {
     org: "Base Azul",
-    logo: null,
+    logo: "/assets/img/logos/baseazul.png",
     group: "web3-bounty",
     visibility: "public",
     kind: "Bug Bounty",
