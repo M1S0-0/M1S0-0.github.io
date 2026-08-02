@@ -71,6 +71,30 @@ const HALLOFFAME = [
     proof: null
   },
   {
+    org: "PayPal",
+    logo: "/assets/img/logos/paypal.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Binance",
+    logo: "/assets/img/logos/binance.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "OpenSea",
+    logo: "/assets/img/logos/opensea.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
     org: "Cisco",
     logo: null,
     group: "web2-bounty",
@@ -95,31 +119,7 @@ const HALLOFFAME = [
     proof: null
   },
   {
-    org: "PayPal",
-    logo: "/assets/img/logos/paypal.png",
-    group: "web2-bounty",
-    visibility: "public",
-    kind: "Hall of Fame",
-    proof: null
-  },
-  {
     org: "Comcast",
-    logo: null,
-    group: "web2-bounty",
-    visibility: "public",
-    kind: "Hall of Fame",
-    proof: null
-  },
-  {
-    org: "Bolt",
-    logo: "/assets/img/logos/bolt.png",
-    group: "web2-bounty",
-    visibility: "public",
-    kind: "Hall of Fame",
-    proof: null
-  },
-  {
-    org: "Jetstar",
     logo: null,
     group: "web2-bounty",
     visibility: "public",
@@ -161,6 +161,102 @@ const HALLOFFAME = [
   {
     org: "Aurory",
     logo: "/assets/img/logos/aurory.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Jetstar",
+    logo: null,
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Bolt",
+    logo: "/assets/img/logos/bolt.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Monash University",
+    logo: "/assets/img/logos/monash.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "GoPro",
+    logo: "/assets/img/logos/gopro.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "ImmoScout24",
+    logo: "/assets/img/logos/immoscout24.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Greenfly",
+    logo: "/assets/img/logos/greenfly.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "CoinDepo",
+    logo: "/assets/img/logos/coindepo.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "GMGN.AI",
+    logo: "/assets/img/logos/gmgn.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Levex",
+    logo: "/assets/img/logos/levex.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "RTree Finance",
+    logo: "/assets/img/logos/rtreefinance.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "Layer3",
+    logo: "/assets/img/logos/layer3.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+  {
+    org: "WhiteMarket",
+    logo: "/assets/img/logos/whitemarket.png",
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
