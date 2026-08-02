@@ -25,6 +25,11 @@ const HOF_GROUPS = [
     note: "Protocol bounty programs and contests"
   },
   {
+    key: "web3-audit",
+    label: "Smart Contract Audits",
+    note: "Protocol code review engagements"
+  },
+  {
     key: "blockchain-dlt",
     label: "Blockchain / DLT",
     note: "Protocol, consensus and node level"
@@ -76,14 +81,6 @@ const HALLOFFAME = [
   {
     org: "Binance",
     logo: "/assets/img/logos/binance.png",
-    group: "web2-bounty",
-    visibility: "public",
-    kind: "Hall of Fame",
-    proof: null
-  },
-  {
-    org: "OpenSea",
-    logo: "/assets/img/logos/opensea.png",
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
@@ -404,6 +401,16 @@ const HALLOFFAME = [
     group: "web3-bounty",
     visibility: "public",
     kind: "Bug Bounty",
+    proof: null
+  },
+
+  /* ---------- Smart contract audits ---------- */
+  {
+    org: "OpenSea",
+    logo: "/assets/img/logos/opensea.png",
+    group: "web3-audit",
+    visibility: "public",
+    kind: "Audit",
     proof: null
   },
 
