@@ -16,7 +16,7 @@ const HOF_GROUPS = [
   },
   {
     key: "web2-private",
-    label: "Web2 Private Programs",
+    label: "Web2 Private Audits",
     note: "Invitation only and under NDA"
   },
   {
@@ -281,7 +281,7 @@ const HALLOFFAME = [
     proof: null
   },
 
-  /* ---------- Web2 private ---------- */
+  /* ---------- Web2 private audits ---------- */
   {
     org: "CredentiAI",
     logo: "/assets/img/logos/credentiai.png",
