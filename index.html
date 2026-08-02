@@ -115,6 +115,16 @@
     </div>
   </section>
 
+  <!-- ============ CERTIFICATIONS ============ -->
+  <section class="hx-certs reveal">
+    <div class="hof-head">
+      <h2>Certifications</h2>
+      <span class="note">Credentials held</span>
+      <span class="n" id="cert-count"></span>
+    </div>
+    <div class="certs" id="certs"></div>
+  </section>
+
   <!-- ============ LATEST WRITEUPS ============ -->
   <section class="hx-latest reveal">
     <div class="hof-head">
@@ -144,6 +154,7 @@
 <script src="/assets/js/data/profile.js"></script>
 <script src="/assets/js/data/platforms.js"></script>
 <script src="/assets/js/data/halloffame.js"></script>
+<script src="/assets/js/data/certs.js"></script>
 <script src="/assets/js/data/writeups.js"></script>
 <script src="/assets/js/site.js"></script>
 <script>
@@ -155,6 +166,9 @@
   renderPlatforms("platforms");
   initCardSpotlight("platforms");
   document.getElementById("platform-count").textContent = PLATFORMS.length;
+
+  renderCerts("certs");
+  document.getElementById("cert-count").textContent = CERTIFICATIONS.length;
 
   renderFeed(sortedPosts(WRITEUPS).slice(0, 3), "feed");
   initReveal();

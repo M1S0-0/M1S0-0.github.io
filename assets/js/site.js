@@ -902,6 +902,52 @@ function renderSecured(mountId) {
 }
 
 /* =============================================================
+   Certifications
+   Two stacked groups, one per CERT_GROUPS entry. A group with no
+   rows still renders its heading with a waiting tile, so the
+   structure is visible while the list is still being collected.
+   ============================================================= */
+
+function certCard(c) {
+  var mark = c.logo
+    ? '<div class="cert-mark has-logo"><img src="' + esc(c.logo) + '" alt="" loading="lazy"></div>'
+    : '<div class="cert-mark"><span>' + esc(orgMonogram(c.issuer || c.name || "?")) + "</span></div>";
+
+  var meta = [c.issuer, c.year].filter(Boolean).map(esc).join(' <span class="dot">&middot;</span> ');
+
+  var inner =
+    mark +
+    '<div class="cert-body">' +
+      '<div class="cert-name">' + esc(c.name || "") + "</div>" +
+      (meta ? '<div class="cert-meta">' + meta + "</div>" : "") +
+    "</div>" +
+    (c.credential ? '<span class="cert-verify">Verify &rarr;</span>' : "");
+
+  return c.credential
+    ? '<a class="cert-card is-link" href="' + esc(c.credential) + '" rel="noopener" target="_blank">' + inner + "</a>"
+    : '<div class="cert-card">' + inner + "</div>";
+}
+
+function renderCerts(mountId) {
+  var el = document.getElementById(mountId);
+  if (!el || typeof CERT_GROUPS === "undefined" || typeof CERTIFICATIONS === "undefined") return;
+
+  el.innerHTML = CERT_GROUPS.map(function (g) {
+    var rows = certsOf(g.key);
+    return '<div class="cert-group">' +
+             '<div class="cert-group-head">' +
+               '<p class="lbl">' + esc(g.label) + "</p>" +
+               (g.note ? '<span class="cert-group-note">' + esc(g.note) + "</span>" : "") +
+               (rows.length ? '<span class="cert-n">' + rows.length + "</span>" : "") +
+             "</div>" +
+             (rows.length
+               ? '<div class="cert-grid">' + rows.map(certCard).join("") + "</div>"
+               : '<p class="cert-empty">Nothing listed here yet.</p>') +
+           "</div>";
+  }).join("");
+}
+
+/* =============================================================
    Ethereum backdrop
    Injected once per page so every page gets it from one place.
    ============================================================= */

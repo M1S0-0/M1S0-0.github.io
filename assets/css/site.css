@@ -1169,6 +1169,67 @@ a.n:hover { color: var(--text); }
   width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
 
+/* ---------- certifications ---------- */
+.hx-certs { padding: 76px 0 0; }
+.certs { display: grid; gap: 34px; }
+
+.cert-group-head {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 14px;
+}
+.cert-group-head .lbl { margin: 0; }
+.cert-group-note { font-size: 12.5px; color: var(--faint); }
+.cert-n {
+  font-family: var(--mono); font-size: 11px; color: var(--faint);
+  margin-left: auto;
+}
+
+/* auto-fill keeps one card full width until a second one exists, then
+   the row splits on its own as the list grows */
+.cert-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.cert-card {
+  display: flex; align-items: center; gap: 15px;
+  padding: 15px 17px; border-radius: 14px;
+  border: 1px solid var(--rule); background: var(--chip);
+  color: inherit; text-decoration: none;
+}
+.cert-card.is-link { transition: border-color .18s ease, transform .18s ease; }
+.cert-card.is-link:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); transform: translateY(-2px); }
+
+.cert-mark {
+  flex: 0 0 auto; width: 46px; height: 46px; border-radius: 11px;
+  display: grid; place-items: center; overflow: hidden; background: var(--bg);
+}
+.cert-mark.has-logo { background: #fff; border: 1px solid #e3e6ea; }
+.cert-mark img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.cert-mark span {
+  font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--muted);
+}
+
+.cert-body { min-width: 0; }
+.cert-name {
+  font-size: 14.5px; font-weight: 600; color: var(--text); line-height: 1.35;
+}
+.cert-meta { font-size: 12.5px; color: var(--faint); margin-top: 4px; }
+.cert-meta .dot { opacity: .5; margin: 0 2px; }
+.cert-verify {
+  margin-left: auto; flex: 0 0 auto;
+  font-family: var(--mono); font-size: 11px; color: var(--accent); opacity: .85;
+}
+
+.cert-empty {
+  margin: 0; padding: 18px 17px; border-radius: 14px;
+  border: 1px dashed var(--rule); background: transparent;
+  font-size: 13.5px; color: var(--faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cert-card.is-link:hover { transform: none; }
+}
+
 .hx-latest { padding: 76px 0 0; }
 
 /* ---------- masthead, used by 404 ---------- */
