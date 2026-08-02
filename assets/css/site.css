@@ -1171,18 +1171,12 @@ a.n:hover { color: var(--text); }
 
 /* ---------- certifications ---------- */
 .hx-certs { padding: 76px 0 0; }
-.certs { display: grid; gap: 34px; }
-
-.cert-group-head {
-  display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
-  margin-bottom: 14px;
+/* the active tab's note, swapped in place as tabs change */
+.cert-note {
+  font-size: 12.5px; color: var(--faint);
+  margin: 0 0 14px;
 }
-.cert-group-head .lbl { margin: 0; }
-.cert-group-note { font-size: 12.5px; color: var(--faint); }
-.cert-n {
-  font-family: var(--mono); font-size: 11px; color: var(--faint);
-  margin-left: auto;
-}
+.cert-note:empty { display: none; }
 
 /* auto-fill keeps one card full width until a second one exists, then
    the row splits on its own as the list grows */

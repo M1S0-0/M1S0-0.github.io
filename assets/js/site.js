@@ -932,19 +932,45 @@ function renderCerts(mountId) {
   var el = document.getElementById(mountId);
   if (!el || typeof CERT_GROUPS === "undefined" || typeof CERTIFICATIONS === "undefined") return;
 
-  el.innerHTML = CERT_GROUPS.map(function (g) {
-    var rows = certsOf(g.key);
-    return '<div class="cert-group">' +
-             '<div class="cert-group-head">' +
-               '<p class="lbl">' + esc(g.label) + "</p>" +
-               (g.note ? '<span class="cert-group-note">' + esc(g.note) + "</span>" : "") +
-               (rows.length ? '<span class="cert-n">' + rows.length + "</span>" : "") +
-             "</div>" +
-             (rows.length
-               ? '<div class="cert-grid">' + rows.map(certCard).join("") + "</div>"
-               : '<p class="cert-empty">Nothing listed here yet.</p>') +
-           "</div>";
-  }).join("");
+  var groups = CERT_GROUPS;
+  if (!groups.length) { el.innerHTML = ""; return; }
+
+  var active = groups[0].key;
+
+  function paint() {
+    var g    = groups.filter(function (x) { return x.key === active; })[0] || groups[0];
+    var rows = certsOf(active);
+
+    el.querySelector("[data-list]").innerHTML = rows.length
+      ? '<div class="cert-grid">' + rows.map(certCard).join("") + "</div>"
+      : '<p class="cert-empty">Nothing listed here yet.</p>';
+
+    var note = el.querySelector("[data-note]");
+    if (note) note.textContent = g.note || "";
+
+    Array.prototype.forEach.call(el.querySelectorAll("[data-tab]"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-tab") === active);
+    });
+  }
+
+  el.innerHTML =
+    '<div class="secured-tabs">' +
+      groups.map(function (g) {
+        return '<button class="catbtn" type="button" data-tab="' + esc(g.key) + '">' +
+                 esc(g.label) + "<b>" + certsOf(g.key).length + "</b></button>";
+      }).join("") +
+    "</div>" +
+    '<p class="cert-note" data-note></p>' +
+    "<div data-list></div>";
+
+  el.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-tab]");
+    if (!btn) return;
+    active = btn.getAttribute("data-tab");
+    paint();
+  });
+
+  paint();
 }
 
 /* =============================================================
