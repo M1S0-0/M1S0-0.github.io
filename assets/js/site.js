@@ -908,24 +908,30 @@ function renderSecured(mountId) {
    structure is visible while the list is still being collected.
    ============================================================= */
 
+/* Square badge tile. The whole tile is the link when a credential URL
+   exists, so the click target is the card rather than a small label. */
 function certCard(c) {
-  var mark = c.logo
-    ? '<div class="cert-mark has-logo"><img src="' + esc(c.logo) + '" alt="" loading="lazy"></div>'
-    : '<div class="cert-mark"><span>' + esc(orgMonogram(c.issuer || c.name || "?")) + "</span></div>";
+  var art = c.logo
+    ? '<img src="' + esc(c.logo) + '" alt="" loading="lazy">'
+    : '<span class="cert-initials">' + esc(orgMonogram(c.issuer || c.name || "?")) + "</span>";
 
-  var meta = [c.issuer, c.year].filter(Boolean).map(esc).join(' <span class="dot">&middot;</span> ');
+  var meta = [c.issuer, c.year].filter(Boolean).map(esc)
+               .join(' <span class="dot">&middot;</span> ');
 
   var inner =
-    mark +
-    '<div class="cert-body">' +
+    '<div class="cert-art">' + art + "</div>" +
+    '<div class="cert-foot">' +
       '<div class="cert-name">' + esc(c.name || "") + "</div>" +
       (meta ? '<div class="cert-meta">' + meta + "</div>" : "") +
-    "</div>" +
-    (c.credential ? '<span class="cert-verify">Verify &rarr;</span>' : "");
+    "</div>";
 
-  return c.credential
-    ? '<a class="cert-card is-link" href="' + esc(c.credential) + '" rel="noopener" target="_blank">' + inner + "</a>"
-    : '<div class="cert-card">' + inner + "</div>";
+  if (!c.credential) return '<div class="cert-card">' + inner + "</div>";
+
+  return '<a class="cert-card is-link" href="' + esc(c.credential) + '" ' +
+           'rel="noopener" target="_blank" title="' + esc(c.name || "") + '">' +
+           inner +
+           '<span class="cert-badge-go" aria-hidden="true">&#8599;</span>' +
+         "</a>";
 }
 
 function renderCerts(mountId) {

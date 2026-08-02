@@ -50,6 +50,14 @@ const CERT_GROUPS = [
 const CERTIFICATIONS = [
 
   /* ---------- Web2 security ---------- */
+  {
+    name: "Securing API Servers",
+    issuer: "APIsec University",
+    logo: "/assets/img/certs/apisec-securing-api-servers.png",
+    group: "web2",
+    year: "2024",
+    credential: "https://www.credly.com/badges/020819c0-da70-4452-ab0f-1d7bad639abc/linked_in_profile"
+  },
 
   /* ---------- Blockchain security ---------- */
 

@@ -1178,41 +1178,59 @@ a.n:hover { color: var(--text); }
 }
 .cert-note:empty { display: none; }
 
-/* auto-fill keeps one card full width until a second one exists, then
-   the row splits on its own as the list grows */
+/* square tiles. auto-fill lets the row split on its own as the list
+   grows, so nothing needs touching when a certificate is added */
 .cert-grid {
-  display: grid; gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
 }
 .cert-card {
-  display: flex; align-items: center; gap: 15px;
-  padding: 15px 17px; border-radius: 14px;
+  position: relative; overflow: hidden;
+  aspect-ratio: 1 / 1;
+  display: flex; flex-direction: column;
+  padding: 20px 16px 16px; border-radius: 18px;
   border: 1px solid var(--rule); background: var(--chip);
-  color: inherit; text-decoration: none;
+  color: inherit; text-decoration: none; text-align: center;
 }
-.cert-card.is-link { transition: border-color .18s ease, transform .18s ease; }
-.cert-card.is-link:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); transform: translateY(-2px); }
-
-.cert-mark {
-  flex: 0 0 auto; width: 46px; height: 46px; border-radius: 11px;
-  display: grid; place-items: center; overflow: hidden; background: var(--bg);
+.cert-card.is-link {
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
 }
-.cert-mark.has-logo { background: #fff; border: 1px solid #e3e6ea; }
-.cert-mark img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
-.cert-mark span {
-  font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--muted);
+.cert-card.is-link:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--rule));
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -18px color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
-.cert-body { min-width: 0; }
+/* badge art takes the space the footer does not need */
+.cert-art {
+  flex: 1 1 auto; min-height: 0;
+  display: grid; place-items: center; width: 100%;
+  margin-bottom: 12px;
+}
+.cert-art img {
+  max-width: 82%; max-height: 100%; width: auto; height: auto;
+  object-fit: contain;
+}
+.cert-initials {
+  font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--faint);
+}
+
+.cert-foot { flex: 0 0 auto; width: 100%; }
 .cert-name {
-  font-size: 14.5px; font-weight: 600; color: var(--text); line-height: 1.35;
+  font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35;
+  /* two lines before clipping, so a long certificate title stays readable */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
 }
-.cert-meta { font-size: 12.5px; color: var(--faint); margin-top: 4px; }
+.cert-meta { font-size: 11px; color: var(--faint); margin-top: 5px; }
 .cert-meta .dot { opacity: .5; margin: 0 2px; }
-.cert-verify {
-  margin-left: auto; flex: 0 0 auto;
-  font-family: var(--mono); font-size: 11px; color: var(--accent); opacity: .85;
+
+.cert-badge-go {
+  position: absolute; top: 12px; right: 13px;
+  font-size: 13px; color: var(--accent);
+  opacity: 0; transition: opacity .2s ease;
 }
+.cert-card.is-link:hover .cert-badge-go { opacity: .9; }
 
 .cert-empty {
   margin: 0; padding: 18px 17px; border-radius: 14px;
@@ -1222,6 +1240,10 @@ a.n:hover { color: var(--text); }
 
 @media (prefers-reduced-motion: reduce) {
   .cert-card.is-link:hover { transform: none; }
+}
+@media (max-width: 520px) {
+  .cert-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .cert-card { padding: 16px 12px 13px; border-radius: 15px; }
 }
 
 .hx-latest { padding: 76px 0 0; }
