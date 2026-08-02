@@ -120,7 +120,7 @@ const HALLOFFAME = [
   },
   {
     org: "Comcast",
-    logo: null,
+    logo: "/assets/img/logos/comcast.png",
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
@@ -240,7 +240,7 @@ const HALLOFFAME = [
   },
   {
     org: "RTree Finance",
-    logo: null,
+    logo: "/assets/img/logos/rtreefinance.png",
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
