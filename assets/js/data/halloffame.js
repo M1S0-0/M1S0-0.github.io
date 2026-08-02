@@ -324,7 +324,7 @@ const HALLOFFAME = [
   },
   {
     org: "Block-Stars Pvt. Ltd.",
-    logo: null,
+    logo: "/assets/img/logos/blockstars.png",
     group: "web2-private",
     visibility: "public",
     kind: "Hall of Fame",
