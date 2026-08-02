@@ -1067,6 +1067,17 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
 }
 .secured-tabs .catbtn.on b { opacity: .75; }
 
+/* On a phone the 100px tiles only fit two to a row, which turned a 27
+   program tab into a very long scroll. Tightening the tile and the panel
+   padding fits three, cutting the list height by a third. */
+@media (max-width: 520px) {
+  .panel { padding: 22px 18px; }
+  .secured { gap: 14px; min-height: 0; }
+  .secured-item { width: 88px; }
+  .secured-mark { width: 64px; height: 64px; border-radius: 14px; margin-bottom: 9px; }
+  .secured-name { font-size: 11px; }
+}
+
 
 /* ===========================================================
    Ethereum backdrop
@@ -1194,6 +1205,17 @@ a.n:hover { color: var(--text); }
   content: ""; position: absolute; left: 0; top: 12px;
   width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
+
+/* ---------- skip link ---------- */
+/* off screen until focused, so keyboard users can jump the nav */
+.skip {
+  position: absolute; left: 12px; top: -60px; z-index: 100;
+  padding: 10px 16px; border-radius: 0 0 10px 10px;
+  background: var(--accent); color: #06110c;
+  font-size: 13.5px; font-weight: 700; text-decoration: none;
+  transition: top .18s ease;
+}
+.skip:focus { top: 0; }
 
 /* ---------- certifications ---------- */
 .hx-certs { padding: 76px 0 0; }
