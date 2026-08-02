@@ -576,7 +576,9 @@ ol.steps .codewrap { margin: 14px 0; }
 
 /* ---------- figure ---------- */
 figure { margin: 34px 0; }
-figure img { width: 100%; border: 1px solid var(--rule); border-radius: 6px; }
+figure img,
+figure video { width: 100%; border: 1px solid var(--rule); border-radius: 6px; display: block; }
+figure video { background: #000; aspect-ratio: 1920 / 950; }
 figcaption {
   font-family: var(--sans); font-size: 13.5px; color: var(--faint);
   margin-top: 10px; text-align: center;

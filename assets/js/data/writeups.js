@@ -17,7 +17,6 @@ const CATEGORIES = [
    WRITEUPS — the article list. Single source of truth.
    `slug` must match a file at /writeups/posts/<slug>.html
 
-   >>> PLACEHOLDER CONTENT. REPLACE WITH YOUR OWN. <<<
 
    REQUIRED
      slug      matches the filename
@@ -50,41 +49,17 @@ const CATEGORIES = [
 const WRITEUPS = [
 
   {
-    slug: "example-ssrf-wp-plugin",
-    title: "Unauthenticated SSRF in a WordPress plugin import endpoint",
-    subtitle: "An import handler that never checked who was calling it, and happily fetched any URL I handed over.",
-    date: "2026-07-20",
+    slug: "dell-dependency-confusion",
+    title: "How I earned a $750 bounty for a dependency confusion attack on Dell",
+    subtitle: "A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.",
+    date: "2024-11-16",
     category: "web2",
-    tags: ["SSRF", "WordPress", "Unauth"],
+    tags: ["Dependency Confusion", "Supply Chain", "RCE", "npm"],
 
-    severity: "High",
-    cve: "CVE-2026-00000",
-    platform: "Patchstack",
-    program: "Example Plugin Vendor",
-    target: "example-plugin v1.2.3"
-  },
-
-  {
-    slug: "example-oracle-dos",
-    title: "One future-dated oracle round froze an entire vault",
-    subtitle: "A timestamp subtraction nobody thought twice about, and the unsigned integer underflow that turned it into a denial of service.",
-    date: "2026-06-14",
-    category: "web3",
-    tags: ["Oracle", "DoS", "Solidity"],
-
-    severity: "High",
-    platform: "Immunefi",
-    program: "Example Protocol",
-    target: "PriceFeed.sol"
-  },
-
-  {
-    slug: "example-methodology",
-    title: "How I actually read a smart contract for the first time",
-    subtitle: "Not line by line from the top. Here is the order I go in, and why invariants come before implementation.",
-    date: "2026-05-02",
-    category: "research",
-    tags: ["Methodology", "Auditing"]
+    severity: "Medium",
+    platform: "Bugcrowd",
+    program: "Dell Technologies Application Bug Bounty",
+    target: "csm-installation-wizard in dell/csm-docs"
   }
 
 ];
