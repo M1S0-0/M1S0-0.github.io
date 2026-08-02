@@ -930,6 +930,30 @@ function securedChip(h) {
          "</div>";
 }
 
+/* "Verified on X, Y and Z", each linking to the real platform profile.
+   Built from PLATFORMS so it can never drift from the platform strip. */
+function verifyLine() {
+  if (typeof PLATFORMS === "undefined" || !PLATFORMS.length) return "";
+
+  var links = PLATFORMS.filter(function (p) { return p.url; }).map(function (p) {
+    return '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer">' +
+             esc(p.name) + "</a>";
+  });
+  if (!links.length) return "";
+
+  var joined = links.length === 1
+    ? links[0]
+    : links.slice(0, -1).join(", ") + " and " + links[links.length - 1];
+
+  return '<svg class="verify-tick" viewBox="0 0 24 24" aria-hidden="true">' +
+           '<path d="M12 1.6l8.4 3.2v6.1c0 5.4-3.6 9.9-8.4 11.5C7.2 20.8 3.6 16.3 3.6 ' +
+             '10.9V4.8z" fill="none" stroke="currentColor" stroke-width="1.9"/>' +
+           '<path d="M8.3 11.8l2.6 2.7 4.9-5.2" fill="none" stroke="currentColor" ' +
+             'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+         "</svg>" +
+         "Credits verifiable on " + joined;
+}
+
 function renderSecured(mountId) {
   var el = document.getElementById(mountId);
   if (!el || typeof HOF_GROUPS === "undefined" || typeof HALLOFFAME === "undefined") return;
@@ -952,6 +976,11 @@ function renderSecured(mountId) {
     Array.prototype.forEach.call(el.querySelectorAll("[data-tab]"), function (b) {
       b.classList.toggle("on", b.getAttribute("data-tab") === active);
     });
+
+    /* Verification line. Hidden on any group that cannot be verified
+       publicly, so the claim is never made where it is not true. */
+    var ver = el.querySelector("[data-verify]");
+    if (ver) ver.innerHTML = g.verifiable === false ? "" : verifyLine();
   }
 
   el.innerHTML =
@@ -963,7 +992,8 @@ function renderSecured(mountId) {
       }).join("") +
     "</div>" +
     '<p class="secured-note" data-note></p>' +
-    '<div class="secured" data-list></div>';
+    '<div class="secured" data-list></div>' +
+    '<p class="secured-verify" data-verify></p>';
 
   el.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-tab]");

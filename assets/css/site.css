@@ -1074,6 +1074,27 @@ html[data-theme="dark"] .pcard-mark { opacity: .22; }
 }
 .secured-note:empty { display: none; }
 
+/* verification line under the wall, tying the logos to the profiles
+   that can actually corroborate them */
+/* deliberately not flex: a flex gap would push the commas away from the
+   link they follow */
+.secured-verify {
+  margin: 20px 0 0; padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 12.5px; color: var(--faint); line-height: 1.7;
+}
+.secured-verify:empty { display: none; }
+.secured-verify .verify-tick {
+  width: 15px; height: 15px; color: var(--accent);
+  vertical-align: -3px; margin-right: 8px;
+}
+.secured-verify a {
+  color: var(--muted); text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: color .18s ease, border-color .18s ease;
+}
+.secured-verify a:hover { color: var(--accent); border-color: var(--accent); }
+
 /* On a phone the 100px tiles only fit two to a row, which turned a 27
    program tab into a very long scroll. Tightening the tile and the panel
    padding fits three, cutting the list height by a third. */

@@ -15,7 +15,10 @@ const HOF_GROUPS = [
   {
     key: "web2-private",
     label: "Web2 Private Audits / NDA",
-    note: "Invitation only, under non-disclosure agreement. Counted, never described."
+    note: "Invitation only, under non-disclosure agreement. Counted, never described.",
+    /* no public record exists for these, so the verification line is
+       suppressed here rather than claiming something that cannot be checked */
+    verifiable: false
   },
   {
     key: "web3-bounty",
