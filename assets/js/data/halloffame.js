@@ -25,11 +25,6 @@ const HOF_GROUPS = [
     note: "Protocol bounty programs and contests"
   },
   {
-    key: "web3-audit",
-    label: "Smart Contract Audits",
-    note: "Protocol code review engagements"
-  },
-  {
     key: "blockchain-dlt",
     label: "Blockchain / DLT",
     note: "Protocol, consensus and node level"
@@ -403,14 +398,12 @@ const HALLOFFAME = [
     kind: "Bug Bounty",
     proof: null
   },
-
-  /* ---------- Smart contract audits ---------- */
   {
     org: "OpenSea",
     logo: "/assets/img/logos/opensea.png",
-    group: "web3-audit",
+    group: "web3-bounty",
     visibility: "public",
-    kind: "Audit",
+    kind: "Bug Bounty",
     proof: null
   },
 
