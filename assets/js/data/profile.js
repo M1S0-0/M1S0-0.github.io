@@ -18,12 +18,11 @@ const PROFILE = {
   /* Written for a prospective client reading this cold. Leads with what
      can be checked (named organisations, how the work is delivered)
      rather than adjectives, and closes on availability. */
-  bio: "Security researcher working across Web2 applications and Web3 protocols. " +
-       "Credited by 40+ organisations, among them OpenAI, PayPal, Cisco and Dell, " +
-       "for vulnerabilities confirmed in production systems. I work to one standard: " +
-       "every finding arrives with a reproducible proof of concept, a clear impact " +
-       "assessment, and a fix your team can ship. Need a smart contract audit or a " +
-       "penetration test? I take on freelance and contract engagements. Get in touch.",
+  bio: "Security Researcher specializing in Web2 and Web3 security, helping " +
+       "organizations uncover high-impact vulnerabilities through practical, " +
+       "evidence-driven security research. Every finding is backed by a reproducible " +
+       "proof of concept, clear impact assessment, and actionable remediation. " +
+       "Open to freelance and contract opportunities.",
 
   /* headline cards on the right of the banner. Empty for now.
      Add { label, value } objects here to bring them back. */
