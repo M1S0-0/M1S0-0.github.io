@@ -263,6 +263,15 @@ const HALLOFFAME = [
     proof: null
   },
 
+  {
+    org: "MATLAB",
+    logo: "/assets/img/logos/matlab.png",
+    group: "web2-bounty",
+    visibility: "public",
+    kind: "Hall of Fame",
+    proof: null
+  },
+
   /* ---------- Web2 private ---------- */
   {
     group: "web2-private",
