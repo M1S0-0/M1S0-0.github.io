@@ -1,8 +1,6 @@
 /* =============================================================
    HALL OF FAME — what the home page is built from.
 
-   >>> PLACEHOLDER CONTENT. REPLACE WITH YOUR REAL ENTRIES. <<<
-
    HOF_GROUPS are the sections, in the order they appear. They
    also become the tabs under Programs Secured, so adding a group
    here adds a tab there with nothing else to change.

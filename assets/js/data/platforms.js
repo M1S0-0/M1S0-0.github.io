@@ -5,8 +5,6 @@
    This is the one place the whole picture lives, which is the
    point of having your own profile at all.
 
-   >>> PLACEHOLDER. REPLACE HANDLES, URLS AND STATS. <<<
-
      name    platform name
      handle  your handle there
      url     your public profile, or null to render it unlinked
