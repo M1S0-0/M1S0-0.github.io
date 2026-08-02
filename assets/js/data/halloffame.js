@@ -96,7 +96,7 @@ const HALLOFFAME = [
   },
   {
     org: "Cisco",
-    logo: null,
+    logo: "/assets/img/logos/cisco.png",
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
@@ -168,7 +168,7 @@ const HALLOFFAME = [
   },
   {
     org: "Jetstar",
-    logo: null,
+    logo: "/assets/img/logos/jetstar.png",
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
@@ -240,7 +240,7 @@ const HALLOFFAME = [
   },
   {
     org: "RTree Finance",
-    logo: "/assets/img/logos/rtreefinance.png",
+    logo: null,
     group: "web2-bounty",
     visibility: "public",
     kind: "Hall of Fame",
