@@ -12,5 +12,10 @@ Thumbs.db
 *.swp
 
 # local notes that must never be published
+# NOTE: GitHub Pages serves every tracked file, including dotfiles —
+# https://m1s0-0.github.io/.gitignore returns 200. Anything committed here
+# is public. CLAUDE.md holds internal project context and must stay local.
 NOTES.md
 scratch/
+CLAUDE.md
+.claude/
