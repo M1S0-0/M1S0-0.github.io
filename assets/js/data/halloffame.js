@@ -303,14 +303,6 @@ const HALLOFFAME = [
     proof: null
   },
   {
-    org: "Government of Maharashtra",
-    logo: "/assets/img/logos/maharashtra.png",
-    group: "web2-private",
-    visibility: "public",
-    kind: "Hall of Fame",
-    proof: null
-  },
-  {
     org: "Block-Stars Pvt. Ltd.",
     logo: "/assets/img/logos/blockstars.png",
     group: "web2-private",
