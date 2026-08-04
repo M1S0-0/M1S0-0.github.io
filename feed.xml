@@ -6,25 +6,14 @@
     <description>Writeups on vulnerability research, exploitation, and smart contract auditing.</description>
     <language>en</language>
     <managingEditor>M1S0</managingEditor>
-    <lastBuildDate>Mon, 01 Sep 2025 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 10 Sep 2025 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://m1s0-0.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <item>
-      <title>Share price manipulation in CarthaVault through an in-flight deposit</title>
-      <link>https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html</link>
-      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html</guid>
-      <description>The vault priced new shares against a total value that briefly dropped while its assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.</description>
-      <pubDate>Mon, 01 Sep 2025 00:00:00 GMT</pubDate>
-      <category>Share Price Manipulation</category>
-      <category>DeFi</category>
-      <category>Vault</category>
-      <category>Smart Contract</category>
-    </item>
     <item>
       <title>IDOR on CoinDepo: reading any user&apos;s KYC through a trusted email field</title>
       <link>https://m1s0-0.github.io/writeups/posts/coindepo-idor.html</link>
       <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/coindepo-idor.html</guid>
       <description>One profile endpoint decided whose data to return from values in the request, not from who was logged in. Any authenticated user could pull another user&apos;s full KYC record.</description>
-      <pubDate>Wed, 20 Aug 2025 00:00:00 GMT</pubDate>
+      <pubDate>Wed, 10 Sep 2025 00:00:00 GMT</pubDate>
       <category>IDOR</category>
       <category>BOLA</category>
       <category>Broken Access Control</category>
@@ -32,11 +21,33 @@
       <category>PII</category>
     </item>
     <item>
+      <title>Share price manipulation in CarthaVault through an in-flight deposit</title>
+      <link>https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html</guid>
+      <description>The vault priced new shares against a total value that briefly dropped while its assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.</description>
+      <pubDate>Fri, 05 Sep 2025 00:00:00 GMT</pubDate>
+      <category>Share Price Manipulation</category>
+      <category>DeFi</category>
+      <category>Vault</category>
+      <category>Smart Contract</category>
+    </item>
+    <item>
+      <title>How I earned a $750 bounty for a dependency confusion attack on Dell</title>
+      <link>https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html</guid>
+      <description>A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.</description>
+      <pubDate>Mon, 01 Sep 2025 00:00:00 GMT</pubDate>
+      <category>Dependency Confusion</category>
+      <category>Supply Chain</category>
+      <category>RCE</category>
+      <category>npm</category>
+    </item>
+    <item>
       <title>Email bombing on WhiteMarket: racing the verification-resend limit</title>
       <link>https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</link>
       <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</guid>
       <description>The resend-verification endpoint was rate limited and even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter caught up.</description>
-      <pubDate>Mon, 18 Aug 2025 00:00:00 GMT</pubDate>
+      <pubDate>Wed, 20 Aug 2025 00:00:00 GMT</pubDate>
       <category>Race Condition</category>
       <category>Rate Limit Bypass</category>
       <category>Email Bombing</category>
@@ -52,17 +63,6 @@
       <category>Rate Limit Bypass</category>
       <category>OTP</category>
       <category>API</category>
-    </item>
-    <item>
-      <title>How I earned a $750 bounty for a dependency confusion attack on Dell</title>
-      <link>https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html</link>
-      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html</guid>
-      <description>A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.</description>
-      <pubDate>Sat, 16 Nov 2024 00:00:00 GMT</pubDate>
-      <category>Dependency Confusion</category>
-      <category>Supply Chain</category>
-      <category>RCE</category>
-      <category>npm</category>
     </item>
   </channel>
 </rss>

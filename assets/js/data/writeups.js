@@ -52,7 +52,7 @@ const WRITEUPS = [
     slug: "carthavault-share-manipulation",
     title: "Share price manipulation in CarthaVault through an in-flight deposit",
     subtitle: "The vault priced new shares against a total value that briefly dropped while its assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.",
-    date: "2025-09-01",
+    date: "2025-09-05",
     category: "web3",
     tags: ["Share Price Manipulation", "DeFi", "Vault", "Smart Contract"],
 
@@ -66,7 +66,7 @@ const WRITEUPS = [
     slug: "whitemarket-email-bombing",
     title: "Email bombing on WhiteMarket: racing the verification-resend limit",
     subtitle: "The resend-verification endpoint was rate limited and even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter caught up.",
-    date: "2025-08-18",
+    date: "2025-08-20",
     category: "web2",
     tags: ["Race Condition", "Rate Limit Bypass", "Email Bombing", "GraphQL"],
 
@@ -94,7 +94,7 @@ const WRITEUPS = [
     slug: "coindepo-idor",
     title: "IDOR on CoinDepo: reading any user's KYC through a trusted email field",
     subtitle: "One profile endpoint decided whose data to return from values in the request, not from who was logged in. Any authenticated user could pull another user's full KYC record.",
-    date: "2025-08-20",
+    date: "2025-09-10",
     category: "web2",
     tags: ["IDOR", "BOLA", "Broken Access Control", "API", "PII"],
 
@@ -108,7 +108,7 @@ const WRITEUPS = [
     slug: "dell-dependency-confusion",
     title: "How I earned a $750 bounty for a dependency confusion attack on Dell",
     subtitle: "A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.",
-    date: "2024-11-16",
+    date: "2025-09-01",
     category: "web2",
     tags: ["Dependency Confusion", "Supply Chain", "RCE", "npm"],
 
