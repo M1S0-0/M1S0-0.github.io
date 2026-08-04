@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A frozen bond in Base's dispute game: the escape hatch that could not open · M1S0</title>
+<meta name="description" content="A safety timeout was meant to return an honest proposer's bond if a game got stuck. A ZK verifier nullification stuck the game in a state the timeout was gated against, so the bond was locked in DelayedWETH forever with no recovery path.">
+<meta property="og:title" content="A frozen bond in Base's dispute game: the escape hatch that could not open · M1S0">
+<meta property="og:description" content="A safety timeout was meant to return an honest proposer's bond if a game got stuck. A ZK verifier nullification stuck the game in a state the timeout was gated against, so the bond was locked in DelayedWETH forever with no recovery path.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/base-bond-lock-zk-nullification.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/base-bond-lock-zk-nullification.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/base-bond-lock-zk-nullification.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/base-bond-lock-zk-nullification.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">A frozen bond in Base's dispute game: the escape hatch that could not open</h1>
+  <p class="subtitle">An honest proposer locks a bond to back their proposal, and a safety timeout is supposed to give it back if the game ever gets stuck. A ZK verifier nullification stuck the game in the one state that timeout was gated against, and the bond stayed locked forever.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      When Base settles an L2 result on L1, a proposer puts up an output root and locks a
+      <strong>bond</strong> behind it, real ETH, as skin in the game. Proof systems then confirm
+      or challenge the proposal, and once things settle the proposer gets their bond back. The
+      code is careful to include a last-resort <strong>safety timeout</strong>: if a game somehow
+      never resolves, after enough days the proposer can still reclaim their bond, so honest money
+      is never trapped. This finding is about that safety timeout being unreachable in exactly the
+      situation it exists for. It was submitted to the Base Azul audit competition and selected as
+      the lead report.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/base-bond-lock-zk-nullification/00-report-proof.png"
+           alt="The Immunefi submission #74351 for Base Azul: Bond Permanently Locked After ZK Verifier Nullification in PROOF_THRESHOLD=2 Game, marked Low, Paid, Audit Competition, Chief Finding">
+      <figcaption>Immunefi submission <strong>#74351</strong> on the Base Azul audit competition: <strong>Low</strong>, paid, and marked a <strong>Chief Finding</strong>.</figcaption>
+    </figure>
+
+    <h2>The setup, in plain terms</h2>
+
+    <ul>
+      <li>A <strong>two-proof game</strong> (<code>PROOF_THRESHOLD = 2</code>) will only resolve once it has both a <strong>TEE proof</strong> and a <strong>ZK proof</strong>. Belt and braces.</li>
+      <li>The proposer's <strong>bond</strong> sits in a contract called <code>DelayedWETH</code> until the game resolves, at which point they can pull it back with <code>claimCredit()</code>.</li>
+      <li>A <strong>nullification</strong> is the emergency brake: if the ZK verifier is shown to be unsound (someone submits a competing proof for a different intermediate root), the shared ZK verifier is switched off permanently, and the game's ZK proof is thrown out, dropping the proof count back below the threshold.</li>
+    </ul>
+
+    <h2>The state the game gets stuck in</h2>
+
+    <p>
+      Walk the sequence. A proposer creates a two-proof game with a TEE proof (count = 1) and
+      funds the bond. A ZK proof arrives (count = 2), and the game schedules its resolution. Then
+      the ZK verifier is nullified. Three things happen at once, and together they wall the game in:
+    </p>
+
+    <ul>
+      <li><strong>The count drops to 1.</strong> Below the threshold of 2, so <code>resolve()</code> reverts with <code>NotEnoughProofs</code>.</li>
+      <li><strong>The ZK verifier is off for good.</strong> Submitting a fresh ZK proof reverts with <code>Nullified</code>, so the count can never climb back to 2.</li>
+      <li><strong>The resolution deadline is now a real timestamp.</strong> Nullification sets <code>expectedResolution</code> to a concrete future time, not the special sentinel value.</li>
+    </ul>
+
+    <p>
+      Resolve is impossible and a new proof is impossible. That leaves the safety timeout, and this
+      is where it falls apart.
+    </p>
+
+    <h2>The escape hatch, gated shut</h2>
+
+    <p>
+      Here is the recovery path in <code>claimCredit()</code>:
+    </p>
+
+    <pre data-file="src/multiproof/AggregateVerifier.sol" data-lang="solidity"><code>function claimCredit() external nonReentrant {
+    if (bondClaimed) revert NoCreditToClaim();
+
+    if (expectedResolution.raw() != type(uint64).max) {
+        if (resolvedAt.raw() == 0) revert GameNotResolved();     // &lt;-- always taken after nullification
+    } else {
+        // the 14-day last-resort recovery lives ONLY in this branch
+        if (block.timestamp &lt; createdAt.raw() + 14 days) revert GameNotOver();
+    }
+    ...
+}
+</code></pre>
+
+    <div class="callout callout-danger">
+      <strong>The recovery is in the wrong branch</strong>
+      <p>
+        The 14-day "give the bond back no matter what" timeout lives in the <code>else</code>
+        branch, which only runs when <code>expectedResolution</code> is the sentinel
+        <code>type(uint64).max</code>, the state of a game that never got any proofs. But
+        nullification sets <code>expectedResolution</code> to a concrete timestamp, so
+        <code>claimCredit()</code> always takes the <em>first</em> branch, sees the game is
+        unresolved, and reverts with <code>GameNotResolved</code>. Fourteen days, forty days,
+        forever, the answer never changes. The one case the code did not plan for, one proof left
+        and a permanently paused verifier, is the one where an honest proposer needs the hatch, and
+        it is bolted shut.
+      </p>
+    </div>
+
+    <h2>Why it matters</h2>
+
+    <ul>
+      <li><strong>An honest proposer loses everything, through no fault of their own.</strong> They posted a valid proposal and funded the bond. The trigger, a ZK soundness alert, is an entirely separate event they did not cause.</li>
+      <li><strong>The loss is total and permanent.</strong> No resolution, no timeout, no admin function, no upgrade path inside the game. The full bond stays in <code>DelayedWETH</code> with no on-chain way out.</li>
+      <li><strong>It is not one game.</strong> The ZK verifier is shared, so a single nullification freezes the bonds of every two-proof game at once.</li>
+    </ul>
+
+    <h2>Proof of concept</h2>
+
+    <p>
+      The test builds a <code>PROOF_THRESHOLD = 2</code> game, walks it into the stuck state, then
+      shows every exit reverting, even 14 days later, with the bond still sitting in
+      <code>DelayedWETH</code>.
+    </p>
+
+    <pre data-file="test/multiproof/AggregateVerifier.t.sol" data-lang="solidity"><code>function test_poc_bondPermanentlyLockedAfterZKNullification() public {
+    // 1. TEE prover creates the two-proof game and funds the bond
+    AggregateVerifier game = _createGame2(TEE_PROVER, rootClaim, ...);
+    assertEq(game.proofCount(), 1);
+    assertEq(delayedWETH.balanceOf(address(game)), INIT_BOND);   // bond locked
+
+    // 2. ZK proof arrives -> count = 2
+    _provideProof(game, ZK_PROVER, zkProof);
+    assertEq(game.proofCount(), 2);
+
+    // 3. Soundness alert: nullify with a competing intermediate root
+    game.nullify(nullifyProofBytes, 0, differentIntermediateRoot);
+    assertEq(game.proofCount(), 1);                              // back below threshold
+    assertTrue(zkVerifier.nullified());                         // verifier off for good
+    assertNotEq(game.expectedResolution().raw(), type(uint64).max);  // concrete timestamp
+
+    // 4. Timer expires, and every exit is blocked
+    vm.warp(block.timestamp + 7 days + 1);
+    vm.expectRevert(AggregateVerifier.NotEnoughProofs.selector);
+    game.resolve();                                             // cannot resolve
+
+    vm.expectRevert();                                          // verifier nullified
+    game.verifyProposalProof(newZkProof);                      // cannot add a proof
+
+    vm.expectRevert(GameNotResolved.selector);
+    game.claimCredit();                                        // cannot recover
+
+    // 5. Even after 14 more days, the escape hatch never opens
+    vm.warp(block.timestamp + 14 days);
+    vm.expectRevert(GameNotResolved.selector);
+    game.claimCredit();
+
+    assertEq(delayedWETH.balanceOf(address(game)), INIT_BOND);  // BOND PERMANENTLY LOCKED
+    assertEq(game.resolvedAt().raw(), 0);                      // no path to resolution exists
+}
+</code></pre>
+
+    <pre data-file="forge test" data-lang="text"><code>[PASS] test_poc_bondPermanentlyLockedAfterZKNullification() (gas: 659618)
+Suite result: ok. 1 passed; 0 failed; 0 skipped</code></pre>
+
+    <h2>The fix</h2>
+
+    <p>
+      Make the last-resort timeout reachable whenever the game is stuck unresolved, not only in the
+      no-proofs sentinel case. Add the same 14-day check inside the concrete-timestamp branch:
+    </p>
+
+    <pre data-file="the fix" data-lang="solidity"><code>if (expectedResolution.raw() != type(uint64).max) {
+    if (resolvedAt.raw() == 0) {
+        // allow recovery after 14 days even if stuck, e.g. verifier nullified
+        if (block.timestamp &lt; createdAt.raw() + 14 days) revert GameNotResolved();
+    }
+} else {
+    if (block.timestamp &lt; createdAt.raw() + 14 days) revert GameNotOver();
+}
+</code></pre>
+
+    <p>
+      Now an unresolved game returns the bond after the same 14 days regardless of how it got stuck,
+      and the safety net actually catches the case it was built for.
+    </p>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>A safety timeout is only real if it is reachable from every stuck state, not just the one the author pictured.</li>
+        <li>Emergency actions change state in ways the happy path does not expect. Trace what a nullification, a pause, or a revert leaves behind, and check the recovery paths still fire.</li>
+        <li>Gating a recovery on a sentinel value (<code>type(uint64).max</code>) quietly excludes every state where that value has been overwritten.</li>
+        <li>Frozen-funds bugs do not need an attacker with a profit motive. An honest user plus an unlucky, independent event is enough, and the money is just as gone.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://github.com/base/contracts/tree/v8.1.0/src/multiproof" rel="noopener">base/contracts multiproof, the reviewed source (v8.1.0)</a></li>
+        <li><a href="https://immunefi.com/audit-competition/audit-comp-base-azul/information/" rel="noopener">The Base Azul audit competition</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">Frozen Funds</span>
+    <span class="chip">Dispute Game</span>
+    <span class="chip">Smart Contract</span>
+    <span class="chip">L2</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "base-bond-lock-zk-nullification",
+    title: "A frozen bond in Base's dispute game: the escape hatch that could not open"
+  });
+</script>
+
+</body>
+</html>

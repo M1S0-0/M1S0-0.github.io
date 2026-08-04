@@ -119,5 +119,16 @@
       <category>DeFi</category>
       <category>Griefing</category>
     </item>
+    <item>
+      <title>A frozen bond in Base&apos;s dispute game: the escape hatch that could not open</title>
+      <link>https://m1s0-0.github.io/writeups/posts/base-bond-lock-zk-nullification.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/base-bond-lock-zk-nullification.html</guid>
+      <description>A safety timeout was meant to return an honest proposer&apos;s bond if a game got stuck, but a ZK verifier nullification stuck it in the one state the timeout was gated against, locking the bond in DelayedWETH with no recovery path.</description>
+      <pubDate>Wed, 06 Aug 2025 00:00:00 GMT</pubDate>
+      <category>Frozen Funds</category>
+      <category>Dispute Game</category>
+      <category>Smart Contract</category>
+      <category>L2</category>
+    </item>
   </channel>
 </rss>

@@ -105,6 +105,20 @@ const WRITEUPS = [
   },
 
   {
+    slug: "base-bond-lock-zk-nullification",
+    title: "A frozen bond in Base's dispute game: the escape hatch that could not open",
+    subtitle: "A safety timeout was meant to return an honest proposer's bond if a game got stuck, but a ZK verifier nullification stuck it in the one state the timeout was gated against, locking the bond in DelayedWETH with no recovery path.",
+    date: "2025-08-06",
+    category: "web3",
+    tags: ["Frozen Funds", "Dispute Game", "Smart Contract", "L2"],
+
+    severity: "Low",
+    platform: "Immunefi",
+    program: "Base Azul (Audit Comp)",
+    target: "AggregateVerifier.sol claimCredit()"
+  },
+
+  {
     slug: "whitemarket-email-bombing",
     title: "Email bombing on WhiteMarket: racing the verification-resend limit",
     subtitle: "The resend-verification endpoint was rate limited and even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter caught up.",
