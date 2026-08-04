@@ -19,6 +19,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</loc>
+    <lastmod>2025-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://m1s0-0.github.io/writeups/posts/levex-otp-race-condition.html</loc>
     <lastmod>2025-08-15</lastmod>
     <priority>0.8</priority>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email bombing on WhiteMarket: racing the verification-resend limit · M1S0</title>
+<meta name="description" content="The resend-verification endpoint was rate limited, and it even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter engaged.">
+<meta property="og:title" content="Email bombing on WhiteMarket: racing the verification-resend limit · M1S0">
+<meta property="og:description" content="The resend-verification endpoint was rate limited, and it even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter engaged.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/whitemarket-email-bombing.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/whitemarket-email-bombing.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">Email bombing on WhiteMarket: racing the verification-resend limit</h1>
+  <p class="subtitle">The resend-verification endpoint was rate limited, and it even returned 429 under load. But the limit was not atomic, so a parallel burst slipped a stack of emails through before the limiter caught up.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      WhiteMarket (white.market) is a marketplace for gaming items. In profile settings, an
+      unverified account can ask the site to resend its verification email. That action is
+      rate limited, so a normal user cannot spam it. The limit, though, was not enforced
+      atomically: firing many copies of the request at the same instant let a burst through
+      at once, and each one sends a real email. The result is a mailbox flooded on demand.
+      Reported to
+      <a href="https://hackenproof.com/companies/whitemarket" rel="noopener">WhiteMarket</a>
+      on HackenProof, rated Low, and resolved.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/whitemarket-email-bombing/00-report-proof.png"
+           alt="The HackenProof report WHM-99 on the WhiteMarket Web program: state Resolved, severity Low, category Race Conditions, with M1S0 as the verified author">
+      <figcaption>The report on the WhiteMarket Web program, WHM-99: <strong>Resolved</strong>, severity <strong>Low</strong>, category <strong>Race Conditions</strong>.</figcaption>
+    </figure>
+
+    <h2>The idea in one line</h2>
+
+    <p>
+      A rate limit normally reads a counter to see how many requests you have made, and if
+      you are under the cap it lets the request through and adds one. Those are two steps.
+      If requests arrive one at a time, the counter is updated before the next is checked
+      and the cap holds. If a pile of requests arrive at the exact same moment, they can all
+      read the counter <em>before</em> any of them has incremented it, so they all pass. That
+      is a race condition, and it is beaten by sending in parallel rather than by sending
+      more.
+    </p>
+
+    <div class="callout callout-tip">
+      <strong>What makes this one interesting</strong>
+      <p>
+        The limiter here is not absent. Under the parallel load it does eventually fire and
+        return <code>429 Too Many Requests</code> with a <code>Retry-After</code>. The point
+        is that a meaningful number of requests already succeeded in the moment before it
+        engaged. A limiter that reacts a beat late is still a limiter you can outrun.
+      </p>
+    </div>
+
+    <h2>The attack</h2>
+
+    <ol class="steps">
+      <li>
+        <h4>Find the resend action</h4>
+        <p>
+          Log in and open profile settings at <code>/me?tab=profile-settings</code>. The
+          account details panel has a <strong>Resend verification e-mail</strong> link.
+        </p>
+        <figure>
+          <img src="/assets/img/writeups/whitemarket-email-bombing/01-resend-location.png"
+               alt="The WhiteMarket profile settings page showing the account e-mail field and the Resend verification e-mail link, with the email address blurred">
+          <figcaption>The resend action in profile settings. The email address is blurred.</figcaption>
+        </figure>
+      </li>
+      <li>
+        <h4>Capture the request</h4>
+        <p>
+          Clicking resend sends a GraphQL call, <code>POST /graphql/api</code> to
+          <code>api.white.market</code>. Send it to Burp Suite.
+        </p>
+      </li>
+      <li>
+        <h4>Group it and fire in parallel</h4>
+        <p>
+          Duplicate the identical request into a group of roughly a hundred tabs and use
+          Burp's <em>send group in parallel</em> so they all leave together and land in the
+          gap between the limiter's check and its update.
+        </p>
+        <figure>
+          <img src="/assets/img/writeups/whitemarket-email-bombing/02-parallel-group.png"
+               alt="Burp Suite sending a group of about 98 identical resend requests in parallel to api.white.market; the response shown is HTTP 429 Too Many Requests with Retry-After 8. Session cookie and authorization token are blurred.">
+          <figcaption>A group of ~100 identical requests sent in parallel. The limiter does engage and return <code>429</code> with <code>Retry-After: 8</code>, but only after a batch has already gone through. Session cookie and token are blurred.</figcaption>
+        </figure>
+      </li>
+      <li>
+        <h4>Check the inbox</h4>
+        <p>A single parallel batch delivered two dozen verification emails.</p>
+        <figure>
+          <img src="/assets/img/writeups/whitemarket-email-bombing/03-inbox-flood.png"
+               alt="A Gmail inbox row showing 24 grouped White Market email-verification messages received from one batch">
+          <figcaption><strong>24</strong> verification emails from WhiteMarket in one grouped thread, from a single burst.</figcaption>
+        </figure>
+      </li>
+    </ol>
+
+    <h2>Why it matters</h2>
+
+    <p>
+      There is no account takeover or data leak, which is why it is rated Low. The value to
+      an attacker is spam and cost, on demand:
+    </p>
+
+    <ul>
+      <li><strong>Email bombing.</strong> Any verified address can be flooded with dozens of emails per burst, which is a nuisance and a soft denial of service on the inbox.</li>
+      <li><strong>Cost and reputation.</strong> Every message goes out through a paid transactional email service. At volume that runs up a bill, and a flood of mail from <code>white.market</code> risks the domain being flagged as a spam source, which hurts real delivery.</li>
+      <li><strong>Cover for other attacks.</strong> A wall of legitimate-looking emails is a classic way to bury a single important message, a password-reset or a security alert, under notification fatigue.</li>
+    </ul>
+
+    <h2>The fix</h2>
+
+    <p>
+      The counter has to be updated in the same atomic step as the check, so two requests
+      can never both pass on the same allowance:
+    </p>
+
+    <ul>
+      <li><strong>Atomic rate limiting.</strong> Count with an atomic primitive, a Redis <code>INCR</code>/<code>SETNX</code> with TTL or a database advisory lock, so concurrent requests are serialized and counted correctly rather than racing.</li>
+      <li><strong>One in-flight resend per user.</strong> Take a per-user mutex so only one resend can be processing at a time.</li>
+      <li><strong>Server-side cooldown.</strong> After a successful send, enforce a minimum interval before the next is allowed, checked atomically, not just reflected in the UI.</li>
+      <li><strong>Tighten the edge.</strong> The site sits behind Cloudflare, so add stricter per-IP and per-session rate-limit rules at the WAF as a second layer.</li>
+    </ul>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>A limiter that returns 429 is not proof the limit holds. If it fires a beat late, a parallel burst has already slipped through, so always test with parallel requests.</li>
+        <li>Check and increment must be a single atomic operation, or concurrent callers will split them.</li>
+        <li>Low severity still means a real, repeatable cost, spam and reputation vector for the target.</li>
+        <li>Edge rate limiting at a CDN is a useful second layer, but the fix has to live where the counter is.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://hackenproof.com/companies/whitemarket" rel="noopener">WhiteMarket program on HackenProof</a></li>
+        <li><a href="https://owasp.org/www-community/vulnerabilities/Race_Conditions" rel="noopener">OWASP, Race Conditions</a></li>
+        <li><a href="https://portswigger.net/research/smashing-the-state-machine" rel="noopener">PortSwigger, single-packet attack and race conditions in web apps</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">Race Condition</span>
+    <span class="chip">Rate Limit Bypass</span>
+    <span class="chip">Email Bombing</span>
+    <span class="chip">GraphQL</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "whitemarket-email-bombing",
+    title: "Email bombing on WhiteMarket: racing the verification-resend limit"
+  });
+</script>
+
+</body>
+</html>

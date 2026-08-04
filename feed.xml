@@ -32,6 +32,17 @@
       <category>PII</category>
     </item>
     <item>
+      <title>Email bombing on WhiteMarket: racing the verification-resend limit</title>
+      <link>https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</guid>
+      <description>The resend-verification endpoint was rate limited and even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter caught up.</description>
+      <pubDate>Mon, 18 Aug 2025 00:00:00 GMT</pubDate>
+      <category>Race Condition</category>
+      <category>Rate Limit Bypass</category>
+      <category>Email Bombing</category>
+      <category>GraphQL</category>
+    </item>
+    <item>
       <title>Racing the rate limit: unlimited OTP emails on LeveX</title>
       <link>https://m1s0-0.github.io/writeups/posts/levex-otp-race-condition.html</link>
       <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/levex-otp-race-condition.html</guid>

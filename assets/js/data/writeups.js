@@ -63,6 +63,20 @@ const WRITEUPS = [
   },
 
   {
+    slug: "whitemarket-email-bombing",
+    title: "Email bombing on WhiteMarket: racing the verification-resend limit",
+    subtitle: "The resend-verification endpoint was rate limited and even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter caught up.",
+    date: "2025-08-18",
+    category: "web2",
+    tags: ["Race Condition", "Rate Limit Bypass", "Email Bombing", "GraphQL"],
+
+    severity: "Low",
+    platform: "HackenProof",
+    program: "WhiteMarket Web",
+    target: "POST /graphql/api on api.white.market"
+  },
+
+  {
     slug: "levex-otp-race-condition",
     title: "Racing the rate limit: unlimited OTP emails on LeveX",
     subtitle: "The endpoint that sends a one-time code capped how often you could call it, but not atomically. Firing the same request in parallel slipped a burst past the limit and flooded the mailbox.",
