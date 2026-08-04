@@ -5,7 +5,7 @@ Regenerates the brand images in assets/img/.
     python3 scripts/make-images.py
 
 Produces:
-    assets/img/og.png              1200x630 link preview card
+    assets/img/og-v2.png           1200x630 link preview card
     assets/img/favicon-32.png      browser tab
     assets/img/favicon-180.png     apple touch icon
     favicon.ico                    legacy fallback at the repo root
@@ -74,8 +74,8 @@ def make_og():
     f_foot = font(MONO_R, 24)
     d.text((pad, 528), "m1s0-0.github.io", font=f_foot, fill=MUTED)
 
-    im.save(IMG / "og.png", optimize=True)
-    print("wrote", (IMG / "og.png").relative_to(ROOT))
+    im.save(IMG / "og-v2.png", optimize=True)
+    print("wrote", (IMG / "og-v2.png").relative_to(ROOT))
 
 
 # ---------------------------------------------------------------- favicon
