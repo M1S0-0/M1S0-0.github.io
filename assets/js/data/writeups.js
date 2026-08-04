@@ -8,8 +8,7 @@
 
 const CATEGORIES = [
   { key: "web2",     label: "Web2" },
-  { key: "web3",     label: "Web3" },
-  { key: "research", label: "Blockchain Research" }
+  { key: "web3",     label: "Web3" }
 ];
 
 
@@ -96,7 +95,7 @@ const WRITEUPS = [
     title: "The flood limiter that never fires: a DoS in Base's consensus gossip",
     subtitle: "Base's gossip layer caps how many blocks it accepts per height, but it recorded a block only after verifying its signature. Forged-signature blocks were never counted, so the limiter never fired and every one still cost a full ECDSA recovery.",
     date: "2025-08-29",
-    category: "research",
+    category: "web3",
     tags: ["Denial of Service", "Consensus", "Blockchain", "P2P"],
 
     severity: "Medium",
