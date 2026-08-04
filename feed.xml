@@ -97,5 +97,16 @@
       <category>Email Spoofing</category>
       <category>Phishing</category>
     </item>
+    <item>
+      <title>Trapped approvals in Folks Finance Staking: a permit you could grant but never revoke</title>
+      <link>https://m1s0-0.github.io/writeups/posts/folks-finance-irrevocable-permit.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/folks-finance-irrevocable-permit.html</guid>
+      <description>A role check sat on the wrong side of an approval. Once an admin removed a migrator&apos;s role, users could no longer revoke the permit they had given it, leaving a latent authorization over their staked funds that they could not take back.</description>
+      <pubDate>Fri, 08 Aug 2025 00:00:00 GMT</pubDate>
+      <category>Access Control</category>
+      <category>Smart Contract</category>
+      <category>DeFi</category>
+      <category>Griefing</category>
+    </item>
   </channel>
 </rss>

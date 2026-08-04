@@ -78,6 +78,20 @@ const WRITEUPS = [
   },
 
   {
+    slug: "folks-finance-irrevocable-permit",
+    title: "Trapped approvals in Folks Finance Staking: a permit you could grant but never revoke",
+    subtitle: "A role check sat on the wrong side of an approval. Once an admin removed a migrator's role, users could no longer revoke the permit they had given it, leaving a latent authorization over their staked funds that they could not take back.",
+    date: "2025-08-08",
+    category: "web3",
+    tags: ["Access Control", "Smart Contract", "DeFi", "Griefing"],
+
+    severity: "Low",
+    platform: "Immunefi",
+    program: "Folks Finance Staking (Audit Comp)",
+    target: "Staking.sol setMigrationPermit()"
+  },
+
+  {
     slug: "whitemarket-email-bombing",
     title: "Email bombing on WhiteMarket: racing the verification-resend limit",
     subtitle: "The resend-verification endpoint was rate limited and even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter caught up.",

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trapped approvals in Folks Finance Staking: a permit you could grant but never revoke · M1S0</title>
+<meta name="description" content="A role check on the wrong side of an approval meant that once an admin removed a migrator's role, users could no longer revoke the permit they had given it. The approval stuck as true forever, a latent authorization on their staked funds.">
+<meta property="og:title" content="Trapped approvals in Folks Finance Staking: a permit you could grant but never revoke · M1S0">
+<meta property="og:description" content="A role check on the wrong side of an approval meant that once an admin removed a migrator's role, users could no longer revoke the permit they had given it. The approval stuck as true forever, a latent authorization on their staked funds.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/folks-finance-irrevocable-permit.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/folks-finance-irrevocable-permit.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/folks-finance-irrevocable-permit.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/folks-finance-irrevocable-permit.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">Trapped approvals in Folks Finance Staking: a permit you could grant but never revoke</h1>
+  <p class="subtitle">A single role check sat on the wrong side of an approval. Once an admin removed a migrator's role, users could no longer revoke the permit they had handed it, and the approval stayed switched on in storage forever, a quiet authorization over their staked funds that they could not take back.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      Folks Finance runs a staking system where users lock funds and, later, may need to have
+      their position <em>migrated</em>, moved by a trusted address to a new contract, for
+      example during an upgrade. That is powerful, so the design puts users in control: a
+      migrator can only move your position if <em>you</em> have approved it, and you can
+      withdraw that approval whenever you want. This finding is about that withdraw path
+      quietly breaking, exactly when a user would most want to use it. It was submitted to the
+      <a href="https://immunefi.com/audit-competition/audit-comp-folks-finance-staking-contracts/information/" rel="noopener">Immunefi audit competition</a>
+      for the contracts and is
+      <a href="https://reports.immunefi.com/folks-finance-staking-contracts/69382-sc-low-irrevocable-migration-permit-users-cannot-revoke-permit-after-migrator-role-revocation" rel="noopener">publicly disclosed</a>.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/folks-finance-irrevocable-permit/00-report-proof.png"
+           alt="The Immunefi submission #69382 for Folks Finance Staking Contracts: Irrevocable Migration Permit, marked Low, Paid, Audit Competition">
+      <figcaption>Immunefi submission <strong>#69382</strong> on the Folks Finance Staking audit competition: <strong>Low</strong>, paid.</figcaption>
+    </figure>
+
+    <h2>The pieces, in plain terms</h2>
+
+    <ul>
+      <li>A <strong>migrator</strong> is an address the protocol trusts to move staked positions. It holds a role called <code>MIGRATOR_ROLE</code>, which an admin can grant or revoke.</li>
+      <li>A <strong>permit</strong> is a user's personal approval: <code>setMigrationPermit(migrator, true)</code> says "this migrator may move my position," and <code>setMigrationPermit(migrator, false)</code> takes it back.</li>
+      <li>The rule the protocol promises is simple: a migrator cannot move your stake unless <em>you</em> approved it. Your permit is your seatbelt.</li>
+    </ul>
+
+    <h2>The function, and the check in the wrong place</h2>
+
+    <p>
+      Here is the approval function. One line decides everything:
+    </p>
+
+    <pre data-file="src/Staking.sol" data-lang="solidity"><code>function setMigrationPermit(address _migrator, bool _isMigrationPermitted) external {
+    if (!hasRole(MIGRATOR_ROLE, _migrator)) revert MigratorNotFound(_migrator);
+
+    migrationPermits[_migrator][msg.sender] = _isMigrationPermitted;
+    emit MigrationPermitUpdated(_migrator, msg.sender, _isMigrationPermitted);
+}
+</code></pre>
+
+    <p>
+      The check reads: if the target address does not currently hold <code>MIGRATOR_ROLE</code>,
+      revert. That sounds reasonable, and for <em>granting</em> a permit it is: you should not
+      be able to approve an address that is not a real migrator. The mistake is that this check
+      runs on <em>every</em> call, without asking whether the user is granting or revoking. It
+      guards the exit as tightly as the entrance.
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>The trap</strong>
+      <p>
+        When the admin revokes <code>MIGRATOR_ROLE</code> from an address, the check begins to
+        fail for that address, and it fails for <em>both</em> directions. A user who already
+        set their permit to <code>true</code> can no longer set it to <code>false</code>,
+        because the revoke call reverts with <code>MigratorNotFound</code> before it ever
+        reaches the line that would flip the flag. The approval is now stuck on, with no way
+        to switch it off.
+      </p>
+    </div>
+
+    <h2>Why a stuck "true" is dangerous</h2>
+
+    <p>
+      At first glance a dead migrator sounds harmless: if it has no role, it cannot migrate
+      anything anyway. The danger is that the stale approval lives on in storage, waiting. Admins
+      revoke a migrator's role precisely when they no longer trust it, a suspected key
+      compromise being the obvious case. And roles come back:
+    </p>
+
+    <ul>
+      <li>A governance mistake re-grants the role to the same address.</li>
+      <li>A redeployment lands a new contract at the same address (CREATE2), inheriting old approvals.</li>
+      <li>An admin key is compromised and the attacker simply re-grants the role.</li>
+    </ul>
+
+    <p>
+      The moment the role returns to that address, every user who could never revoke is exposed
+      again, and this time the migrator can act on an approval the user has been trying to cancel.
+      It can call <code>migratePositionsFrom(user)</code> and move their staked funds and rewards
+      without their current consent. The user's seatbelt was cut at the one moment it mattered.
+    </p>
+
+    <h2>Walking the attack</h2>
+
+    <ol class="steps">
+      <li><h4>Alice stakes and approves</h4><p>Alice stakes 10 ETH and calls <code>setMigrationPermit(migrator, true)</code>. Her permit is on.</p></li>
+      <li><h4>The admin pulls the role</h4><p>The migrator's key is suspected compromised, so the admin revokes <code>MIGRATOR_ROLE</code> from it.</p></li>
+      <li><h4>Alice tries to protect herself, and can't</h4><p>She calls <code>setMigrationPermit(migrator, false)</code>. It reverts with <code>MigratorNotFound</code>. Her approval is stuck as <code>true</code>.</p></li>
+      <li><h4>The role comes back</h4><p>Later the role is re-granted to the same address. Alice's stale approval is still live.</p></li>
+      <li><h4>Her funds move without consent</h4><p>The migrator calls <code>migratePositionsFrom(alice)</code> and takes her position.</p></li>
+    </ol>
+
+    <h2>Proof of concept</h2>
+
+    <p>
+      The test drops into <code>StakingTest</code> in <code>test/Staking.t.sol</code>. It stakes
+      as Alice, approves the migrator, has the admin revoke the role, shows Alice's revoke call
+      reverting, re-grants the role, and then migrates Alice's funds out from under her.
+    </p>
+
+    <pre data-file="test/Staking.t.sol" data-lang="solidity"><code>function test_Exploit_IrrevocableMigrationPermit() public {
+    // Alice stakes 10 ether and grants the migrator a permit
+    // ... stake setup ...
+    vm.prank(alice);
+    staking.setMigrationPermit(migrator, true);
+    assertEq(staking.migrationPermits(migrator, alice), true);
+
+    // Admin revokes MIGRATOR_ROLE (e.g. key suspected compromised)
+    vm.prank(admin);
+    staking.revokeRole(keccak256("MIGRATOR"), migrator);
+
+    // Alice tries to revoke her permit -> REVERTS, she cannot protect herself
+    vm.prank(alice);
+    vm.expectRevert(abi.encodeWithSelector(IStakingV1.MigratorNotFound.selector, migrator));
+    staking.setMigrationPermit(migrator, false);
+    assertEq(staking.migrationPermits(migrator, alice), true);   // stuck as true
+
+    // Later the role is re-granted to the same address
+    vm.prank(admin);
+    staking.grantRole(keccak256("MIGRATOR"), migrator);
+
+    // The stale permit now lets the migrator take Alice's funds
+    vm.prank(migrator);
+    IStakingV1.UserStake[] memory migrated = staking.migratePositionsFrom(alice);
+    assertEq(migrated[0].amount, 10 ether);
+    assertEq(staking.getUserStakes(alice).length, 0);            // Alice has nothing left
+}
+</code></pre>
+
+    <pre data-file="forge test --mt test_Exploit_IrrevocableMigrationPermit" data-lang="text"><code>[PASS] test_Exploit_IrrevocableMigrationPermit() (gas: 746664)
+Suite result: ok. 1 passed; 0 failed; 0 skipped
+</code></pre>
+
+    <h2>The fix</h2>
+
+    <p>
+      A user must always be able to take back their own approval, whatever the migrator's current
+      status. So the role check belongs only on the granting path, not the revoking one:
+    </p>
+
+    <pre data-file="the fix" data-lang="solidity"><code>function setMigrationPermit(address _migrator, bool _isMigrationPermitted) external {
+    // only require the role when GRANTING; revoking must always succeed
+    if (_isMigrationPermitted &amp;&amp; !hasRole(MIGRATOR_ROLE, _migrator))
+        revert MigratorNotFound(_migrator);
+
+    migrationPermits[_migrator][msg.sender] = _isMigrationPermitted;
+    emit MigrationPermitUpdated(_migrator, msg.sender, _isMigrationPermitted);
+}
+</code></pre>
+
+    <p>
+      Granting still validates that the migrator is real, so nothing gets weaker. Revoking now
+      always goes through, so a user can switch off an old approval at any time, and there is no
+      way to leave a live authorization stranded in storage.
+    </p>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>A precondition that is correct for one direction of a toggle can be a trap on the other. Guard granting, never guard the user's ability to revoke.</li>
+        <li>State that cannot be un-set is a latent risk even when it looks inert. A stale approval is harmless right up until the condition around it changes back.</li>
+        <li>Roles are not permanent. Any logic that keys off "has this role right now" has to behave sanely across the role being revoked and re-granted.</li>
+        <li>Follow the safety mechanism through its worst moment. This permit worked fine until the exact situation, an untrusted migrator, where a user needed to pull it.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://reports.immunefi.com/folks-finance-staking-contracts/69382-sc-low-irrevocable-migration-permit-users-cannot-revoke-permit-after-migrator-role-revocation" rel="noopener">The disclosed report, #69382 on Immunefi</a></li>
+        <li><a href="https://github.com/Folks-Finance/folks-staking-contracts/blob/main/src/Staking.sol" rel="noopener">Folks Finance Staking.sol, the audited contract</a></li>
+        <li><a href="https://immunefi.com/audit-competition/audit-comp-folks-finance-staking-contracts/information/" rel="noopener">The Folks Finance Staking audit competition</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">Access Control</span>
+    <span class="chip">Smart Contract</span>
+    <span class="chip">DeFi</span>
+    <span class="chip">Griefing</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "folks-finance-irrevocable-permit",
+    title: "Trapped approvals in Folks Finance Staking: a permit you could grant but never revoke"
+  });
+</script>
+
+</body>
+</html>
