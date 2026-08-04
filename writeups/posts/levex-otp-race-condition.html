@@ -117,25 +117,36 @@
       <li>
         <h4>Capture the send-code request</h4>
         <p>
-          Send the request to Burp Suite. It is a single call:
+          Send the request to Burp Suite. It is a single call, shown here with the session
+          token and email removed:
         </p>
         <pre data-file="POST /service-user-identity/codes/mail" data-lang="http"><code>POST /service-user-identity/codes/mail HTTP/2
 Host: api100.levex.com
-X-Authorization: &lt;your session JWT&gt;
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://levex.com/en/my/settings/account
+X-Lx-Uuid: 4076083e-8dd0-40a3-2995-286f55cabe08
+X-Lx-Device: WEB
+X-Lx-Request-Tracing: 9c4981ff-20c9-6bf8-a186-dfb17b6117f4
+X-Authorization: [redacted]
 Content-Type: application/json
+Content-Length: 55
+Origin: https://levex.com
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-site
+Priority: u=0
+Te: trailers
 
-{"email":"you@example.com","type":"ThirdAuthUnbind"}
+{"email":"[redacted]","type":"ThirdAuthUnbind"}
 </code></pre>
         <p>
           Under normal use the response returns <code>{"error":null,"result":"OK"}</code> and
           reports headers like <code>X-Capacity: 500</code> with an <code>X-Remaining</code>
           that counts down, so a limiter clearly exists. It just does not survive concurrency.
         </p>
-        <figure>
-          <img src="/assets/img/writeups/levex-otp-race-condition/02-request.png"
-               alt="The captured send-code request in Burp Suite, with the session token and email redacted">
-          <figcaption>The captured request. The session token and email are redacted.</figcaption>
-        </figure>
       </li>
       <li>
         <h4>Fire it in parallel</h4>
