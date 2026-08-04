@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>M1S0 — Security Researcher</title>
+    <title>M1S0 · Security Researcher</title>
     <link>https://m1s0-0.github.io/</link>
     <description>Writeups on vulnerability research, exploitation, and smart contract auditing.</description>
     <language>en</language>

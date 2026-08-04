@@ -14,7 +14,7 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const SITE = "https://m1s0-0.github.io";
 const AUTHOR = "M1S0";
-const TITLE = "M1S0 — Security Researcher";
+const TITLE = "M1S0 · Security Researcher";
 const DESC = "Writeups on vulnerability research, exploitation, and smart contract auditing.";
 
 /* load the data file without a module system */
