@@ -67,9 +67,8 @@ def make_og():
 
     # headline
     f_h1 = font(SANS_B, 78)
-    d.text((pad, 224), "I break things", font=f_h1, fill=FG)
-    d.text((pad, 312), "before someone", font=f_h1, fill=FG)
-    d.text((pad, 400), "else does.", font=f_h1, fill=FG)
+    d.text((pad, 268), "I turn assumptions", font=f_h1, fill=FG)
+    d.text((pad, 356), "into exploits.", font=f_h1, fill=FG)
 
     # footer line
     f_foot = font(MONO_R, 24)
