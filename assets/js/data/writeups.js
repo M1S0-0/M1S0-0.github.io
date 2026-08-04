@@ -49,6 +49,20 @@ const CATEGORIES = [
 const WRITEUPS = [
 
   {
+    slug: "coindepo-idor",
+    title: "IDOR on CoinDepo: reading any user's KYC through a trusted email field",
+    subtitle: "One profile endpoint decided whose data to return from values in the request, not from who was logged in. Any authenticated user could pull another user's full KYC record.",
+    date: "2025-08-20",
+    category: "web2",
+    tags: ["IDOR", "BOLA", "Broken Access Control", "API", "PII"],
+
+    severity: "Critical",
+    platform: "HackenProof",
+    program: "CoinDepo Web & App DualDefense Audit",
+    target: "POST /api/details on app.coindepo.com"
+  },
+
+  {
     slug: "dell-dependency-confusion",
     title: "How I earned a $750 bounty for a dependency confusion attack on Dell",
     subtitle: "A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.",

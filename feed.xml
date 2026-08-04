@@ -6,8 +6,20 @@
     <description>Writeups on vulnerability research, exploitation, and smart contract auditing.</description>
     <language>en</language>
     <managingEditor>M1S0</managingEditor>
-    <lastBuildDate>Sat, 16 Nov 2024 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 20 Aug 2025 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://m1s0-0.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>IDOR on CoinDepo: reading any user&apos;s KYC through a trusted email field</title>
+      <link>https://m1s0-0.github.io/writeups/posts/coindepo-idor.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/coindepo-idor.html</guid>
+      <description>One profile endpoint decided whose data to return from values in the request, not from who was logged in. Any authenticated user could pull another user&apos;s full KYC record.</description>
+      <pubDate>Wed, 20 Aug 2025 00:00:00 GMT</pubDate>
+      <category>IDOR</category>
+      <category>BOLA</category>
+      <category>Broken Access Control</category>
+      <category>API</category>
+      <category>PII</category>
+    </item>
     <item>
       <title>How I earned a $750 bounty for a dependency confusion attack on Dell</title>
       <link>https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html</link>
