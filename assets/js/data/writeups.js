@@ -92,6 +92,20 @@ const WRITEUPS = [
   },
 
   {
+    slug: "base-gossip-flood-limiter-bypass",
+    title: "The flood limiter that never fires: a DoS in Base's consensus gossip",
+    subtitle: "Base's gossip layer caps how many blocks it accepts per height, but it recorded a block only after verifying its signature. Forged-signature blocks were never counted, so the limiter never fired and every one still cost a full ECDSA recovery.",
+    date: "2025-08-29",
+    category: "research",
+    tags: ["Denial of Service", "Consensus", "Blockchain", "P2P"],
+
+    severity: "Medium",
+    platform: "Immunefi",
+    program: "Base Azul (Audit Comp)",
+    target: "base-consensus-gossip block_validity.rs"
+  },
+
+  {
     slug: "whitemarket-email-bombing",
     title: "Email bombing on WhiteMarket: racing the verification-resend limit",
     subtitle: "The resend-verification endpoint was rate limited and even returned 429 under load, but the limit was not atomic. A parallel burst slipped a stack of emails through before the limiter caught up.",

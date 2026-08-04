@@ -34,6 +34,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://m1s0-0.github.io/writeups/posts/base-gossip-flood-limiter-bypass.html</loc>
+    <lastmod>2025-08-29</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</loc>
     <lastmod>2025-08-20</lastmod>
     <priority>0.8</priority>

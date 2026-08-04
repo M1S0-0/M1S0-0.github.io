@@ -65,6 +65,17 @@
       <category>Authenticated Action</category>
     </item>
     <item>
+      <title>The flood limiter that never fires: a DoS in Base&apos;s consensus gossip</title>
+      <link>https://m1s0-0.github.io/writeups/posts/base-gossip-flood-limiter-bypass.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/base-gossip-flood-limiter-bypass.html</guid>
+      <description>Base&apos;s gossip layer caps how many blocks it accepts per height, but it recorded a block only after verifying its signature. Forged-signature blocks were never counted, so the limiter never fired and every one still cost a full ECDSA recovery.</description>
+      <pubDate>Fri, 29 Aug 2025 00:00:00 GMT</pubDate>
+      <category>Denial of Service</category>
+      <category>Consensus</category>
+      <category>Blockchain</category>
+      <category>P2P</category>
+    </item>
+    <item>
       <title>Email bombing on WhiteMarket: racing the verification-resend limit</title>
       <link>https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</link>
       <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</guid>

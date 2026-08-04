@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The flood limiter that never fires: a DoS in Base's consensus gossip · M1S0</title>
+<meta name="description" content="Base's gossip layer caps how many blocks it accepts per height, but it recorded a block only after verifying its signature. Forged-signature blocks were never counted, so the limiter never fired and every one still cost a full ECDSA recovery.">
+<meta property="og:title" content="The flood limiter that never fires: a DoS in Base's consensus gossip · M1S0">
+<meta property="og:description" content="Base's gossip layer caps how many blocks it accepts per height, but it recorded a block only after verifying its signature. Forged-signature blocks were never counted, so the limiter never fired and every one still cost a full ECDSA recovery.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/base-gossip-flood-limiter-bypass.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/base-gossip-flood-limiter-bypass.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/base-gossip-flood-limiter-bypass.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/base-gossip-flood-limiter-bypass.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">The flood limiter that never fires: a DoS in Base's consensus gossip</h1>
+  <p class="subtitle">Base's gossip layer caps how many blocks a node will accept per height, to stop flooding. But it only recorded a block <em>after</em> checking its signature, so blocks with forged signatures were never counted. The limiter guarded a list the attack never filled, and every junk block still cost a full ECDSA recovery.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      Blockchain nodes do not talk to one point of authority; they gossip. Every node relays
+      new blocks to its peers, who relay them onward, and that is how a block reaches the whole
+      network in seconds. Anything that whole peers can send you freely is also something a
+      malicious peer can abuse, so the code that receives gossiped blocks needs a flood limiter:
+      a cap on how much junk one peer can make you chew on. Base has such a limiter. This finding
+      is about it quietly not working against exactly the traffic it was built to stop. It was
+      submitted to the
+      <a href="https://immunefi.com/audit-competition/audit-comp-base-azul/information/" rel="noopener">Base Azul audit competition</a>
+      and selected as the lead report.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/base-gossip-flood-limiter-bypass/00-report-proof.png"
+           alt="The Immunefi submission #74849 for Base Azul: P2P Gossip Flood Limiter Bypass via Invalid-Signature Block Spam, marked Medium, Paid, Audit Competition, Chief Finding">
+      <figcaption>Immunefi submission <strong>#74849</strong> on the Base Azul audit competition: <strong>Medium</strong>, paid, and marked a <strong>Chief Finding</strong>.</figcaption>
+    </figure>
+
+    <h2>The two moving parts</h2>
+
+    <ul>
+      <li>
+        <strong>The flood limiter.</strong> For each block height, the validator keeps a small
+        set of the block hashes it has already seen, <code>seen_hashes</code>, and refuses to
+        accept more than a handful of distinct blocks at that height
+        (<code>MAX_BLOCKS_TO_KEEP = 5</code>). The idea is that a peer cannot make you process
+        an endless stream of different blocks all claiming the same height.
+      </li>
+      <li>
+        <strong>The signature check.</strong> A real block is signed by the sequencer, and the
+        node verifies that with an <strong>ECDSA recovery</strong> (<code>ecrecover</code>).
+        That operation is deliberately expensive, it is elliptic-curve maths, and doing a lot
+        of them is exactly the cost you do not want an attacker to be able to force.
+      </li>
+    </ul>
+
+    <h2>The order the checks ran in</h2>
+
+    <p>
+      Here is the shape of the validator. Watch where the map actually gets written:
+    </p>
+
+    <pre data-file="crates/consensus/gossip/src/block_validity.rs" data-lang="rust"><code>if let Some(seen_hashes_at_height) =
+    self.seen_hashes.get_mut(&amp;envelope.payload.block_number())
+{
+    // flood limiter: reads seen_hashes...
+    if seen_hashes_at_height.len() &gt; Self::MAX_BLOCKS_TO_KEEP {
+        return Err(BlockInvalidError::TooManyBlocks { .. });
+    }
+    if seen_hashes_at_height.contains(&amp;envelope.payload.block_hash()) {
+        return Err(BlockInvalidError::BlockSeen { .. });
+    }
+}
+
+// ...then the expensive signature check runs here
+let Ok(msg_signer) = envelope.signature.recover_address_from_prehash(&amp;msg) else {
+    return Err(BlockInvalidError::Signature);
+};
+if msg_signer != block_signer {
+    return Err(BlockInvalidError::Signer { .. });
+}
+
+// ...and only a VALID block is ever recorded in seen_hashes
+self.seen_hashes
+    .entry(envelope.payload.block_number())
+    .or_default()
+    .insert(envelope.payload.block_hash());</code></pre>
+
+    <div class="callout callout-danger">
+      <strong>The limiter guards a list the attack never fills</strong>
+      <p>
+        The flood limiter reads <code>seen_hashes</code>, but the line that <em>writes</em> to
+        <code>seen_hashes</code> sits after the signature check and only runs on success. A
+        forged-signature block fails and returns before that write, so it is never recorded.
+        Send a stream of blocks that all have unique hashes and garbage signatures, and
+        <code>seen_hashes</code> stays empty for every one of them. The counter the limiter
+        checks never moves, so <code>TooManyBlocks</code> never triggers, and the node keeps
+        running a full <code>ecrecover</code> on every message forever.
+      </p>
+    </div>
+
+    <p>
+      In one sentence: the guard and the state that makes the guard work are separated by the
+      exact expensive operation the guard was meant to protect. Legitimate blocks get counted
+      and capped; the attacker's blocks fail earlier and are never counted, so for them the cap
+      does not exist.
+    </p>
+
+    <h2>Proof of concept</h2>
+
+    <p>
+      The test sends ten times the cap in forged-signature blocks at a single height and checks
+      what the validator did with them.
+    </p>
+
+    <pre data-file="crates/consensus/gossip/src/block_validity.rs (tests)" data-lang="rust"><code>#[test]
+fn test_invalid_signature_blocks_bypass_flood_limiter() {
+    let mut handler = /* ... BlockHandler for base-mainnet ... */;
+
+    let target_height = 12345_u64;
+    let spam_count = BlockHandler::MAX_BLOCKS_TO_KEEP * 10;   // 50
+    let mut signature_errors = 0usize;
+    let mut flood_errors = 0usize;
+
+    for _ in 0..spam_count {
+        // a uniquely-hashed block at the same height, with a junk signature
+        let envelope = forged_envelope_at(target_height);
+        match handler.block_valid(&amp;envelope) {
+            Err(BlockInvalidError::Signer { .. })       =&gt; signature_errors += 1,
+            Err(BlockInvalidError::TooManyBlocks { .. }) =&gt; flood_errors += 1,
+            _ =&gt; {}
+        }
+    }
+
+    assert_eq!(signature_errors, spam_count);   // all 50 rejected on signature
+    assert_eq!(flood_errors, 0);                // the flood limiter NEVER fires
+    assert!(handler.seen_hashes.is_empty());    // and nothing was ever recorded
+}</code></pre>
+
+    <pre data-file="cargo test -p base-consensus-gossip" data-lang="text"><code>running 1 test
+test block_validity::tests::test_invalid_signature_blocks_bypass_flood_limiter ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; finished in 6.99s</code></pre>
+
+    <p>
+      All fifty blocks are rejected on the signature, <code>TooManyBlocks</code> is raised zero
+      times, and <code>seen_hashes</code> stays empty. The limiter is fully bypassed, and the
+      node has done fifty expensive recoveries for nothing. Scale that to a real gossip stream
+      and it is sustained, unbounded CPU load on the target, which is what maps this to the
+      program's Medium bar: raising a node's resource consumption without brute force.
+    </p>
+
+    <h2>The fix</h2>
+
+    <p>
+      Count the block before you spend the expensive operation on it. Move the write into
+      <code>seen_hashes</code> ahead of the signature check, so every unique hash, valid or
+      forged, is tracked and counted against the per-height cap:
+    </p>
+
+    <pre data-file="the fix" data-lang="rust"><code>// record the block FIRST, so the flood limiter sees all traffic
+self.seen_hashes
+    .entry(envelope.payload.block_number())
+    .or_default()
+    .insert(envelope.payload.block_hash());
+
+// ...then run the expensive signature check
+let Ok(msg_signer) = envelope.signature.recover_address_from_prehash(&amp;msg) else {
+    return Err(BlockInvalidError::Signature);
+};</code></pre>
+
+    <p>
+      Now a burst of unique forged hashes fills the per-height set and trips
+      <code>TooManyBlocks</code> just as it would for real blocks, and the attacker can no longer
+      make the node recover signatures without limit.
+    </p>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>A rate limiter is only as good as when it updates its counter. If the counter is written after the expensive work, the expensive work is not rate limited.</li>
+        <li>Do the cheap rejection before the costly one. Counting a hash is nearly free; an <code>ecrecover</code> is not, so the cap has to come first.</li>
+        <li>Guards fail silently when the state they read is populated somewhere the attack never reaches. Trace who writes the data your check depends on.</li>
+        <li>Denial of service on a node is not just downtime; forcing everyone's nodes to burn CPU is a cheap, unauthenticated way to degrade a whole network.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://github.com/base/base/tree/v0.8.0-rc.24" rel="noopener">base/base, the reviewed source (v0.8.0-rc.24)</a></li>
+        <li><a href="https://immunefi.com/audit-competition/audit-comp-base-azul/information/" rel="noopener">The Base Azul audit competition</a></li>
+        <li><a href="https://cwe.mitre.org/data/definitions/407.html" rel="noopener">CWE-407, inefficient algorithmic complexity / resource exhaustion</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">Denial of Service</span>
+    <span class="chip">Consensus</span>
+    <span class="chip">Blockchain</span>
+    <span class="chip">P2P</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "base-gossip-flood-limiter-bypass",
+    title: "The flood limiter that never fires: a DoS in Base's consensus gossip"
+  });
+</script>
+
+</body>
+</html>
