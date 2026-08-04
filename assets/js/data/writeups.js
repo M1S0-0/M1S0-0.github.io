@@ -92,6 +92,19 @@ const WRITEUPS = [
   },
 
   {
+    slug: "smtp-open-relay-spoofing",
+    title: "Sending mail as Microsoft: an open SMTP relay on port 25",
+    subtitle: "A mail server accepted email from anyone, addressed to anyone, claiming to be anyone, with no login. An open relay that turns one forgotten server into a phishing engine.",
+    date: "2025-08-10",
+    category: "web2",
+    tags: ["SMTP", "Open Relay", "Email Spoofing", "Phishing"],
+
+    severity: "Low",
+    platform: "Bugcrowd",
+    target: "Open SMTP relay, port 25"
+  },
+
+  {
     slug: "levex-otp-race-condition",
     title: "Racing the rate limit: unlimited OTP emails on LeveX",
     subtitle: "The endpoint that sends a one-time code capped how often you could call it, but not atomically. Firing the same request in parallel slipped a burst past the limit and flooded the mailbox.",

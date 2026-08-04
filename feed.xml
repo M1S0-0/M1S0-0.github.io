@@ -75,5 +75,16 @@
       <category>OTP</category>
       <category>API</category>
     </item>
+    <item>
+      <title>Sending mail as Microsoft: an open SMTP relay on port 25</title>
+      <link>https://m1s0-0.github.io/writeups/posts/smtp-open-relay-spoofing.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/smtp-open-relay-spoofing.html</guid>
+      <description>A mail server accepted email from anyone, addressed to anyone, claiming to be anyone, with no login. An open relay that turns one forgotten server into a phishing engine.</description>
+      <pubDate>Sun, 10 Aug 2025 00:00:00 GMT</pubDate>
+      <category>SMTP</category>
+      <category>Open Relay</category>
+      <category>Email Spoofing</category>
+      <category>Phishing</category>
+    </item>
   </channel>
 </rss>

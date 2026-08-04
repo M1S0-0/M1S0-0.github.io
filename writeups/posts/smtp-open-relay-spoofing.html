@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sending mail as Microsoft: an open SMTP relay on port 25 · M1S0</title>
+<meta name="description" content="A mail server on port 25 accepted mail from anyone, claiming to be anyone, with no login. That is an open relay, and it turns one server into a phishing engine that can impersonate any brand.">
+<meta property="og:title" content="Sending mail as Microsoft: an open SMTP relay on port 25 · M1S0">
+<meta property="og:description" content="A mail server on port 25 accepted mail from anyone, claiming to be anyone, with no login. That is an open relay, and it turns one server into a phishing engine that can impersonate any brand.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/smtp-open-relay-spoofing.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/smtp-open-relay-spoofing.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/smtp-open-relay-spoofing.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/smtp-open-relay-spoofing.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">Sending mail as Microsoft: an open SMTP relay on port 25</h1>
+  <p class="subtitle">A mail server was found accepting email from anyone, addressed to anyone, claiming to be anyone, with no login at all. That is an open relay, and it quietly turns one forgotten server into a phishing engine.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      A port scan turned up a mail server listening on port 25, the plain SMTP port. That by
+      itself is normal. What was not normal is what it agreed to do: it accepted an email
+      from a sender I made up, addressed to a recipient it did not host, and delivered it,
+      without ever asking me to log in. In other words, an <strong>open relay</strong>. I
+      could hand it a message that claimed to be from <code>support@microsoft.com</code> and
+      it would pass it along as if that were true. Reported through a bug bounty program, and
+      resolved.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/smtp-open-relay-spoofing/00-report-proof.png"
+           alt="A Bugcrowd submission titled SMTP Spoofing via Open Mail Relay Port 25, with status Resolved and a note that the submission has been fixed. The target and reward are redacted.">
+      <figcaption>The submission: <strong>SMTP Spoofing via Open Mail Relay</strong>, <strong>Resolved</strong> and fixed. Target and reward are redacted.</figcaption>
+    </figure>
+
+    <h2>What an open relay is, in plain terms</h2>
+
+    <p>
+      Email moves between servers over a simple text protocol called SMTP. When a server
+      receives a message, it should ask one of two questions before it agrees to send it on:
+    </p>
+
+    <ul>
+      <li><strong>Are you one of mine?</strong> That is, are you an authenticated user of this server, allowed to send mail through it?</li>
+      <li><strong>Is this for me?</strong> That is, is the message addressed to a domain this server actually hosts?</li>
+    </ul>
+
+    <p>
+      If neither is true, the server should refuse. A server that answers "sure, go ahead"
+      to strangers sending mail to strangers is an <strong>open relay</strong>. It is a free,
+      already-trusted machine that anyone can launder mail through, and it is exactly what
+      spammers and phishers hunt for.
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>The part that makes it spoofing</strong>
+      <p>
+        In SMTP, the "from" address is just a claim the sender types in. Nothing about the
+        protocol proves it. It is the receiving server's job to decide whether to believe it.
+        An open relay believes all of it, so I can put <code>support@microsoft.com</code> in
+        the from line and the server will carry that message as if Microsoft sent it.
+      </p>
+    </div>
+
+    <h2>Proving it with swaks</h2>
+
+    <p>
+      <a href="https://github.com/jetmore/swaks" rel="noopener">swaks</a> is a small tool
+      that speaks SMTP for you, so the whole test is one line: send a message to a recipient,
+      from a made-up sender, through the target server. The transcript below has the specific
+      server and recipient replaced with placeholders; everything else is exactly what the
+      server said back.
+    </p>
+
+    <pre data-file="terminal" data-lang="bash"><code>$ swaks --to admin@example.net --from support@microsoft.com --server &lt;relay&gt;
+
+=== Trying &lt;relay&gt;:25...
+=== Connected to &lt;relay&gt;.
+&lt;-  220 mail.example.net ESMTP service ready
+ -&gt; EHLO kali
+&lt;-  250-mail.example.net says hello
+&lt;-  250-AUTH CRAM-MD5
+&lt;-  250 DSN
+ -&gt; MAIL FROM:support@microsoft.com
+&lt;-  250 2.1.0 MAIL ok                     # the forged sender is accepted
+ -&gt; RCPT TO:admin@example.net
+&lt;-  250 2.1.5 admin@example.net ok        # a recipient it does not host, accepted
+ -&gt; DATA
+&lt;-  354 send message
+ -&gt; Subject: test
+ -&gt; From: support@microsoft.com
+ -&gt; This is a test mailing
+ -&gt; .
+&lt;-  250 2.6.0 message received            # delivered
+ -&gt; QUIT
+&lt;-  221 2.0.0 mail.example.net says goodbye</code></pre>
+
+    <p>
+      Every step the server should have stopped, it waved through. It never asked me to
+      authenticate. It accepted a <code>MAIL FROM</code> of a domain I have no relationship
+      with. It accepted a recipient it does not host. And it delivered the message. Swap
+      <code>microsoft.com</code> for a bank, a government office, or the target's own domain,
+      and you have a convincing phishing email sent from a real, reputable-looking server.
+    </p>
+
+    <h2>Why it matters</h2>
+
+    <ul>
+      <li><strong>Impersonation of any brand.</strong> The from address can be anyone. Mail that appears to come from a trusted name is the single most effective ingredient in phishing.</li>
+      <li><strong>It launders reputation.</strong> The mail leaves a real server rather than an obviously shady one, which helps it slip past filters and past the reader's suspicion.</li>
+      <li><strong>Supply-chain reach.</strong> Impersonating a vendor lets an attacker target that vendor's customers and partners, not just random inboxes.</li>
+      <li><strong>Collateral damage to the host.</strong> A relay used for spam gets its IP and domain blacklisted, which quietly breaks legitimate mail from that server too.</li>
+    </ul>
+
+    <h2>But doesn't SPF, DKIM and DMARC stop this?</h2>
+
+    <p>
+      Those three are the standard defences against email spoofing, and they are worth
+      knowing in one line each. <strong>SPF</strong> lets a domain publish which servers are
+      allowed to send its mail. <strong>DKIM</strong> cryptographically signs a message so a
+      receiver can verify it was not tampered with. <strong>DMARC</strong> ties the two
+      together and tells receivers what to do when a message fails, up to rejecting it.
+    </p>
+
+    <p>
+      The catch is that all three are checked by the <em>receiving</em> side. They help only
+      when the receiving mail systems actually enforce them, and plenty do not enforce them
+      strictly. An open relay is a problem on the <em>sending</em> side, and it hands an
+      attacker a working launch pad regardless. The relay is the hole to close; the three
+      standards are the safety net that should catch whatever gets through.
+    </p>
+
+    <h2>The fix</h2>
+
+    <ul>
+      <li><strong>Require authentication to relay.</strong> The server should never forward mail for external domains from an unauthenticated sender. This alone closes the relay.</li>
+      <li><strong>Only accept mail you host or that your users send.</strong> Enforce the two questions from the top on every message.</li>
+      <li><strong>Publish and enforce SPF, DKIM and DMARC</strong> for your domains, so receivers can reject forgeries of you.</li>
+      <li><strong>Do not leave port 25 open to the world,</strong> and monitor the mail logs for the burst of odd senders that flags relay abuse.</li>
+    </ul>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>A mail server on an open port is fine; a mail server that relays for strangers is a phishing engine.</li>
+        <li>The SMTP from address is an unverified claim. If nothing checks it, anyone can be anyone.</li>
+        <li>SPF, DKIM and DMARC are receiver-side safety nets. The open relay itself is the bug, and it has to be closed at the server.</li>
+        <li>Test a mail server the lazy attacker's way: one <code>swaks</code> line with a forged sender tells you immediately whether it relays.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://github.com/jetmore/swaks" rel="noopener">swaks, the SMTP test tool</a></li>
+        <li><a href="https://datatracker.ietf.org/doc/html/rfc2505" rel="noopener">RFC 2505, anti-spam recommendations for SMTP MTAs (open relay guidance)</a></li>
+        <li><a href="https://dmarc.org/overview/" rel="noopener">DMARC overview (with SPF and DKIM)</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">SMTP</span>
+    <span class="chip">Open Relay</span>
+    <span class="chip">Email Spoofing</span>
+    <span class="chip">Phishing</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "smtp-open-relay-spoofing",
+    title: "Sending mail as Microsoft: an open SMTP relay on port 25"
+  });
+</script>
+
+</body>
+</html>
