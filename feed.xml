@@ -6,8 +6,19 @@
     <description>Writeups on vulnerability research, exploitation, and smart contract auditing.</description>
     <language>en</language>
     <managingEditor>M1S0</managingEditor>
-    <lastBuildDate>Wed, 20 Aug 2025 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 01 Sep 2025 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://m1s0-0.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Share price manipulation in CarthaVault through an in-flight deposit</title>
+      <link>https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html</guid>
+      <description>The vault priced new shares against a total value that briefly dropped while its assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.</description>
+      <pubDate>Mon, 01 Sep 2025 00:00:00 GMT</pubDate>
+      <category>Share Price Manipulation</category>
+      <category>DeFi</category>
+      <category>Vault</category>
+      <category>Smart Contract</category>
+    </item>
     <item>
       <title>IDOR on CoinDepo: reading any user&apos;s KYC through a trusted email field</title>
       <link>https://m1s0-0.github.io/writeups/posts/coindepo-idor.html</link>

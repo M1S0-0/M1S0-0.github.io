@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Share price manipulation in CarthaVault through an in-flight deposit · M1S0</title>
+<meta name="description" content="The vault priced new shares against a total value that briefly dropped while assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.">
+<meta property="og:title" content="Share price manipulation in CarthaVault through an in-flight deposit · M1S0">
+<meta property="og:description" content="The vault priced new shares against a total value that briefly dropped while assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/carthavault-share-manipulation.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/carthavault-share-manipulation.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/carthavault-share-manipulation.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">Share price manipulation in CarthaVault through an in-flight deposit</h1>
+  <p class="subtitle">The vault priced new shares against a total value that briefly dropped while its assets were in transit to an external pool. Any depositor could deposit inside that window, mint hugely inflated shares, and take value straight from existing holders.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      CarthaVault is a yield vault. Users deposit USDC and receive vault shares that
+      represent their slice of the pool. To earn yield, the vault does not sit on idle USDC:
+      a keeper deploys it into an external 0xMarkets (0xM) pool, which is built on the
+      GMX v2 design. The bug is in how the vault values a new deposit during the short window
+      when its money has left for that pool but has not yet come back as pool tokens.
+    </p>
+
+    <p>
+      During that window the vault thinks it is worth far less than it really is. Because
+      share price is derived from that value, a deposit made in the window mints far too many
+      shares. When the assets settle and the value recovers, those extra shares quietly claim
+      a slice of everyone else's money. It was reported to the 0xMarkets Audit Contest on
+      HackenProof, rated High, and resolved.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/carthavault-share-manipulation/00-report-proof.png"
+           alt="The HackenProof report ZEROMARK-125 on the 0xMarkets Audit Contest: state Resolved, severity High, with M1S0 as the verified author">
+      <figcaption>The report on the 0xMarkets Audit Contest, ZEROMARK-125: <strong>Resolved</strong>, severity <strong>High</strong>.</figcaption>
+    </figure>
+
+    <h2>How a vault prices its shares</h2>
+
+    <p>
+      A vault share is a claim on a fraction of the pool. When you deposit, the vault has to
+      decide how many shares to give you, and it does that by comparing your deposit to the
+      pool's total value:
+    </p>
+
+    <pre data-file="the share formula" data-lang="text"><code>shares minted = deposit amount * total shares / total value locked
+</code></pre>
+
+    <p>
+      The important part is the divisor. The <em>smaller</em> the vault's total value at the
+      moment you deposit, the <em>more</em> shares your deposit buys. So if the vault ever
+      reports a total value that is lower than the truth, whoever deposits at that instant is
+      handed more shares than they paid for, and everyone else's slice shrinks to make room.
+    </p>
+
+    <h2>The value the vault reports</h2>
+
+    <p>
+      The vault's total value comes from one function:
+    </p>
+
+    <pre data-file="src/CarthaVault.sol (around line 938)" data-lang="solidity"><code>function _totalValueLocked() internal view returns (uint256) {
+    return IERC20($.asset).balanceOf(address(this)) + _gmValueInUsdc($);
+}
+</code></pre>
+
+    <p>
+      It adds up two live balances: the USDC the vault is currently holding, plus the current
+      value of the GM pool tokens it is currently holding. On its own that looks right. The
+      problem appears only when those two balances are briefly out of sync.
+    </p>
+
+    <h2>The in-flight window</h2>
+
+    <p>
+      Depositing into a 0xM pool is not instant. It happens in two separate transactions, in
+      two different blocks, because pricing the deposit needs fresh oracle prices that a
+      keeper supplies later. This is the GMX v2 model:
+    </p>
+
+    <ul>
+      <li><strong>Step one:</strong> a request is created and the input USDC is sent to the pool's deposit vault. The keeper's <code>deployToPool()</code> does this, through <code>PoolDeployLib.deploy</code>.</li>
+      <li><strong>Step two:</strong> a separate keeper transaction, in a later block, prices the deposit and mints the GM pool tokens back to the vault.</li>
+    </ul>
+
+    <p>
+      Between those two steps there is a multi-block gap. The USDC has already left the vault,
+      but the GM tokens have not arrived yet. So for the length of that gap, both terms of
+      <code>_totalValueLocked()</code> miss the deployed money: the USDC is gone from the
+      balance, and the GM value is still zero.
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>The flaw</strong>
+      <p>
+        During the in-flight window, <code>_totalValueLocked()</code> is undercounted by
+        exactly the amount that was deployed. The vault temporarily believes it is worth much
+        less than it is. This is not an oracle problem: the GM price the oracle reports is
+        correct. The mistake is internal, in how the vault values deposits made while its own
+        assets are in transit.
+      </p>
+    </div>
+
+    <h2>Turning the undercount into theft</h2>
+
+    <p>
+      <code>depositAndLock()</code> is permissionless: anyone can call it, with no special
+      role. It mints shares with the formula above, dividing by the undercounted total value.
+      An attacker who deposits during the window divides by the shrunken number and receives a
+      hugely inflated pile of shares. When step two completes and the value recovers, those
+      inflated shares now represent a disproportionate claim on the pool, and that extra claim
+      is paid for out of the existing depositors' principal.
+    </p>
+
+    <p>
+      Concretely, from the proof of concept:
+    </p>
+
+    <ul>
+      <li>A victim deposits <strong>1,000,000 USDC</strong> and gets shares at par.</li>
+      <li>The keeper deploys <strong>900,000 USDC</strong> to the 0xM pool. The vault's reported value drops to 100,000 while the pool really still holds about 1,000,000.</li>
+      <li>Before the GM tokens arrive, the attacker deposits <strong>100,000 USDC</strong> and, dividing by that 100,000 value, receives the <em>same number of shares the victim got for 1,000,000</em>.</li>
+      <li>The GM tokens settle and the value recovers. The attacker now controls <strong>550,000 USDC</strong> of pool value for a 100,000 outlay, and the victim is left with <strong>550,000</strong> of the 1,000,000 they put in.</li>
+    </ul>
+
+    <p>
+      The attacker more than tripled their money and the victim lost 450,000, with no special
+      privileges. The inflated shares persist past the window, so the gain is realised at a
+      normal withdrawal once the lock and cooldown pass.
+    </p>
+
+    <h2>Why the window is real, not a test artifact</h2>
+
+    <p>
+      A fair objection is that the proof of concept uses the repository's own mock for the
+      external 0xM system, so maybe the window only exists in the test. It does not. The
+      two-step deposit is a property of the real GMX v2 architecture: creating a deposit and
+      executing it are always different transactions in different blocks, because execution
+      needs fresh keeper-supplied oracle prices. <code>PoolDeployLib.deploy</code> performs
+      only the first step, so the real vault genuinely holds neither the USDC nor the GM
+      tokens for the duration of the gap.
+    </p>
+
+    <p>
+      Nor does the attack need a rare trigger. Deploying idle USDC into pools is the core,
+      continuous job of the protocol, and withdrawals recall funds the same way, producing the
+      same undercount in the opposite direction. These windows open routinely during normal
+      operation. An attacker only has to watch the public <code>deployToPool</code> transaction
+      and submit a permissionless <code>depositAndLock</code> before it executes, which a
+      simple monitoring bot manages easily across the multi-block window. By default
+      <code>maxDeployRatioBps</code> is 0, which disables the deploy cap, so the keeper can
+      deploy up to 100% of the value and maximise the undercount.
+    </p>
+
+    <h2>Proof of concept</h2>
+
+    <p>
+      The test sets the mock 0xM oracle to a 1:1 GM price, has a victim deposit 1,000,000 USDC,
+      deploys 900,000 <em>without</em> executing the deposit to model the in-flight window,
+      then has the attacker deposit 100,000 in that window before executing the deposit and
+      measuring each party's final claim. Append it inside <code>CarthaVaultPoolTest</code> in
+      <code>test/vault/CarthaVaultPool.t.sol</code> and run it:
+    </p>
+
+    <pre data-file="test/vault/CarthaVaultPool.t.sol" data-lang="solidity"><code>function testPocExploit() public {
+    address victim   = address(0x1C71);
+    address attacker = address(0xA77AC);
+
+    // wire the mock 0xM reader + oracle at a 1:1 GM price
+    Mock0xMReader reader = new Mock0xMReader();
+    Mock0xMOracle oracle = new Mock0xMOracle();
+    reader.setMarket(I0xMReader.MarketProps({
+        marketToken: address(gmToken), indexToken: address(0xB7C),
+        longToken: address(0xB7C), shortToken: address(usdc)
+    }));
+    reader.setMarketTokenPrice(int256(1e30));
+    oracle.setPrice(address(0xB7C), 50_000e30, 50_000e30);
+    oracle.setPrice(address(usdc), 1e30, 1e30);
+
+    vm.startPrank(admin);
+    CarthaVault(address(vault)).setReader(address(reader));
+    CarthaVault(address(vault)).setDataStore(address(0xDA7A));
+    CarthaVault(address(vault)).setOracle(address(oracle));
+    vm.stopPrank();
+
+    // victim deposits 1,000,000 USDC at par
+    uint256 victimDeposit = 1_000_000e6;
+    _depositAndLock(victim, victimDeposit, LOCK_DAYS);
+    uint256 victimShares = CarthaVault(address(vault)).balanceOf(victim);
+    assertEq(vault.totalValueLocked(), victimDeposit, "TVL = 1M before deploy");
+
+    // keeper deploys 900k, but the 0xM deposit is NOT executed yet: in-flight window
+    vm.prank(keeperBot);
+    bytes32 depositKey = vault.deployToPool(900_000e6, 0);
+    assertEq(usdc.balanceOf(address(vault)), 100_000e6, "vault USDC down to 100k");
+    assertEq(gmToken.balanceOf(address(vault)), 0,       "GM tokens not arrived yet");
+    assertEq(vault.totalValueLocked(), 100_000e6,        "TVL undercounted to 100k");
+
+    // attacker deposits 100k in the window and gets victim-equal shares
+    _depositAndLock(attacker, 100_000e6, LOCK_DAYS);
+    uint256 attackerShares = CarthaVault(address(vault)).balanceOf(attacker);
+    assertEq(attackerShares, victimShares, "attacker got victim-equal shares for 1/10 the price");
+
+    // GM tokens settle, value recovers
+    exchangeRouter.executeDeposit(depositKey, address(usdc));
+
+    uint256 tvl = vault.totalValueLocked();
+    uint256 supply = CarthaVault(address(vault)).totalSupply();
+    uint256 victimValue   = (victimShares   * tvl) / supply;
+    uint256 attackerValue = (attackerShares * tvl) / supply;
+
+    assertGt(attackerValue, 100_000e6 * 3, "attacker more than tripled their money");
+    assertLt(victimValue, victimDeposit,   "victim lost principal to the attacker");
+}
+</code></pre>
+
+    <p>The result, in raw units (USDC has 6 decimals, so 1000000000000 = 1,000,000 USDC):</p>
+
+    <pre data-file="forge test --match-test testPocExploit -vvv" data-lang="text"><code>[PASS] testPocExploit() (gas: 1418408)
+Logs:
+  Victim deposited   : 1000000000000     (1,000,000 USDC)
+  Victim value now   :  550000000000     (  550,000 USDC)
+  Attacker deposited :  100000000000     (  100,000 USDC)
+  Attacker value now :  550000000000     (  550,000 USDC)
+  Victim loss        :  450000000000     (  450,000 USDC)
+  Attacker profit    :  450000000000     (  450,000 USDC)
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped
+</code></pre>
+
+    <h2>The fix</h2>
+
+    <p>
+      The rule is simple: never price a new deposit against a total value that omits assets
+      that are only temporarily out of the building.
+    </p>
+
+    <ul>
+      <li><strong>Count the in-flight amount.</strong> Record the USDC that has been sent to 0xM but not yet converted to GM tokens, and add that pending amount into <code>_totalValueLocked()</code> until the GM tokens arrive. Set it in <code>deployToPool</code>, clear it when the GM balance lands.</li>
+      <li><strong>Or pause deposits while a deploy is in flight,</strong> so no one can be priced against the undercounted value.</li>
+      <li><strong>Or quote deposits against a settled value snapshot</strong> that an undelivered deploy cannot move.</li>
+    </ul>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>Any vault that values shares from a live balance is exposed whenever that balance can be momentarily wrong, and asynchronous external protocols create exactly those moments.</li>
+        <li>A smaller reported total value mints more shares, so an undercount is not a display bug, it is free money for whoever deposits during it.</li>
+        <li>The two-step GMX v2 deposit guarantees a multi-block window where funds are neither here nor there. Account for in-flight assets explicitly.</li>
+        <li>The oracle was correct throughout. The bug was in the vault's own accounting, which is where these are easy to miss.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://github.com/hackenproof-public/cartha-vaults" rel="noopener">cartha-vaults, the audited repository</a></li>
+        <li><a href="https://docs.openzeppelin.com/contracts/5.x/erc4626#inflation-attack" rel="noopener">OpenZeppelin, ERC-4626 and share-inflation attacks</a></li>
+        <li><a href="https://docs.gmx.io/docs/trading/v2/" rel="noopener">GMX v2, the two-step deposit model 0xM follows</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">Share Price Manipulation</span>
+    <span class="chip">DeFi</span>
+    <span class="chip">Vault</span>
+    <span class="chip">Smart Contract</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "carthavault-share-manipulation",
+    title: "Share price manipulation in CarthaVault through an in-flight deposit"
+  });
+</script>
+
+</body>
+</html>

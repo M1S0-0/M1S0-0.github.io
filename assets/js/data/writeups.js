@@ -49,6 +49,20 @@ const CATEGORIES = [
 const WRITEUPS = [
 
   {
+    slug: "carthavault-share-manipulation",
+    title: "Share price manipulation in CarthaVault through an in-flight deposit",
+    subtitle: "The vault priced new shares against a total value that briefly dropped while its assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.",
+    date: "2025-09-01",
+    category: "web3",
+    tags: ["Share Price Manipulation", "DeFi", "Vault", "Smart Contract"],
+
+    severity: "High",
+    platform: "HackenProof",
+    program: "0xMarkets Audit Contest",
+    target: "CarthaVault.sol _totalValueLocked()"
+  },
+
+  {
     slug: "coindepo-idor",
     title: "IDOR on CoinDepo: reading any user's KYC through a trusted email field",
     subtitle: "One profile endpoint decided whose data to return from values in the request, not from who was logged in. Any authenticated user could pull another user's full KYC record.",
