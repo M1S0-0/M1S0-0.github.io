@@ -54,6 +54,17 @@
       <category>npm</category>
     </item>
     <item>
+      <title>One link to unlink: a CSRF in OpenAI&apos;s Discord verification</title>
+      <link>https://m1s0-0.github.io/writeups/posts/openai-discord-csrf-unlink.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/openai-discord-csrf-unlink.html</guid>
+      <description>An unlink action on OpenAI&apos;s Discord verification service ran on a plain GET with no anti-CSRF token, so a single crafted link could quietly pull any member out of the OpenAI Discord without their knowledge.</description>
+      <pubDate>Sat, 30 Aug 2025 00:00:00 GMT</pubDate>
+      <category>CSRF</category>
+      <category>OpenAI</category>
+      <category>Discord</category>
+      <category>Authenticated Action</category>
+    </item>
+    <item>
       <title>Email bombing on WhiteMarket: racing the verification-resend limit</title>
       <link>https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</link>
       <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/whitemarket-email-bombing.html</guid>

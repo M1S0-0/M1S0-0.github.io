@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One link to unlink: a CSRF in OpenAI's Discord verification · M1S0</title>
+<meta name="description" content="An unlink action on OpenAI's Discord verification service ran on a plain GET with no anti-CSRF token, so a single link could quietly pull any member out of the OpenAI Discord without their knowledge.">
+<meta property="og:title" content="One link to unlink: a CSRF in OpenAI's Discord verification · M1S0">
+<meta property="og:description" content="An unlink action on OpenAI's Discord verification service ran on a plain GET with no anti-CSRF token, so a single link could quietly pull any member out of the OpenAI Discord without their knowledge.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/openai-discord-csrf-unlink.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/openai-discord-csrf-unlink.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/openai-discord-csrf-unlink.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/openai-discord-csrf-unlink.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">One link to unlink: a CSRF in OpenAI's Discord verification</h1>
+  <p class="subtitle">A single crafted link could quietly pull any member out of OpenAI's Discord server. No password, no phishing page, no warning to the victim, just an old-fashioned cross-site request forgery on an action that should have been guarded.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      CSRF is one of the oldest tricks in the book, and most people file it under "boring."
+      It gets interesting again the moment it lands somewhere that matters. Here it was on
+      OpenAI's own Discord verification service, and the action it forged was quietly
+      removing people from the OpenAI Discord. One link, and a member you targeted was
+      unlinked, with nothing on their screen to tell them it had happened.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/openai-discord-csrf-unlink/00-report-proof.png"
+           alt="A Bugcrowd submission titled CSRF Vulnerability in the unlink endpoint, target *.openai.com, VRT Cross-Site Request Forgery, priority P3, status Resolved and fixed">
+      <figcaption>The submission on OpenAI's <a href="https://bugcrowd.com/engagements/openai" rel="noopener">Bugcrowd program</a>: a CSRF on the <code>/unlink</code> endpoint, <strong>P3</strong>, marked <strong>Resolved</strong> and fixed.</figcaption>
+    </figure>
+
+    <h2>How you get into the OpenAI Discord</h2>
+
+    <p>
+      OpenAI runs an official Discord server, and to get in you have to prove you actually
+      have an OpenAI account. A small service at <code>discord.verify.openai.com</code>
+      handles that handshake: you verify, and it <em>links</em> your OpenAI account to your
+      Discord account so the server knows you belong.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/openai-discord-csrf-unlink/01-verify-channel.png"
+           alt="The OpenAI Discord server showing the openai-verification channel, with a Verify with OpenAI button">
+      <figcaption>The verification channel on OpenAI's Discord. You verify here to gain access.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="/assets/img/writeups/openai-discord-csrf-unlink/02-linked.png"
+           alt="A Discord message confirming the OpenAI and Discord accounts have been successfully linked">
+      <figcaption>Once you verify, the service confirms your OpenAI and Discord accounts are linked.</figcaption>
+    </figure>
+
+    <p>
+      If linking exists, so does its opposite: an <strong>unlink</strong> action to disconnect
+      the two again. That is the one I went looking at, because "undo an important thing" is
+      exactly the kind of action attackers love to find unguarded.
+    </p>
+
+    <h2>What CSRF actually is, in plain terms</h2>
+
+    <p>
+      Your browser is helpful to a fault. Once you are logged into a site, it quietly attaches
+      your session to <em>every</em> request that goes to that site, no matter who started the
+      request. Click a link, load an image, submit a form on some other page entirely, and if
+      any of it points at a site you are logged into, your browser tags along with your logged-in
+      identity.
+    </p>
+
+    <p>
+      Cross-site request forgery abuses that helpfulness. If a site lets a sensitive action be
+      triggered by a request an attacker can forge, and it has no way to tell "the user really
+      meant this" from "some other page told the browser to do this," then the attacker can make
+      <em>your</em> browser perform that action as you. The standard defence is an anti-CSRF
+      token: a secret value tied to your session that must accompany the real request, and that
+      an attacker on another site cannot know or guess.
+    </p>
+
+    <h2>The endpoint had no such guard</h2>
+
+    <p>
+      The unlink action was triggered by an ordinary <code>GET</code> request to
+      <code>/unlink</code>. No unpredictable token, nothing that proved the request came from a
+      real click inside OpenAI's own page.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/openai-discord-csrf-unlink/03-unlink-request.png"
+           alt="The raw HTTP request: GET /unlink to Host discord.verify.openai.com, with no anti-CSRF token and no cookie shown">
+      <figcaption>The unlink request: a plain <code>GET /unlink</code> with no anti-CSRF token in sight.</figcaption>
+    </figure>
+
+    <p>
+      That is the whole weakness. If the only thing standing between "linked" and "unlinked" is
+      a request anyone can reproduce, then anyone can reproduce it, on your behalf, from a page
+      you did not write.
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>Why a GET makes it worse</strong>
+      <p>
+        A state-changing action on a <code>GET</code> is the easiest possible CSRF, because a
+        GET is what your browser does just by <em>loading a URL</em>. No form even required, an
+        image tag, a redirect, or a link the victim clicks is enough to fire it.
+      </p>
+    </div>
+
+    <h2>Building the proof of concept</h2>
+
+    <p>
+      Burp Suite will generate a CSRF proof of concept for you: a tiny HTML page that, when
+      opened, submits the request to the target on its own. Point it at <code>/unlink</code>
+      and it produces a self-contained page.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/openai-discord-csrf-unlink/04-csrf-poc.png"
+           alt="Burp Suite's CSRF PoC generator producing an HTML page with a form that auto-submits to the unlink endpoint">
+      <figcaption>Burp's CSRF proof-of-concept generator, building an HTML page that submits to <code>/unlink</code> by itself.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="/assets/img/writeups/openai-discord-csrf-unlink/05-poc-browser.png"
+           alt="The generated CSRF proof-of-concept page open in a browser, ready to submit">
+      <figcaption>The proof-of-concept page in a browser. In a real attack this would fire automatically, with no button to press.</figcaption>
+    </figure>
+
+    <p>
+      In practice the attacker never shows a button. They wrap the same request in a link or an
+      auto-submitting page and get it in front of the target: a Discord DM, an email, a comment,
+      anywhere a curious member might click.
+    </p>
+
+    <h2>And the victim is out</h2>
+
+    <p>
+      Loading the page carried the action through, and the service happily reported the job done:
+      the account had been de-linked.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/openai-discord-csrf-unlink/06-unlinked.png"
+           alt="An OpenAI success page stating that any Discord tied to the OpenAI account has now been de-linked">
+      <figcaption>The result: OpenAI confirms the Discord account has been de-linked. The victim sees no warning and gives no consent.</figcaption>
+    </figure>
+
+    <h2>Why it matters</h2>
+
+    <ul>
+      <li><strong>Silent removal.</strong> Any member could be pulled out of the OpenAI Discord without their knowledge or consent, just by getting them to open a link.</li>
+      <li><strong>You can pick your target.</strong> Aim it at moderators or admins and you can disrupt the people who actually keep a large community running.</li>
+      <li><strong>It scales.</strong> The same link works on anyone, so a single crafted page dropped in the right channel can knock out members at will.</li>
+    </ul>
+
+    <h2>The fix</h2>
+
+    <ul>
+      <li><strong>Require an anti-CSRF token.</strong> Tie a secret, per-session token to the unlink action and reject any request without it. This is the direct fix, and it is the one that closed this report.</li>
+      <li><strong>Do not change state on a GET.</strong> An action that unlinks accounts should be a <code>POST</code> at least, so it cannot be fired by merely loading a URL.</li>
+      <li><strong>Set cookies to SameSite.</strong> <code>SameSite=Lax</code> or <code>Strict</code> stops the browser from carrying your session on cross-site requests, which cuts off the whole class.</li>
+    </ul>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>CSRF is only "boring" until it sits on an action that matters. "Undo an account link" is exactly such an action.</li>
+        <li>State-changing work on a <code>GET</code> with no token is the easiest CSRF there is, because just loading a URL is enough to trigger it.</li>
+        <li>The defence is a per-session secret the attacker cannot know: an anti-CSRF token, backed by SameSite cookies and POST-only state changes.</li>
+        <li>Always look at the <em>reverse</em> of a sensitive action. If linking is guarded but unlinking is not, unlinking is where the bug lives.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://bugcrowd.com/engagements/openai" rel="noopener">OpenAI program on Bugcrowd</a></li>
+        <li><a href="https://owasp.org/www-community/attacks/csrf" rel="noopener">OWASP, Cross-Site Request Forgery</a></li>
+        <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html" rel="noopener">OWASP CSRF Prevention Cheat Sheet</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">CSRF</span>
+    <span class="chip">OpenAI</span>
+    <span class="chip">Discord</span>
+    <span class="chip">Authenticated Action</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "openai-discord-csrf-unlink",
+    title: "One link to unlink: a CSRF in OpenAI's Discord verification"
+  });
+</script>
+
+</body>
+</html>

@@ -133,6 +133,20 @@ const WRITEUPS = [
   },
 
   {
+    slug: "openai-discord-csrf-unlink",
+    title: "One link to unlink: a CSRF in OpenAI's Discord verification",
+    subtitle: "An unlink action on OpenAI's Discord verification service ran on a plain GET with no anti-CSRF token, so a single crafted link could quietly pull any member out of the OpenAI Discord without their knowledge.",
+    date: "2025-08-30",
+    category: "web2",
+    tags: ["CSRF", "OpenAI", "Discord", "Authenticated Action"],
+
+    severity: "Medium",
+    platform: "Bugcrowd",
+    program: "OpenAI",
+    target: "discord.verify.openai.com /unlink"
+  },
+
+  {
     slug: "dell-dependency-confusion",
     title: "How I earned a $750 bounty for a dependency confusion attack on Dell",
     subtitle: "A package name Dell forgot to claim was all it took. The whole story, in plain English, from the file I found to the bounty that landed.",
