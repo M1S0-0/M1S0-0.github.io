@@ -49,6 +49,21 @@ const CATEGORIES = [
 const WRITEUPS = [
 
   {
+    slug: "langflow-rce-cve-2025-3248",
+    title: "When \"validate code\" runs the code: unauthenticated RCE in Langflow",
+    subtitle: "An endpoint whose whole job was to check a snippet of Python turned out to run it, with no login required. CVE-2025-3248, found live on an internet-exposed instance, from a validator to a root shell.",
+    date: "2025-09-12",
+    category: "web2",
+    tags: ["RCE", "CVE-2025-3248", "Langflow", "Unauthenticated"],
+
+    severity: "Critical",
+    cve: "CVE-2025-3248",
+    platform: "Bugcrowd",
+    program: "Comcast VDP",
+    target: "Langflow /api/v1/validate/code"
+  },
+
+  {
     slug: "carthavault-share-manipulation",
     title: "Share price manipulation in CarthaVault through an in-flight deposit",
     subtitle: "The vault priced new shares against a total value that briefly dropped while its assets were in transit to an external pool. Any depositor could exploit that window to mint inflated shares and take value from existing holders.",

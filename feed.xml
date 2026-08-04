@@ -6,8 +6,19 @@
     <description>Writeups on vulnerability research, exploitation, and smart contract auditing.</description>
     <language>en</language>
     <managingEditor>M1S0</managingEditor>
-    <lastBuildDate>Wed, 10 Sep 2025 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 12 Sep 2025 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://m1s0-0.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>When &quot;validate code&quot; runs the code: unauthenticated RCE in Langflow</title>
+      <link>https://m1s0-0.github.io/writeups/posts/langflow-rce-cve-2025-3248.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/langflow-rce-cve-2025-3248.html</guid>
+      <description>An endpoint whose whole job was to check a snippet of Python turned out to run it, with no login required. CVE-2025-3248, found live on an internet-exposed instance, from a validator to a root shell.</description>
+      <pubDate>Fri, 12 Sep 2025 00:00:00 GMT</pubDate>
+      <category>RCE</category>
+      <category>CVE-2025-3248</category>
+      <category>Langflow</category>
+      <category>Unauthenticated</category>
+    </item>
     <item>
       <title>IDOR on CoinDepo: reading any user&apos;s KYC through a trusted email field</title>
       <link>https://m1s0-0.github.io/writeups/posts/coindepo-idor.html</link>
