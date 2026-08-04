@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Racing the rate limit: unlimited OTP emails on LeveX · M1S0</title>
+<meta name="description" content="LeveX limited how many one-time-code emails you could request, but the limit was not atomic. Sending the same request in parallel slipped past it and flooded the mailbox, turning the provider's email bill into the impact.">
+<meta property="og:title" content="Racing the rate limit: unlimited OTP emails on LeveX · M1S0">
+<meta property="og:description" content="LeveX limited how many one-time-code emails you could request, but the limit was not atomic. Sending the same request in parallel slipped past it and flooded the mailbox, turning the provider's email bill into the impact.">
+<meta property="og:type" content="article">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png">
+<link rel="alternate" type="application/rss+xml" title="M1S0 · Writeups" href="/feed.xml">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:image" content="https://m1s0-0.github.io/assets/img/og/levex-otp-race-condition.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="M1S0">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1s0-0.github.io/assets/img/og/levex-otp-race-condition.png">
+<link rel="canonical" href="https://m1s0-0.github.io/writeups/posts/levex-otp-race-condition.html">
+<meta property="og:url" content="https://m1s0-0.github.io/writeups/posts/levex-otp-race-condition.html">
+
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<div class="progress"><i></i></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">M1S0</a>
+    <div class="nav-right">
+      <a href="/">Portfolio</a>
+      <a href="/writeups/">All writeups</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="toc" id="toc"></nav>
+
+<article class="article">
+
+  <a class="back" href="/writeups/">&larr; Writeups</a>
+
+  <div id="series"></div>
+
+  <h1 class="title">Racing the rate limit: unlimited OTP emails on LeveX</h1>
+  <p class="subtitle">The endpoint that sends a one-time code capped how often you could call it. The cap was not atomic, so firing the same request in parallel slipped a whole burst past it and flooded the mailbox, turning the email provider's bill into the impact.</p>
+
+  <div class="author">
+    <span class="avatar" id="byline-avatar"></span>
+    <div>
+      <div class="author-name" id="byline-name"></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p>
+      LeveX is a crypto exchange. In account settings, disconnecting a linked Google
+      account asks you to confirm with a one-time code (OTP) sent to your email. The
+      endpoint that sends that code is rate limited, so a normal user cannot spam it. The
+      limit, though, was not enforced atomically: sending many copies of the request at the
+      same instant let a large burst through at once. Each one sends a real email, so an
+      attacker could make the platform send effectively unlimited OTP mail. Reported to
+      <a href="https://hackenproof.com/companies/levex" rel="noopener">LeveX</a> on
+      HackenProof, rated Low, and resolved.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/levex-otp-race-condition/00-report-proof.png"
+           alt="The HackenProof report LEVEXWM-75 on the LeveX Web & Mobile program: state Resolved, severity Low, category Race Conditions, with M1S0 as the verified author">
+      <figcaption>The report on the LeveX Web &amp; Mobile program, LEVEXWM-75: <strong>Resolved</strong>, severity <strong>Low</strong>, category <strong>Race Conditions</strong>.</figcaption>
+    </figure>
+
+    <h2>What a race condition is, in plain terms</h2>
+
+    <p>
+      A rate limit usually works in two steps: it reads a counter to check how many
+      requests you have made recently, and if you are under the limit it lets the request
+      through and adds one to the counter. That is fine when requests arrive one after
+      another.
+    </p>
+
+    <p>
+      The problem is the tiny gap between the check and the update. If many requests arrive
+      at the exact same moment, they can all read the counter <em>before</em> any of them
+      has increased it. Every one of them sees "you are under the limit" and every one is
+      allowed through. This is a race condition, sometimes called a time-of-check to
+      time-of-use bug: the value that was checked is already stale by the time it is used.
+    </p>
+
+    <div class="callout callout-tip">
+      <strong>Why parallel is the trick</strong>
+      <p>
+        Sent one at a time, each request updates the counter before the next is checked, and
+        the limit holds. Sent all at once, they overlap in that gap and slip through
+        together. The attack is not sending <em>more</em> requests, it is sending them at the
+        <em>same time</em>.
+      </p>
+    </div>
+
+    <h2>The attack</h2>
+
+    <ol class="steps">
+      <li>
+        <h4>Reach the confirmation step</h4>
+        <p>In account settings, start disconnecting the linked Google account. It prompts for a code sent to your email.</p>
+        <figure>
+          <img src="/assets/img/writeups/levex-otp-race-condition/01-account-popup.png"
+               alt="The LeveX Disconnect Account Authentication popup asking for an email code to confirm disconnecting a linked third-party account">
+          <figcaption>The confirmation prompt. Clicking to send the code is the request we are going to race. Emails are redacted.</figcaption>
+        </figure>
+      </li>
+      <li>
+        <h4>Capture the send-code request</h4>
+        <p>
+          Send the request to Burp Suite. It is a single call:
+        </p>
+        <pre data-file="POST /service-user-identity/codes/mail" data-lang="http"><code>POST /service-user-identity/codes/mail HTTP/2
+Host: api100.levex.com
+X-Authorization: &lt;your session JWT&gt;
+Content-Type: application/json
+
+{"email":"you@example.com","type":"ThirdAuthUnbind"}
+</code></pre>
+        <p>
+          Under normal use the response returns <code>{"error":null,"result":"OK"}</code> and
+          reports headers like <code>X-Capacity: 500</code> with an <code>X-Remaining</code>
+          that counts down, so a limiter clearly exists. It just does not survive concurrency.
+        </p>
+        <figure>
+          <img src="/assets/img/writeups/levex-otp-race-condition/02-request.png"
+               alt="The captured send-code request in Burp Suite, with the session token and email redacted">
+          <figcaption>The captured request. The session token and email are redacted.</figcaption>
+        </figure>
+      </li>
+      <li>
+        <h4>Fire it in parallel</h4>
+        <p>
+          Put many copies of the identical request into a group and use Burp's
+          <em>send group in parallel</em> (single-packet / last-byte sync). They arrive
+          together and land in the gap between the limiter's check and its update.
+        </p>
+        <figure>
+          <img src="/assets/img/writeups/levex-otp-race-condition/03-parallel-group.png"
+               alt="Burp Suite sending a group of about 31 identical OTP-request packets in parallel, each returning error null and result OK, showing the rate limit was bypassed">
+          <figcaption>A group of identical requests sent in parallel. Each returns <code>result: "OK"</code> and a code is sent, far past what the limiter should allow in that window. Token and cookies redacted.</figcaption>
+        </figure>
+      </li>
+    </ol>
+
+    <p>
+      The mailbox fills with verification codes from a single burst, even though the
+      per-user limit is supposedly 500 and should never be reachable by hand.
+    </p>
+
+    <figure>
+      <img src="/assets/img/writeups/levex-otp-race-condition/04-inbox-flood.png"
+           alt="A Gmail inbox filled top to bottom with LeveX verification code emails from the parallel burst">
+      <figcaption>The result in the inbox: a wall of LeveX verification-code emails from one parallel burst.</figcaption>
+    </figure>
+
+    <h2>Why it matters</h2>
+
+    <p>
+      There is no account takeover or data leak here, which is why it is rated Low. What it
+      is, is a way to make the platform spend money and send spam on demand:
+    </p>
+
+    <ul>
+      <li><strong>Email cost.</strong> Every code is a real email through a paid provider (SendGrid, SES, and the like). Automated at scale, a bot issuing very large numbers of these turns into a running daily bill for outbound mail that the platform did not choose to spend.</li>
+      <li><strong>Mailbox abuse.</strong> The target address is buried in verification mail, which can also be pointed at any user's inbox as a nuisance or to bury a real security notice.</li>
+      <li><strong>Amplification.</strong> Each single request produces an email, and the parallel bypass removes the ceiling that was supposed to keep that in check. Multiple bots multiply it.</li>
+    </ul>
+
+    <h2>The fix</h2>
+
+    <p>
+      The limit has to be enforced as one atomic operation, so two requests can never both
+      pass on the same allowance:
+    </p>
+
+    <ul>
+      <li><strong>Check and increment atomically.</strong> Use an atomic counter (for example a single Redis <code>INCR</code> with expiry, or an atomic database update) so the "am I under the limit" and "add one" steps cannot be split by concurrent callers.</li>
+      <li><strong>Serialize per target.</strong> Take a short per-user or per-email lock around the send, so overlapping requests queue instead of racing.</li>
+      <li><strong>Add a real cooldown.</strong> Enforce a minimum interval between codes to the same address, checked atomically, and cap sends per address per hour.</li>
+    </ul>
+
+    <div class="takeaways">
+      <h3>Key takeaways</h3>
+      <ul>
+        <li>A rate limit that is not atomic is not a rate limit. If check and increment are two steps, parallel requests slip between them.</li>
+        <li>Seeing <code>X-Remaining</code> count down proves a limiter exists, not that it holds under concurrency. Always test the limit with parallel requests, not just fast sequential ones.</li>
+        <li>Low severity does not mean no impact: an OTP-send race is a direct, repeatable cost and spam vector for the target.</li>
+        <li>Fix it where the counter lives, with an atomic increment or a per-target lock, not with client-side or after-the-fact checks.</li>
+      </ul>
+    </div>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li><a href="https://hackenproof.com/companies/levex" rel="noopener">LeveX program on HackenProof</a></li>
+        <li><a href="https://owasp.org/www-community/vulnerabilities/Race_Conditions" rel="noopener">OWASP, Race Conditions</a></li>
+        <li><a href="https://portswigger.net/research/smashing-the-state-machine" rel="noopener">PortSwigger, single-packet attack and race conditions in web apps</a></li>
+      </ol>
+    </div>
+
+  </div>
+
+</article>
+
+<div class="afoot reveal">
+  <div class="afoot-tags">
+    <span class="chip">Race Condition</span>
+    <span class="chip">Rate Limit Bypass</span>
+    <span class="chip">OTP</span>
+    <span class="chip">API</span>
+  </div>
+  <div class="share">
+    <span>Share</span>
+    <a class="sbtn" id="share-x">on X</a>
+    <button class="sbtn" id="share-copy" type="button">Copy link</button>
+  </div>
+
+  <div id="authorbox"></div>
+
+  <div class="prevnext" id="prevnext"></div>
+
+  <div class="more">
+    <h3>More writeups</h3>
+    <div id="more"></div>
+  </div>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<script src="/assets/js/data/writeups.js"></script>
+<script src="/assets/js/site.js"></script>
+<script>
+  initArticle({
+    slug:  "levex-otp-race-condition",
+    title: "Racing the rate limit: unlimited OTP emails on LeveX"
+  });
+</script>
+
+</body>
+</html>

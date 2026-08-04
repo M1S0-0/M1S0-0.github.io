@@ -63,6 +63,20 @@ const WRITEUPS = [
   },
 
   {
+    slug: "levex-otp-race-condition",
+    title: "Racing the rate limit: unlimited OTP emails on LeveX",
+    subtitle: "The endpoint that sends a one-time code capped how often you could call it, but not atomically. Firing the same request in parallel slipped a burst past the limit and flooded the mailbox.",
+    date: "2025-08-15",
+    category: "web2",
+    tags: ["Race Condition", "Rate Limit Bypass", "OTP", "API"],
+
+    severity: "Low",
+    platform: "HackenProof",
+    program: "LeveX Web & Mobile",
+    target: "POST /service-user-identity/codes/mail on api100.levex.com"
+  },
+
+  {
     slug: "coindepo-idor",
     title: "IDOR on CoinDepo: reading any user's KYC through a trusted email field",
     subtitle: "One profile endpoint decided whose data to return from values in the request, not from who was logged in. Any authenticated user could pull another user's full KYC record.",

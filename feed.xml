@@ -32,6 +32,17 @@
       <category>PII</category>
     </item>
     <item>
+      <title>Racing the rate limit: unlimited OTP emails on LeveX</title>
+      <link>https://m1s0-0.github.io/writeups/posts/levex-otp-race-condition.html</link>
+      <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/levex-otp-race-condition.html</guid>
+      <description>The endpoint that sends a one-time code capped how often you could call it, but not atomically. Firing the same request in parallel slipped a burst past the limit and flooded the mailbox.</description>
+      <pubDate>Fri, 15 Aug 2025 00:00:00 GMT</pubDate>
+      <category>Race Condition</category>
+      <category>Rate Limit Bypass</category>
+      <category>OTP</category>
+      <category>API</category>
+    </item>
+    <item>
       <title>How I earned a $750 bounty for a dependency confusion attack on Dell</title>
       <link>https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html</link>
       <guid isPermaLink="true">https://m1s0-0.github.io/writeups/posts/dell-dependency-confusion.html</guid>
